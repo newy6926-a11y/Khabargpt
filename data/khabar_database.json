@@ -1,0 +1,273 @@
+{
+  "version": 1,
+  "settings": {
+    "siteTitle": "Khabar GPT (खबर GPT)",
+    "siteSubtitle": "नेपालका समसामयिक विषय र सार्वजनिक सरोकारका जानकारी",
+    "introTextNp": "खबर GPT नेपालका समसामयिक विषय, सार्वजनिक सरोकारका जानकारी र जटिल विषयलाई सरल भाषामा बुझाउने सूचना पृष्ठ हो। हाम्रो उद्देश्य तथ्यमा आधारित, उपयोगी र जिम्मेवार जानकारी प्रस्तुत गर्नु हो।",
+    "facebookUrl": "https://facebook.com/khabargpt",
+    "contactEmail": "",
+    "contactPhone": "",
+    "address": "काठमाडौँ, नेपाल (Kathmandu, Nepal)",
+    "bannerNotice": "सूचना: खबर GPT स्वतन्त्र सूचना तथा डिजिटल सामग्री पृष्ठ हो। यो दर्ता भएको समाचार संस्था वा प्रेस होइन।",
+    "bannerNoticeActive": true,
+    "articlePublishingEnabled": true,
+    "footerText": "© २०२६ खबर GPT (Khabar GPT). सर्वाधिकार सुरक्षित। नेपालका कानुनहरूको सम्मान गर्दै जिम्मेवार सूचना प्रस्तुति।",
+    "seoKeywords": "Khabar GPT, Nepal news, Nepal current affairs, nepali explainers, nepali information, facebook khabar gpt",
+    "disallowSearchIndexing": false,
+    "customLogoUrl": "/logo.png",
+    "adminSecretSlug": "kg-admin-secure",
+    "breakingNewsActive": false,
+    "breakingNewsText": "",
+    "youtubeUrl": "",
+    "tiktokUrl": "",
+    "instagramUrl": "",
+    "twitterUrl": "",
+    "telegramUrl": "",
+    "whatsappUrl": "",
+    "aboutMissionNp": "खबर GPT को मूल उद्देश्य नेपाली इन्टरनेट प्रयोगकर्ताहरूलाई विश्वसनीय, सरल र तथ्यपरक डिजिटल सूचना तथा एक्सप्लेनर प्रदान गर्नु हो।",
+    "metaTitle": "Khabar GPT (खबर GPT) – Nepal Current Affairs, Explainers & Information Hub",
+    "metaDescription": "नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण, भिडियो एक्सप्लेनर र सामाजिक सरोकारका जानकारी। जिम्मेवार र स्वतन्त्र डिजिटल सूचना पृष्ठ।",
+    "ogTitle": "Khabar GPT (खबर GPT) – Nepal Current Affairs & Social Media Hub",
+    "ogDescription": "नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण, भिडियो एक्सप्लेनर र सामाजिक सरोकारका जानकारी। आधिकारिक फेसबुक र सामाजिक सञ्जालमा जोडिनुहोस्।",
+    "ogImageUrl": "/logo.png",
+    "ogType": "website",
+    "twitterCard": "summary_large_image",
+    "canonicalUrl": "",
+    "googleSiteVerification": "",
+    "facebookPageName": "Khabar GPT",
+    "authorName": "Khabar GPT Editorial Desk",
+    "entryPopupActive": true,
+    "entryPopupShowAlways": true,
+    "entryPopupTitle": "आधिकारिक सूचना (Official Notice)",
+    "entryPopupMessage": "",
+    "entryPopupImageUrl": "/official-notice.svg",
+    "entryPopupButtonText": "फेसबुक पेजमा जोडिनुहोस्",
+    "entryPopupButtonLink": "https://facebook.com/khabargpt"
+  },
+  "users": [
+    {
+      "id": "user-owner",
+      "username": "admin",
+      "email": "owner@khabargpt.com",
+      "passwordHash": "1cfc54efee089b689de9c8ad71701045d1f3e6b4957a87bcdb3dfb57eef4905d7d13b94eecd1e7dc343596c5c32846fd6227a2aac3123d0452e442e8f4967a77",
+      "salt": "0caceaaebaf02531bcd290346be1eb73",
+      "role": "owner",
+      "createdAt": "2026-10-12T16:09:41.440Z",
+      "lastLogin": "2026-10-17T10:01:06.164Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat-1",
+      "name": "नेपाल अपडेट",
+      "nameEn": "Nepal Updates",
+      "slug": "nepal-updates",
+      "order": 1
+    },
+    {
+      "id": "cat-2",
+      "name": "एक्सप्लेनर",
+      "nameEn": "Explainers",
+      "slug": "explainers",
+      "order": 2
+    },
+    {
+      "id": "cat-3",
+      "name": "सार्वजनिक सरोकार",
+      "nameEn": "Public Interest",
+      "slug": "public-interest",
+      "order": 3
+    },
+    {
+      "id": "cat-4",
+      "name": "अर्थतन्त्र",
+      "nameEn": "Economy",
+      "slug": "economy",
+      "order": 4
+    },
+    {
+      "id": "cat-5",
+      "name": "प्रविधि",
+      "nameEn": "Technology",
+      "slug": "technology",
+      "order": 5
+    },
+    {
+      "id": "cat-6",
+      "name": "शिक्षा र सूचना",
+      "nameEn": "Education",
+      "slug": "education",
+      "order": 6
+    },
+    {
+      "id": "cat-7",
+      "name": "महत्त्वपूर्ण सूचना",
+      "nameEn": "Important Notices",
+      "slug": "notices",
+      "order": 7
+    }
+  ],
+  "content": [],
+  "corrections": [],
+  "messages": [],
+  "media": [],
+  "sessions": {
+    "b1d44105cfc7c0c03933a97cde5a65688d346190df420ee46a2d2bfee78264b2": {
+      "userId": "user-owner",
+      "expiresAt": 1791907799420
+    },
+    "4b6565dbd9eaebb480dc725af909b97c641ef6ce6e2d92b6ea265e1d5c5e6258": {
+      "userId": "user-owner",
+      "expiresAt": 1791908558760
+    },
+    "56ec1acf05e84d4b3bb6e46c02bead61a892ea5a68fb6e6e8c81a7b7bbdae543": {
+      "userId": "user-owner",
+      "expiresAt": 1791909460030
+    },
+    "fc5d88c94959f4e6f6f7139a0e5af85773e9c750e35b95a3ff4d85c69e242003": {
+      "userId": "user-owner",
+      "expiresAt": 1792054422154
+    },
+    "5e78cd51c0b72035d69a2d14e5dd96a93afe9435a59cb2a7a53e3110c166a8eb": {
+      "userId": "user-owner",
+      "expiresAt": 1792054610504
+    },
+    "d7ab36cae4586bad02c7733d83a030ee7e71657f0d389fa28b0bd7544ae02bc8": {
+      "userId": "user-owner",
+      "expiresAt": 1792317666165
+    }
+  },
+  "auditLogs": [],
+  "liveEvents": [],
+  "ads": [],
+  "feedbacks": [],
+  "subscribers": [],
+  "marketSnapshot": {
+    "updatedDate": "२०२६ अक्टोबर २०, मङ्गलबार (०२:१३ अपराह्न NPT - प्रत्यक्ष अद्यावधिक)",
+    "nepse": {
+      "index": 2654.17,
+      "change": 11.13,
+      "percentChange": 0.42,
+      "turnoverCrores": 618.14,
+      "points": [
+        {
+          "time": "11:00 AM",
+          "value": 2638.17
+        },
+        {
+          "time": "12:00 PM",
+          "value": 2645.67
+        },
+        {
+          "time": "01:00 PM",
+          "value": 2652.07
+        },
+        {
+          "time": "02:00 PM",
+          "value": 2658.47
+        },
+        {
+          "time": "03:00 PM",
+          "value": 2654.17
+        }
+      ]
+    },
+    "goldSilver": {
+      "fineGoldTola": 292664,
+      "fineGold10g": 250917,
+      "tejabiGoldTola": 291164,
+      "silverTola": 2985,
+      "changeGold": 1200,
+      "source": "नेपाल सुनचाँदी व्यवसायी महासंघ (FENEGOSIDA - स्वचालित ताजा दर)"
+    },
+    "fuel": {
+      "petrolLitre": 172.5,
+      "dieselLitre": 158.5,
+      "keroseneLitre": 158.5,
+      "lpgCylinder": 2100,
+      "source": "नेपाल आयल निगम (NOC - काठमाडौँ उपत्यका ताजा दर)"
+    },
+    "forex": {
+      "usd": {
+        "buy": 136.47,
+        "sell": 137.07
+      },
+      "eur": {
+        "buy": 148.62,
+        "sell": 149.32
+      },
+      "gbp": {
+        "buy": 176.99,
+        "sell": 177.79
+      },
+      "aed": {
+        "buy": 37.08,
+        "sell": 37.24
+      },
+      "qar": {
+        "buy": 37.46,
+        "sell": 37.62
+      },
+      "source": "नेपाल राष्ट्र बैंक (NRB - प्रत्यक्ष विनिमय दर)"
+    },
+    "disclaimer": "⚠️ प्रत्यक्ष बजार दर डिस्क्लेमर: सेयर बजार, सुनचाँदी, विदेशी विनिमय तथा इन्धनका मूल्य निरन्तर परिवर्तनशील हुन्छन्। यी दरहरू आधिकारिक निकायहरूको सार्वजनिक खुला तथ्यांक अनुसार हालको समयसँग स्वचालित रूपमा अद्यावधिक हुन्छन्।",
+    "trends": [
+      {
+        "date": "अक्टोबर १४",
+        "nepse": 2633.15,
+        "goldFine": 289313,
+        "petrol": 172.5,
+        "diesel": 158.5,
+        "usdToNpr": 135.97
+      },
+      {
+        "date": "अक्टोबर १५",
+        "nepse": 2630.34,
+        "goldFine": 289397,
+        "petrol": 172.5,
+        "diesel": 158.5,
+        "usdToNpr": 136.06
+      },
+      {
+        "date": "अक्टोबर १६",
+        "nepse": 2624.05,
+        "goldFine": 289213,
+        "petrol": 172.5,
+        "diesel": 158.5,
+        "usdToNpr": 136.15
+      },
+      {
+        "date": "अक्टोबर १७",
+        "nepse": 2632,
+        "goldFine": 290129,
+        "petrol": 172.5,
+        "diesel": 158.5,
+        "usdToNpr": 136.24
+      },
+      {
+        "date": "अक्टोबर १८",
+        "nepse": 2651.04,
+        "goldFine": 291902,
+        "petrol": 172.5,
+        "diesel": 158.5,
+        "usdToNpr": 136.33
+      },
+      {
+        "date": "अक्टोबर १९",
+        "nepse": 2661.77,
+        "goldFine": 293033,
+        "petrol": 172.5,
+        "diesel": 158.5,
+        "usdToNpr": 136.42
+      },
+      {
+        "date": "आज (Today)",
+        "nepse": 2654.17,
+        "goldFine": 292664,
+        "petrol": 172.5,
+        "diesel": 158.5,
+        "usdToNpr": 136.47
+      }
+    ]
+  }
+}

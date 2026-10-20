@@ -1,0 +1,6 @@
+{
+  "name": "Khabar GPT - Nepal Information & Editorial Platform",
+  "description": "Nepal-focused current affairs, public-interest explainers, Facebook showcase, and independent editorial portal with secure mobile-friendly CMS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,316 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200" width="100%" height="100%">
+  <defs>
+    <!-- Sky & Background Gradients -->
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.8" />
+      <stop offset="25%" stop-color="#bfdbfe" stop-opacity="0.5" />
+      <stop offset="50%" stop-color="#e0f2fe" stop-opacity="0.3" />
+      <stop offset="70%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#ffffff" />
+    </linearGradient>
+
+    <linearGradient id="noticeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1d4ed8" />
+      <stop offset="50%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#1e40af" />
+    </linearGradient>
+
+    <linearGradient id="footerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+
+    <linearGradient id="redAccentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="50%" stop-color="#dc2626" />
+      <stop offset="100%" stop-color="#b91c1c" />
+    </linearGradient>
+
+    <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.08" />
+    </filter>
+
+    <filter id="badgeShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#1e40af" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Clean Base Background -->
+  <rect width="800" height="1200" fill="#ffffff" />
+  <rect width="800" height="420" fill="url(#skyGrad)" />
+
+  <!-- ==================== HIMALAYAN BACKGROUND SILHOUETTE ==================== -->
+  <g opacity="0.45">
+    <!-- Distant Himalayan Peaks -->
+    <polygon points="0,260 90,160 170,230 280,120 380,210 490,100 590,200 700,130 800,240 800,380 0,380" fill="#94a3b8" />
+    <!-- Snow caps -->
+    <polygon points="90,160 65,200 115,200" fill="#ffffff" />
+    <polygon points="280,120 240,170 320,170" fill="#ffffff" />
+    <polygon points="490,100 450,150 530,150" fill="#ffffff" />
+    <polygon points="700,130 670,170 730,170" fill="#ffffff" />
+
+    <!-- Closer Mountain Ridge -->
+    <polygon points="0,320 120,230 240,290 390,200 520,280 660,210 800,290 800,420 0,420" fill="#cbd5e1" opacity="0.6" />
+    <!-- Snow highlights -->
+    <polygon points="120,230 95,260 145,260" fill="#ffffff" />
+    <polygon points="390,200 350,245 430,245" fill="#ffffff" />
+    <polygon points="660,210 630,250 690,250" fill="#ffffff" />
+  </g>
+
+  <!-- Traditional Pagoda Temple Silhouette & Nepal Flag on Right -->
+  <g transform="translate(680, 110)" opacity="0.55">
+    <!-- Flag Pole & Nepal Double-Pennant Flag -->
+    <line x1="80" y1="0" x2="80" y2="160" stroke="#475569" stroke-width="2.5" />
+    <polygon points="80,10 115,35 80,55" fill="#dc2626" stroke="#1e3a8a" stroke-width="2" />
+    <polygon points="80,50 115,75 80,95" fill="#dc2626" stroke="#1e3a8a" stroke-width="2" />
+    <circle cx="90" cy="35" r="4" fill="#ffffff" />
+    <circle cx="90" cy="72" r="4" fill="#ffffff" />
+
+    <!-- Pagoda Temple Roofs -->
+    <polygon points="20,120 -30,140 70,140" fill="#64748b" />
+    <polygon points="20,95 -20,115 60,115" fill="#475569" />
+    <polygon points="20,70 -10,90 50,90" fill="#334155" />
+    <rect x="18" y="55" width="4" height="15" fill="#e2e8f0" />
+    <rect x="-10" y="140" width="60" height="40" fill="#94a3b8" />
+  </g>
+
+  <!-- ==================== HEADER LOGO & BRANDING ==================== -->
+  <g transform="translate(400, 75)" text-anchor="middle">
+    <!-- KhabarGPT Logo -->
+    <g transform="translate(-180, -35)">
+      <!-- Stylized K -->
+      <path d="M 0 0 L 22 0 L 22 75 L 0 75 Z" fill="#DC2626" />
+      <polygon points="22,40 58,0 85,0 42,48" fill="#DC2626" />
+      <polygon points="38,42 85,75 58,75 22,48" fill="#2563EB" />
+      
+      <!-- 'habar' text in Blue -->
+      <text x="88" y="58" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="64" font-weight="900" fill="#2563EB" letter-spacing="-1">
+        habar
+      </text>
+
+      <!-- 'GPT' text in Deep Royal Blue -->
+      <text x="272" y="58" font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="64" font-weight="900" fill="#1E3A8A" letter-spacing="-1">
+        GPT
+      </text>
+      <!-- Horizontal Base Line under habarGPT -->
+      <line x1="88" y1="72" x2="395" y2="72" stroke="#2563EB" stroke-width="4" stroke-linecap="round" />
+    </g>
+
+    <!-- Tagline: सत्य, तथ्य र सबैका लागि सूचना -->
+    <g transform="translate(0, 78)">
+      <line x1="-190" y1="-5" x2="-130" y2="-5" stroke="#2563EB" stroke-width="1.8" />
+      <text x="0" y="0" font-family="'Mukta', 'Segoe UI', Arial, sans-serif" font-size="19" font-weight="700" fill="#1D4ED8" letter-spacing="0.5">
+        सत्य, तथ्य र सबैका लागि सूचना
+      </text>
+      <line x1="130" y1="-5" x2="190" y2="-5" stroke="#2563EB" stroke-width="1.8" />
+    </g>
+  </g>
+
+  <!-- ==================== PRIMARY NOTICE BADGE ==================== -->
+  <g transform="translate(400, 205)" text-anchor="middle">
+    <!-- Notice Badge Shape with Filter Shadow -->
+    <path d="M -210 -35 L 210 -35 C 225 -35, 235 -20, 228 -5 L 210 35 C 205 45, 195 48, 185 48 L -185 48 C -195 48, -205 45, -210 35 L -228 -5 C -235 -20, -225 -35, -210 -35 Z" fill="url(#noticeGrad)" filter="url(#badgeShadow)" />
+    
+    <!-- Megaphone Icon -->
+    <g transform="translate(-155, 6)">
+      <!-- Loudspeaker Horn -->
+      <polygon points="-15,-8 10,-24 10,24 -15,8" fill="#ffffff" />
+      <path d="M 10,-24 C 18,-24 22,-10 22,0 C 22,10 18,24 10,24 Z" fill="#93c5fd" />
+      <rect x="-24" y="-8" width="9" height="16" rx="2" fill="#ffffff" />
+      <!-- Handle -->
+      <rect x="-10" y="8" width="6" height="15" rx="3" fill="#ffffff" transform="rotate(-25 -10 8)" />
+      <!-- Sound Rays -->
+      <line x1="28" y1="-14" x2="35" y2="-20" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+      <line x1="30" y1="0" x2="38" y2="0" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+      <line x1="28" y1="14" x2="35" y2="20" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+    </g>
+
+    <!-- NOTICE Text -->
+    <text x="35" y="16" font-family="'Segoe UI', Roboto, sans-serif" font-size="52" font-weight="900" fill="#ffffff" letter-spacing="4">
+      NOTICE
+    </text>
+
+    <!-- Subtitle: Welcome to Khabar GPT -->
+    <g transform="translate(0, 80)">
+      <line x1="-170" y1="-6" x2="-120" y2="-6" stroke="#2563EB" stroke-width="2" />
+      <text x="0" y="0" font-family="'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="800" fill="#1E3A8A" letter-spacing="0.5">
+        Welcome to Khabar GPT
+      </text>
+      <line x1="120" y1="-6" x2="170" y2="-6" stroke="#2563EB" stroke-width="2" />
+    </g>
+  </g>
+
+  <!-- ==================== CARD 1: CURRENT STATUS NOTICE ==================== -->
+  <g transform="translate(50, 335)" filter="url(#softShadow)">
+    <!-- Card Container -->
+    <rect width="700" height="185" rx="20" fill="#f0f7ff" stroke="#bfdbfe" stroke-width="1.8" />
+
+    <!-- Header Pill -->
+    <g transform="translate(20, 20)">
+      <!-- Info Icon Circle -->
+      <circle cx="28" cy="18" r="24" fill="#0284c7" />
+      <text x="28" y="27" font-family="sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">i</text>
+
+      <!-- Pill Banner -->
+      <path d="M 60 4 L 320 4 C 330 4, 338 12, 338 22 L 338 22 C 338 32, 330 40, 320 40 L 60 40 Z" fill="#0284c7" />
+      <text x="80" y="27" font-family="'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="800" fill="#ffffff">
+        Current Status Notice
+      </text>
+    </g>
+
+    <!-- Content Paragraphs -->
+    <g transform="translate(75, 80)">
+      <text x="0" y="0" font-family="'Segoe UI', Roboto, sans-serif" font-size="14.5" font-weight="500" fill="#1e293b" width="600">
+        <tspan x="0" dy="0">Khabar GPT is currently operating as a Facebook-based information</tspan>
+        <tspan x="0" dy="21">and content page. At this time, this website is not being used to publish</tspan>
+        <tspan x="0" dy="21">or distribute news articles or operate as an independent online news portal.</tspan>
+        <tspan x="0" dy="32">Our current activities are focused on sharing information, updates, and</tspan>
+        <tspan x="0" dy="21">other content through our official Facebook page.</tspan>
+      </text>
+    </g>
+  </g>
+
+  <!-- ==================== CARD 2: IMPORTANT INFORMATION ==================== -->
+  <g transform="translate(50, 540)" filter="url(#softShadow)">
+    <!-- Card Container -->
+    <rect width="700" height="295" rx="20" fill="#f8fafc" stroke="#bfdbfe" stroke-width="1.8" />
+
+    <!-- Header Pill -->
+    <g transform="translate(20, 20)">
+      <!-- Document Icon Box -->
+      <rect x="6" y="-4" width="44" height="44" rx="12" fill="#1d4ed8" />
+      <!-- Mini doc lines -->
+      <line x1="18" y1="10" x2="38" y2="10" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+      <line x1="18" y1="18" x2="38" y2="18" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+      <line x1="18" y1="26" x2="30" y2="26" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+
+      <!-- Pill Banner -->
+      <path d="M 60 4 L 320 4 C 330 4, 338 12, 338 22 L 338 22 C 338 32, 330 40, 320 40 L 60 40 Z" fill="#1d4ed8" />
+      <text x="80" y="27" font-family="'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="800" fill="#ffffff">
+        Important Information
+      </text>
+    </g>
+
+    <!-- Checklist Items -->
+    <g transform="translate(90, 80)">
+      <!-- Item 1 -->
+      <circle cx="12" cy="10" r="12" fill="#2563eb" />
+      <polyline points="7,10 11,14 17,6" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+      <text x="36" y="8" font-family="'Segoe UI', Roboto, sans-serif" font-size="13.5" font-weight="500" fill="#1e293b">
+        <tspan x="36" dy="0">Khabar GPT is not currently presenting this website as a registered</tspan>
+        <tspan x="36" dy="18">news media outlet.</tspan>
+      </text>
+      <line x1="36" y1="36" x2="570" y2="36" stroke="#e2e8f0" stroke-width="1" />
+
+      <!-- Item 2 -->
+      <g transform="translate(0, 50)">
+        <circle cx="12" cy="10" r="12" fill="#2563eb" />
+        <polyline points="7,10 11,14 17,6" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        <text x="36" y="8" font-family="'Segoe UI', Roboto, sans-serif" font-size="13.5" font-weight="500" fill="#1e293b">
+          <tspan x="36" dy="0">This website is intended for general information about our page,</tspan>
+          <tspan x="36" dy="18">its content, and our online presence.</tspan>
+        </text>
+        <line x1="36" y1="36" x2="570" y2="36" stroke="#e2e8f0" stroke-width="1" />
+      </g>
+
+      <!-- Item 3 -->
+      <g transform="translate(0, 100)">
+        <circle cx="12" cy="10" r="12" fill="#2563eb" />
+        <polyline points="7,10 11,14 17,6" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        <text x="36" y="8" font-family="'Segoe UI', Roboto, sans-serif" font-size="13.5" font-weight="500" fill="#1e293b">
+          <tspan x="36" dy="0">Any future expansion into website-based news publishing will be</tspan>
+          <tspan x="36" dy="18">considered separately, subject to applicable laws, registration requirements,</tspan>
+          <tspan x="36" dy="18">and other relevant formalities.</tspan>
+        </text>
+        <line x1="36" y1="46" x2="570" y2="46" stroke="#e2e8f0" stroke-width="1" />
+      </g>
+
+      <!-- Item 4 -->
+      <g transform="translate(0, 160)">
+        <circle cx="12" cy="10" r="12" fill="#2563eb" />
+        <polyline points="7,10 11,14 17,6" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        <text x="36" y="8" font-family="'Segoe UI', Roboto, sans-serif" font-size="13.5" font-weight="500" fill="#1e293b">
+          <tspan x="36" dy="0">Any third-party names, logos, images, or links remain the property of their</tspan>
+          <tspan x="36" dy="18">respective owners. They are used only where appropriate and subject</tspan>
+          <tspan x="36" dy="18">to applicable rights and permissions.</tspan>
+        </text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ==================== CARD 3: LEGAL NOTICE ==================== -->
+  <g transform="translate(50, 855)" filter="url(#softShadow)">
+    <!-- Card Container -->
+    <rect width="700" height="150" rx="20" fill="#fff1f2" stroke="#fecdd3" stroke-width="1.8" />
+
+    <!-- Header Pill -->
+    <g transform="translate(20, 18)">
+      <!-- Shield Icon Circle -->
+      <circle cx="28" cy="18" r="24" fill="#dc2626" />
+      <!-- Shield shape -->
+      <path d="M 28 6 L 40 12 L 40 24 C 40 32, 28 38, 28 38 C 28 38, 16 32, 16 24 L 16 12 Z" fill="#ffffff" />
+
+      <!-- Pill Banner -->
+      <path d="M 60 4 L 230 4 C 240 4, 248 12, 248 22 L 248 22 C 248 32, 240 40, 230 40 L 60 40 Z" fill="#dc2626" />
+      <text x="80" y="27" font-family="'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="800" fill="#ffffff">
+        Legal Notice
+      </text>
+    </g>
+
+    <!-- Legal Description -->
+    <g transform="translate(75, 75)">
+      <text x="0" y="0" font-family="'Segoe UI', Roboto, sans-serif" font-size="13.8" font-weight="500" fill="#1e293b" width="600">
+        <tspan x="0" dy="0">This notice describes the website's current intended use. It does not claim</tspan>
+        <tspan x="0" dy="21">an exemption from any legal or registration requirement that may apply</tspan>
+        <tspan x="0" dy="21">under Nepalese law. Khabar GPT will seek clarification from the relevant</tspan>
+        <tspan x="0" dy="21">authorities where necessary and will comply with applicable legal obligations.</tspan>
+      </text>
+    </g>
+  </g>
+
+  <!-- ==================== FACEBOOK CONTACT SECTION ==================== -->
+  <g transform="translate(400, 1045)" text-anchor="middle">
+    <!-- Center Line with Facebook Icon -->
+    <line x1="-280" y1="0" x2="-180" y2="0" stroke="#93c5fd" stroke-width="1.5" />
+    
+    <g transform="translate(-150, 0)">
+      <!-- FB Blue Circle -->
+      <circle cx="0" cy="0" r="22" fill="#1877f2" />
+      <!-- FB 'f' -->
+      <path d="M 3 12 L -2 12 L -2 1 L -6 1 L -6 -4 L -2 -4 L -2 -7 C -2 -11, 2 -14, 7 -14 L 11 -14 L 11 -9 L 8 -9 C 6 -9, 5 -8, 5 -6 L 5 -4 L 11 -4 L 10 1 L 5 1 L 5 12 Z" fill="#ffffff" />
+    </g>
+
+    <!-- Contact text -->
+    <text x="60" y="-3" font-family="'Segoe UI', Roboto, sans-serif" font-size="14.5" font-weight="500" fill="#1d4ed8" text-anchor="middle">
+      <tspan fill="#1e293b">For questions or concerns, please contact us through</tspan>
+      <tspan x="60" dy="20" font-weight="800" fill="#1d4ed8">our official Khabar GPT Facebook page.</tspan>
+    </text>
+
+    <line x1="280" y1="0" x2="220" y2="0" stroke="#93c5fd" stroke-width="1.5" />
+  </g>
+
+  <!-- ==================== FOOTER WAVE BANNER ==================== -->
+  <g transform="translate(0, 1080)">
+    <!-- Red Swoop Accent -->
+    <path d="M 0 50 Q 250 15, 800 35 L 800 120 L 0 120 Z" fill="url(#redAccentGrad)" />
+    <!-- Navy Ocean Wave Base -->
+    <path d="M 0 40 Q 220 75, 450 45 Q 650 20, 800 45 L 800 120 L 0 120 Z" fill="url(#footerGrad)" />
+
+    <!-- Script Text: "Thank you for visiting Khabar GPT." -->
+    <text x="280" y="85" font-family="'Brush Script MT', 'Dancing Script', 'Caveat', 'Segoe Script', cursive, sans-serif" font-size="28" font-style="italic" fill="#ffffff" text-anchor="middle">
+      Thank you for visiting Khabar GPT.
+    </text>
+
+    <!-- Mountain Silhouette & Nepali Slogan on Right -->
+    <g transform="translate(680, 55)" text-anchor="middle">
+      <!-- Mountain outline -->
+      <polyline points="-45,22 -25,0 -5,14 15,-6 35,22" fill="none" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" />
+      <line x1="-15" y1="6" x2="-5" y2="14" stroke="#93c5fd" stroke-width="1.5" />
+      <line x1="5" y1="4" x2="15" y2="-6" stroke="#93c5fd" stroke-width="1.5" />
+      <!-- Text: सधैं तपाईंको साथ -->
+      <text x="-5" y="38" font-family="'Mukta', 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#cbd5e1">
+        — सधैं तपाईंको साथ —
+      </text>
+    </g>
+  </g>
+</svg>

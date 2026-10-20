@@ -1,0 +1,27 @@
+{
+  "short_name": "Khabar GPT",
+  "name": "Khabar GPT (खबर GPT) – नेपाल समसामयिक सूचना",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "192x192 512x512"
+    },
+    {
+      "src": "/logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    },
+    {
+      "src": "/favicon.png",
+      "type": "image/png",
+      "sizes": "48x48 72x72 96x96 144x144"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#020617",
+  "theme_color": "#dc2626",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "description": "नेपालका समसामयिक विषय, तथ्यपरक जानकारी, सुन-चाँदी र बजार दर तथा सरल भिडियो एक्सप्लेनर।"
+}

@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#090d16" />
+    </linearGradient>
+
+    <linearGradient id="crimsonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="100%" stop-color="#b91c1c" />
+    </linearGradient>
+
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#334155" stroke-width="0.8" opacity="0.3" />
+    </pattern>
+  </defs>
+
+  <!-- Deep Slate Tech Background -->
+  <rect width="800" height="450" fill="url(#bgGrad)" />
+  <rect width="800" height="450" fill="url(#grid)" />
+
+  <!-- Ambient Glowing Orbs -->
+  <circle cx="150" cy="120" r="140" fill="#dc2626" opacity="0.18" filter="blur(40px)" />
+  <circle cx="680" cy="320" r="180" fill="#2563eb" opacity="0.15" filter="blur(50px)" />
+
+  <!-- Central Card -->
+  <g filter="url(#cardShadow)">
+    <rect x="50" y="40" width="700" height="370" rx="24" fill="#1e293b" fill-opacity="0.8" stroke="#334155" stroke-width="2" />
+  </g>
+
+  <!-- Top Accent Bar -->
+  <rect x="50" y="40" width="700" height="8" rx="4" fill="url(#crimsonGrad)" />
+
+  <!-- Official Notice Badge -->
+  <rect x="90" y="75" width="230" height="34" rx="17" fill="url(#crimsonGrad)" />
+  <circle cx="110" cy="92" r="6" fill="#ffffff" />
+  <text x="126" y="98" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" letter-spacing="1">
+    आधिकारिक सूचना | OFFICIAL NOTICE
+  </text>
+
+  <!-- Brand Logo Circle on the right -->
+  <g transform="translate(610, 80)">
+    <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#e2e8f0" stroke-width="3" />
+    <!-- Mini Brand K -->
+    <path d="M 33 26 C 33 22, 39 22, 39 26 L 39 74 C 39 78, 33 78, 33 74 Z" fill="#DC2626" />
+    <path d="M 40 48 L 64 28 C 68 25, 72 29, 70 33 L 50 51 Z" fill="#DC2626" />
+    <path d="M 48 50 L 68 70 C 71 73, 67 78, 63 75 L 42 56 Z" fill="#1E3A8A" />
+    <circle cx="50" cy="50" r="5" fill="#2563EB" />
+  </g>
+
+  <!-- Heading Text (Nepali & English) -->
+  <text x="90" y="165" fill="#ffffff" font-family="'Mukta', 'Segoe UI', system-ui, sans-serif" font-size="34" font-weight="800">
+    खबर GPT (Khabar GPT)
+  </text>
+  <text x="90" y="205" fill="url(#goldGrad)" font-family="'Mukta', 'Segoe UI', system-ui, sans-serif" font-size="20" font-weight="700">
+    डिजिटल समाचार, तथ्यपरक विश्लेषण र प्रत्यक्ष अपडेट
+  </text>
+
+  <!-- Subtitle & Description in Box -->
+  <rect x="90" y="235" width="620" height="100" rx="14" fill="#0f172a" fill-opacity="0.6" stroke="#334155" stroke-width="1.2" />
+  <text x="115" y="272" fill="#e2e8f0" font-family="'Mukta', 'Segoe UI', system-ui, sans-serif" font-size="15" font-weight="500">
+    नेपालका समसामयिक विषय, अर्थतन्त्र, नेप्से सूचकांक र सामाजिक सरोकारका सत्यतथ्य जानकारी।
+  </text>
+  <text x="115" y="302" fill="#94a3b8" font-family="'Mukta', 'Segoe UI', system-ui, sans-serif" font-size="14">
+    भ्रामक सूचनाबाट जोगिनुहोस्, आधिकारिक स्रोत र तथ्यमा आधारित डिजिटल सामग्री मात्र पछ्याउनुहोस्।
+  </text>
+
+  <!-- Bottom Pills -->
+  <g transform="translate(90, 355)">
+    <rect x="0" y="0" width="135" height="28" rx="14" fill="#334155" fill-opacity="0.8" />
+    <text x="15" y="18" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="11" font-weight="600">✓ सत्य र तथ्यपरक</text>
+
+    <rect x="145" y="0" width="135" height="28" rx="14" fill="#334155" fill-opacity="0.8" />
+    <text x="160" y="18" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="11" font-weight="600">✓ २४/७ ताजा अपडेट</text>
+
+    <rect x="290" y="0" width="150" height="28" rx="14" fill="#334155" fill-opacity="0.8" />
+    <text x="305" y="18" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="11" font-weight="600">✓ मोबाइल-मैत्री पोर्टल</text>
+  </g>
+</svg>
