@@ -17,15 +17,17 @@ async function startServer() {
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+  const rootDir = process.cwd();
+
   // Serve uploaded media statically
-  const uploadsDir = path.resolve(__dirname, 'uploads');
+  const uploadsDir = path.resolve(rootDir, 'uploads');
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
   app.use('/uploads', express.static(uploadsDir));
 
   // Serve static public folder (logos, favicons, robots, assets)
-  const publicDir = path.resolve(__dirname, 'public');
+  const publicDir = path.resolve(rootDir, 'public');
   if (fs.existsSync(publicDir)) {
     app.use(express.static(publicDir));
   }
@@ -97,7 +99,7 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.resolve(__dirname, 'dist');
+    const distPath = path.resolve(rootDir, 'dist');
     if (fs.existsSync(distPath)) {
       app.use(express.static(distPath));
       app.get('*', (_req, res) => {
