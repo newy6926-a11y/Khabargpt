@@ -12,7 +12,7 @@
     "bannerNoticeActive": true,
     "articlePublishingEnabled": true,
     "footerText": "© २०२६ खबर GPT (Khabar GPT). सर्वाधिकार सुरक्षित। नेपालका कानुनहरूको सम्मान गर्दै जिम्मेवार सूचना प्रस्तुति।",
-    "seoKeywords": "Khabar GPT, Nepal news, Nepal current affairs, nepali explainers, nepali information, facebook khabar gpt",
+    "seoKeywords": "Khabar GPT, खबर GPT, Nepal current affairs, Nepal news, nepali explainers, facebook khabar gpt, nepse live rate, gold rate nepal, fact check nepal",
     "disallowSearchIndexing": false,
     "customLogoUrl": "/logo.png",
     "adminSecretSlug": "kg-admin-secure",
@@ -25,15 +25,15 @@
     "telegramUrl": "",
     "whatsappUrl": "",
     "aboutMissionNp": "खबर GPT को मूल उद्देश्य नेपाली इन्टरनेट प्रयोगकर्ताहरूलाई विश्वसनीय, सरल र तथ्यपरक डिजिटल सूचना तथा एक्सप्लेनर प्रदान गर्नु हो।",
-    "metaTitle": "Khabar GPT (खबर GPT) – Nepal Current Affairs, Explainers & Information Hub",
-    "metaDescription": "नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण, भिडियो एक्सप्लेनर र सामाजिक सरोकारका जानकारी। जिम्मेवार र स्वतन्त्र डिजिटल सूचना पृष्ठ।",
-    "ogTitle": "Khabar GPT (खबर GPT) – Nepal Current Affairs & Social Media Hub",
-    "ogDescription": "नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण, भिडियो एक्सप्लेनर र सामाजिक सरोकारका जानकारी। आधिकारिक फेसबुक र सामाजिक सञ्जालमा जोडिनुहोस्।",
+    "metaTitle": "Khabar GPT (खबर GPT) – Nepal Current Affairs & Explainers",
+    "metaDescription": "नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण, भिडियो रिपोर्ट, सुनचाँदी, नेप्से तथा बजार सूचकांकको विश्वसनीय डिजिटल सूचना पोर्टल। खबर GPT आधिकारिक पेज।",
+    "ogTitle": "Khabar GPT (खबर GPT) – Nepal Current Affairs & Explainers",
+    "ogDescription": "नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण, भिडियो रिपोर्ट, सुनचाँदी, नेप्से तथा बजार सूचकांकको विश्वसनीय डिजिटल सूचना पोर्टल। खबर GPT आधिकारिक पेज।",
     "ogImageUrl": "/logo.png",
     "ogType": "website",
     "twitterCard": "summary_large_image",
-    "canonicalUrl": "",
-    "googleSiteVerification": "",
+    "canonicalUrl": "https://khabargpt.onrender.com",
+    "googleSiteVerification": "google0087e514b59ec8b5",
     "facebookPageName": "Khabar GPT",
     "authorName": "Khabar GPT Editorial Desk",
     "entryPopupActive": true,
@@ -143,39 +143,39 @@
   "feedbacks": [],
   "subscribers": [],
   "marketSnapshot": {
-    "updatedDate": "२०२६ अक्टोबर २१, बुधबार (०८:३४ अपराह्न NPT - प्रत्यक्ष अद्यावधिक)",
+    "updatedDate": "२०२६ अक्टोबर २१, बुधबार (०९:२१ अपराह्न NPT - प्रत्यक्ष अद्यावधिक)",
     "nepse": {
-      "index": 2641.79,
-      "change": 18.98,
-      "percentChange": 0.72,
-      "turnoverCrores": 596.69,
+      "index": 2631.85,
+      "change": 18.77,
+      "percentChange": 0.71,
+      "turnoverCrores": 619.1,
       "points": [
         {
           "time": "11:00 AM",
-          "value": 2625.79
+          "value": 2615.85
         },
         {
           "time": "12:00 PM",
-          "value": 2633.29
+          "value": 2623.35
         },
         {
           "time": "01:00 PM",
-          "value": 2639.69
+          "value": 2629.75
         },
         {
           "time": "02:00 PM",
-          "value": 2646.09
+          "value": 2636.15
         },
         {
           "time": "03:00 PM",
-          "value": 2641.79
+          "value": 2631.85
         }
       ]
     },
     "goldSilver": {
-      "fineGoldTola": 292259,
-      "fineGold10g": 250569,
-      "tejabiGoldTola": 290759,
+      "fineGoldTola": 292433,
+      "fineGold10g": 250718,
+      "tejabiGoldTola": 290933,
       "silverTola": 3017,
       "changeGold": 1200,
       "source": "नेपाल सुनचाँदी व्यवसायी महासंघ (FENEGOSIDA - स्वचालित ताजा दर)"
@@ -189,24 +189,24 @@
     },
     "forex": {
       "usd": {
-        "buy": 136.39,
-        "sell": 136.99
+        "buy": 136.46,
+        "sell": 137.06
       },
       "eur": {
-        "buy": 148.74,
-        "sell": 149.44
+        "buy": 148.66,
+        "sell": 149.36
       },
       "gbp": {
-        "buy": 176.6,
-        "sell": 177.4
+        "buy": 176.7,
+        "sell": 177.5
       },
       "aed": {
-        "buy": 37.09,
-        "sell": 37.25
+        "buy": 37.06,
+        "sell": 37.22
       },
       "qar": {
-        "buy": 37.37,
-        "sell": 37.53
+        "buy": 37.39,
+        "sell": 37.55
       },
       "source": "नेपाल राष्ट्र बैंक (NRB - प्रत्यक्ष विनिमय दर)"
     },
@@ -214,59 +214,59 @@
     "trends": [
       {
         "date": "अक्टोबर १५",
-        "nepse": 2620.77,
-        "goldFine": 288908,
+        "nepse": 2610.83,
+        "goldFine": 289082,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 135.89
+        "usdToNpr": 135.96
       },
       {
         "date": "अक्टोबर १६",
-        "nepse": 2617.96,
-        "goldFine": 288992,
+        "nepse": 2608.02,
+        "goldFine": 289166,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 135.98
+        "usdToNpr": 136.05
       },
       {
         "date": "अक्टोबर १७",
-        "nepse": 2611.67,
-        "goldFine": 288808,
+        "nepse": 2601.73,
+        "goldFine": 288982,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.07
+        "usdToNpr": 136.14
       },
       {
         "date": "अक्टोबर १८",
-        "nepse": 2619.62,
-        "goldFine": 289724,
+        "nepse": 2609.68,
+        "goldFine": 289898,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.16
+        "usdToNpr": 136.23
       },
       {
         "date": "अक्टोबर १९",
-        "nepse": 2638.66,
-        "goldFine": 291497,
+        "nepse": 2628.72,
+        "goldFine": 291671,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.25
+        "usdToNpr": 136.32
       },
       {
         "date": "अक्टोबर २०",
-        "nepse": 2649.39,
-        "goldFine": 292628,
+        "nepse": 2639.45,
+        "goldFine": 292802,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.34
+        "usdToNpr": 136.41
       },
       {
         "date": "आज (Today)",
-        "nepse": 2641.79,
-        "goldFine": 292259,
+        "nepse": 2631.85,
+        "goldFine": 292433,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.39
+        "usdToNpr": 136.46
       }
     ]
   }

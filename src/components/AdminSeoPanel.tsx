@@ -18,7 +18,9 @@ import {
   Sparkles,
   Link2,
   Layers,
-  Code
+  Code,
+  BarChart3,
+  CheckCircle
 } from 'lucide-react';
 
 interface AdminSeoPanelProps {
@@ -663,21 +665,57 @@ export const AdminSeoPanel: React.FC<AdminSeoPanelProps> = ({
           </div>
 
           <div className="space-y-4">
+            {/* Active HTML File Verification Banner */}
+            <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900 space-y-2.5">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="font-bold text-sm">गुगल प्रमाणीकरण फाइल सक्रिय (Google Verification File Ready)</span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-800 text-[10px] font-bold">
+                  ✓ लाइभ सक्रिय
+                </span>
+              </div>
+              <p className="text-[11px] text-emerald-800 leading-relaxed">
+                तपाईंको आधिकारिक प्रमाणीकरण फाइल <code>/google0087e514b59ec8b5.html</code> वेबसाइटमा पूर्ण रूपमा सक्रिय भइसकेको छ। Google Search Console मा <strong>"HTML file"</strong> विधि छान्नुहोस् र सिधै <strong>"Verify"</strong> बटन थिच्नुहोस्!
+              </p>
+              <div className="pt-1 flex items-center gap-2 flex-wrap">
+                <a
+                  href="/google0087e514b59ec8b5.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg border border-emerald-300 transition text-[11px]"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  <span>फाइल परीक्षण गर्नुहोस् (/google0087e514b59ec8b5.html)</span>
+                </a>
+                <a
+                  href="https://search.google.com/search-console"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition text-[11px]"
+                >
+                  <Search className="w-3 h-3" />
+                  <span>Google Search Console खोल्नुहोस्</span>
+                </a>
+              </div>
+            </div>
+
             <div>
               <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block mb-1.5">
-                Google Site Verification कोड (Meta Tag Token)
+                वैकल्पिक: Google Site Verification कोड (HTML Tag Token)
               </label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={formData.googleSiteVerification || ''}
                   onChange={(e) => handleChange('googleSiteVerification', e.target.value)}
-                  placeholder="उदा: google-site-verification=abcdef123456789 वा abcdef123456789"
+                  placeholder="google0087e514b59ec8b5"
                   className="flex-1 px-4 py-3 rounded-xl border border-slate-300 bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-emerald-500 text-sm font-mono transition"
                 />
               </div>
               <p className="text-[11px] text-slate-500 mt-1.5">
-                Google Search Console मा गएर "HTML tag" प्रमाणीकरण विधि छान्नुहोस् र त्यसमा दिइएको <code>content="..."</code> भित्रको कोड यहाँ टाँस्नुहोस्।
+                यदि "HTML tag" विधि प्रयोग गर्ने हो भने पनि <code>google0087e514b59ec8b5</code> कोड यहाँ सुरक्षित गरिएको छ।
               </p>
             </div>
 
@@ -688,10 +726,59 @@ export const AdminSeoPanel: React.FC<AdminSeoPanelProps> = ({
               </div>
               <ol className="list-decimal list-inside space-y-1 pl-1 text-[11px] leading-relaxed">
                 <li><a href="https://search.google.com/search-console" target="_blank" rel="noreferrer" className="text-indigo-600 underline font-medium">Google Search Console</a> खोल्नुहोस् र आफ्नो Gmail बाट लगइन गर्नुहोस्।</li>
-                <li>आफ्नो वेबसाइटको URL (उदा: https://khabargpt.com) "URL prefix" मा राख्नुहोस्।</li>
-                <li>प्रमाणीकरण विधिहरू मध्ये <strong>"HTML tag"</strong> विकल्प रोजेर कोड कपी गरी माथिको बक्समा राख्नुहोस् र यहाँ "सेभ गर्नुहोस्" थिच्नुहोस्।</li>
-                <li>गुगल कन्सोलमा फर्केर <strong>"Verify"</strong> थिच्नुहोस्। स्वामित्व तुरुन्त प्रमाणित हुनेछ!</li>
+                <li>आफ्नो वेबसाइटको URL (उदा: https://khabargpt.onrender.com) "URL prefix" मा राख्नुहोस्।</li>
+                <li>प्रमाणीकरण विधिहरू मध्ये <strong>"HTML file"</strong> वा <strong>"HTML tag"</strong> रोज्नुहोस्।</li>
+                <li>गुगल कन्सोलमा सिधै <strong>"Verify"</strong> थिच्नुहोस्। स्वामित्व तुरुन्त प्रमाणित हुनेछ!</li>
               </ol>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 4: Web Analytics & Visitor Tracking */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-7 space-y-6">
+          <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600">
+              <BarChart3 className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 text-lg">४. भिजिटर एनालिटिक्स & ट्र्याकिङ (Web Analytics)</h3>
+              <p className="text-xs text-slate-500">
+                गुगल एनालिटिक्स र फेसबुक पिक्सेल कोडमार्फत दैनिक पाठक र भिजिटरको संख्या नाप्नुहोस्
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block mb-1.5">
+                Google Analytics Measurement ID (GA4)
+              </label>
+              <input
+                type="text"
+                value={formData.googleAnalyticsId || ''}
+                onChange={(e) => handleChange('googleAnalyticsId', e.target.value)}
+                placeholder="उदा: G-XXXXXXXXXX"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-purple-500 text-sm font-mono transition"
+              />
+              <p className="text-[10px] text-slate-500 mt-1">
+                Google Analytics 4 बाट प्राप्त हुने 'G-' कोड यहाँ राख्नुहोस्।
+              </p>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block mb-1.5">
+                Meta (Facebook) Pixel ID
+              </label>
+              <input
+                type="text"
+                value={formData.metaPixelId || ''}
+                onChange={(e) => handleChange('metaPixelId', e.target.value)}
+                placeholder="उदा: 123456789012345"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-purple-500 text-sm font-mono transition"
+              />
+              <p className="text-[10px] text-slate-500 mt-1">
+                फेसबुक विज्ञापन तथा पेज अडियन्स ट्र्याक गर्न पिक्सेल आइडी।
+              </p>
             </div>
           </div>
         </div>

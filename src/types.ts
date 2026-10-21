@@ -236,6 +236,8 @@ export interface SiteSettings {
   twitterCard?: 'summary_large_image' | 'summary';
   canonicalUrl?: string;
   googleSiteVerification?: string;
+  googleAnalyticsId?: string;
+  metaPixelId?: string;
   facebookPageName?: string;
   authorName?: string;
 

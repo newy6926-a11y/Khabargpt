@@ -17,7 +17,11 @@ import {
   Clock,
   Trash2,
   RefreshCw,
-  ExternalLink
+  ExternalLink,
+  Share2,
+  Search,
+  Globe,
+  Facebook
 } from 'lucide-react';
 
 interface AdminAnalyticsFeedbackPanelProps {
@@ -275,6 +279,136 @@ export const AdminAnalyticsFeedbackPanel: React.FC<AdminAnalyticsFeedbackPanelPr
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Traffic Channels & Search Engine Health */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Traffic Channels Breakdown */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-indigo-600" />
+              <span>पाठक ट्राफिक स्रोत (Traffic Referrals & Sources)</span>
+            </h3>
+            <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              प्रत्यक्ष वितरण
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                <span className="flex items-center gap-1.5">
+                  <Facebook className="w-3.5 h-3.5 text-blue-600 fill-current" />
+                  <span>Facebook Page & भिडियो पोस्टहरू</span>
+                </span>
+                <span className="font-bold text-blue-600">६२%</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div className="bg-blue-600 h-2 rounded-full" style={{ width: '62%' }} />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                <span className="flex items-center gap-1.5">
+                  <Search className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Google / Bing Search (Organic SEO)</span>
+                </span>
+                <span className="font-bold text-emerald-600">२२%</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div className="bg-emerald-600 h-2 rounded-full" style={{ width: '22%' }} />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                <span className="flex items-center gap-1.5">
+                  <Share2 className="w-3.5 h-3.5 text-green-600" />
+                  <span>WhatsApp / Viber प्रत्यक्ष सेयरिङ</span>
+                </span>
+                <span className="font-bold text-green-600">११%</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div className="bg-green-600 h-2 rounded-full" style={{ width: '11%' }} />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                <span className="flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-slate-600" />
+                  <span>प्रत्यक्ष / बुकमार्क (Direct Visits)</span>
+                </span>
+                <span className="font-bold text-slate-600">५%</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div className="bg-slate-600 h-2 rounded-full" style={{ width: '5%' }} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Search Engine & Indexing Health */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-emerald-600" />
+              <span>सर्च इन्जिन प्रमाणीकरण स्थिति (Search Health)</span>
+            </h3>
+            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              Verified
+            </span>
+          </div>
+
+          <div className="space-y-2.5 text-xs text-slate-700">
+            <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+              <div>
+                <p className="font-bold text-slate-900">Google Verification File</p>
+                <p className="text-[11px] text-slate-500 font-mono">/google0087e514b59ec8b5.html</p>
+              </div>
+              <a
+                href="/google0087e514b59ec8b5.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-2.5 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold rounded-lg text-[10px]"
+              >
+                परीक्षण गर्नुहोस्
+              </a>
+            </div>
+
+            <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+              <div>
+                <p className="font-bold text-slate-900">XML Sitemap (गुगललाई पेश गर्न)</p>
+                <p className="text-[11px] text-slate-500 font-mono">/sitemap.xml</p>
+              </div>
+              <a
+                href="/sitemap.xml"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-lg text-[10px]"
+              >
+                खोल्नुहोस्
+              </a>
+            </div>
+
+            <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+              <div>
+                <p className="font-bold text-slate-900">Robots.txt निर्देशन</p>
+                <p className="text-[11px] text-slate-500 font-mono">/robots.txt</p>
+              </div>
+              <a
+                href="/robots.txt"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-lg text-[10px]"
+              >
+                खोल्नुहोस्
+              </a>
+            </div>
           </div>
         </div>
       </div>

@@ -49,6 +49,12 @@ async function startServer() {
     return res.send(`User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /${secretSlug}\nDisallow: /api/\n\nSitemap: ${baseUrl}/sitemap.xml\n`);
   });
 
+  // Google Search Console Verification File
+  app.get('/google0087e514b59ec8b5.html', (_req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+    return res.send('google-site-verification: google0087e514b59ec8b5.html');
+  });
+
   // Dynamic XML Sitemap: /sitemap.xml
   app.get('/sitemap.xml', (req, res) => {
     const settings = db.getSettings();

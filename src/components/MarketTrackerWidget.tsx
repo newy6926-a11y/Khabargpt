@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { MarketSnapshot } from '../types';
 import { api } from '../services/api';
-import { TrendingUp, TrendingDown, AlertTriangle, RefreshCw, DollarSign, Flame, Award, ShieldCheck } from 'lucide-react';
+import { TrendingUp, TrendingDown, AlertTriangle, RefreshCw, DollarSign, Flame, Award, ShieldCheck, Share2 } from 'lucide-react';
 
 export const MarketTrackerWidget: React.FC = () => {
   const [data, setData] = useState<MarketSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'nepse' | 'gold' | 'fuel' | 'forex'>('nepse');
+  const [copied, setCopied] = useState(false);
 
   const fetchMarket = async (isManual: boolean = false) => {
     try {
@@ -29,6 +30,40 @@ export const MarketTrackerWidget: React.FC = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  const handleShareRates = async () => {
+    if (!data) return;
+    const toNepaliDigits = (n: number | string) => {
+      const nepDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+      return String(n).replace(/[0-9]/g, (w) => nepDigits[+w]);
+    };
+
+    const text = `📊 खबर GPT – आजको प्रत्यक्ष बजार तथा आर्थिक दर (${data.updatedDate}):
+💰 छापावाल सुन: रु ${toNepaliDigits(data.goldSilver.fineGoldTola.toLocaleString())}/तोला
+⚪ चाँदी: रु ${toNepaliDigits(data.goldSilver.silverTola.toLocaleString())}/तोला
+📈 नेप्से (NEPSE): ${toNepaliDigits(data.nepse.index)} (${data.nepse.change >= 0 ? '+' : ''}${toNepaliDigits(data.nepse.change)})
+⛽ पेट्रोल: रु ${toNepaliDigits(data.fuel.petrolLitre)} | डिजेल: रु ${toNepaliDigits(data.fuel.dieselLitre)}
+💵 अमेरिकी डलर: रु ${toNepaliDigits(data.forex.usd.buy)} (बिक्री: रु ${toNepaliDigits(data.forex.usd.sell)})
+
+👉 विस्तृत लाइभ बजार विवरण: ${window.location.origin}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'आजको नेपाल बजार तथा आर्थिक दर - खबर GPT',
+          text,
+          url: window.location.origin
+        });
+      } catch {
+        // dismissed
+      }
+    } else {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    }
+  };
 
   if (loading && !data) {
     return (
@@ -65,15 +100,28 @@ export const MarketTrackerWidget: React.FC = () => {
           </div>
         </div>
 
-        <button
-          onClick={() => fetchMarket(true)}
-          disabled={loading}
-          className="inline-flex items-center gap-1.5 text-xs text-slate-700 hover:text-slate-950 font-semibold px-3 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-100 transition-colors self-start sm:self-auto cursor-pointer shadow-2xs"
-          title="ताजा दर तुरुन्त लोड गर्नुहोस्"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-red-600' : ''}`} />
-          <span>दर अद्यावधिक (Refresh)</span>
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          <button
+            type="button"
+            onClick={handleShareRates}
+            className="inline-flex items-center gap-1.5 text-xs text-emerald-800 bg-emerald-50 hover:bg-emerald-100 font-bold px-3 py-1.5 rounded-xl border border-emerald-200 transition-colors cursor-pointer shadow-2xs"
+            title="आजको बजार दर साथीहरूलाई सेयर गर्नुहोस्"
+          >
+            <Share2 className="w-3.5 h-3.5 text-emerald-600" />
+            <span>{copied ? '✓ कपी भयो!' : 'दर सेयर (WhatsApp / Viber)'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => fetchMarket(true)}
+            disabled={loading}
+            className="inline-flex items-center gap-1.5 text-xs text-slate-700 hover:text-slate-950 font-semibold px-3 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-100 transition-colors cursor-pointer shadow-2xs"
+            title="ताजा दर तुरुन्त लोड गर्नुहोस्"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-red-600' : ''}`} />
+            <span>दर अद्यावधिक (Refresh)</span>
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}

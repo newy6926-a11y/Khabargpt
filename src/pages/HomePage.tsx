@@ -34,7 +34,9 @@ import {
   ZoomIn,
   ZoomOut,
   RotateCcw,
-  X
+  X,
+  Share2,
+  Copy
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -59,9 +61,38 @@ export const HomePage: React.FC<HomePageProps> = ({
   const [isListeningVoice, setIsListeningVoice] = useState<boolean>(false);
   const [voiceSupported, setVoiceSupported] = useState<boolean>(true);
   const [liveEvents, setLiveEvents] = useState<LiveEvent[]>([]);
-  const [inFeedAd, setInFeedAd] = useState<AdItem | null>(null);
   const [isNoticeZoomed, setIsNoticeZoomed] = useState<boolean>(false);
   const [noticeZoomLevel, setNoticeZoomLevel] = useState<number>(1);
+  const [copiedNotice, setCopiedNotice] = useState<boolean>(false);
+  const [showMobileStickyBar, setShowMobileStickyBar] = useState<boolean>(true);
+
+  const handleCopyNoticeLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.origin);
+      setCopiedNotice(true);
+      setTimeout(() => setCopiedNotice(false), 2500);
+    } catch {
+      // fallback
+    }
+  };
+
+  const handleShareNotice = async () => {
+    const title = settings.entryPopupTitle || 'खबर GPT आधिकारिक सूचना';
+    const text = `📢 खबर GPT आधिकारिक सूचना (Official Notice):\n"${title}"\n\n👉 सूचना तथा ताजा अपडेट हेर्नुहोस्: ${window.location.origin}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title,
+          text,
+          url: window.location.origin
+        });
+      } catch {
+        // dismissed
+      }
+    } else {
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    }
+  };
 
   // Newsletter state
   const [newsletterEmail, setNewsletterEmail] = useState('');
@@ -362,6 +393,29 @@ export const HomePage: React.FC<HomePageProps> = ({
               <Facebook className="w-4 h-4 fill-white" />
               <span>👉 खबर GPT फेसबुक पेजमा जानुहोस्</span>
             </a>
+          </div>
+
+          {/* Quick Notice Share & Copy Actions */}
+          <div className="max-w-2xl mx-auto flex items-center justify-center gap-2.5 flex-wrap pt-1">
+            <button
+              type="button"
+              onClick={handleShareNotice}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-300/80 transition-all cursor-pointer shadow-2xs"
+              title="सूचना साथीहरूलाई पठाउनुहोस्"
+            >
+              <Share2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span>📲 साथीहरूलाई सूचना सेयर (WhatsApp / Viber)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleCopyNoticeLink}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-300 transition-all cursor-pointer"
+              title="वेबसाइट लिङ्क कपी गर्नुहोस्"
+            >
+              <Copy className="w-3.5 h-3.5 text-slate-600" />
+              <span>{copiedNotice ? '✓ लिङ्क कपी भयो!' : 'लिङ्क कपी'}</span>
+            </button>
           </div>
 
           {/* Contact Details & Phone Strip (Gmail / Email hidden for now) */}
@@ -911,6 +965,40 @@ export const HomePage: React.FC<HomePageProps> = ({
               <span>Khabar GPT फेसबुक पेजमा जानुहोस्</span>
               <ExternalLink className="w-3 h-3" />
             </a>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Floating Sticky Facebook Follow Bar */}
+      {showMobileStickyBar && (
+        <div className="fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 sm:hidden shadow-2xl flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shrink-0 shadow-sm">
+              <Facebook className="w-4 h-4 fill-white text-white" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-white truncate">खबर GPT फेसबुक पेज</p>
+              <p className="text-[10px] text-slate-400 truncate">नियमित भिडियो र ताजा रिपोर्ट</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <a
+              href={settings.facebookUrl || 'https://facebook.com/khabargpt'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm cursor-pointer whitespace-nowrap"
+            >
+              जोडिनुहोस्
+            </a>
+            <button
+              onClick={() => setShowMobileStickyBar(false)}
+              className="p-1 text-slate-400 hover:text-white cursor-pointer"
+              aria-label="Close"
+              title="बन्द गर्नुहोस्"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         </div>
       )}
