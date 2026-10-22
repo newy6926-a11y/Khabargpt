@@ -3,19 +3,24 @@
   "name": "Khabar GPT (खबर GPT) – नेपाल समसामयिक सूचना",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/favicon-48x48.png",
       "type": "image/png",
-      "sizes": "192x192 512x512"
+      "sizes": "48x48"
     },
     {
-      "src": "/logo.svg",
-      "type": "image/svg+xml",
-      "sizes": "192x192 512x512"
+      "src": "/favicon-96x96.png",
+      "type": "image/png",
+      "sizes": "96x96"
     },
     {
-      "src": "/favicon.png",
+      "src": "/android-chrome-192x192.png",
       "type": "image/png",
-      "sizes": "48x48 72x72 96x96 144x144"
+      "sizes": "192x192"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
     }
   ],
   "start_url": "/",

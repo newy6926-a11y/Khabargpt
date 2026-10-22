@@ -27,7 +27,14 @@
       content="नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण, भिडियो रिपोर्ट, सुनचाँदी, नेप्से तथा बजार सूचकांकको विश्वसनीय डिजिटल सूचना पोर्टल। खबर GPT आधिकारिक पेज।"
     />
     <meta name="twitter:image" content="/logo.png" />
-    <link rel="icon" type="image/png" href="/logo.png" />
+    <!-- Google Search & Browser Favicons (Google Search Console Standards) -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#dc2626" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -45,20 +52,32 @@
         });
       }
     </script>
+    <!-- Google Search Official Site Name Specification -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Khabar GPT",
+      "alternateName": ["खबर GPT", "Khabar GPT Nepal", "KhabarGPT"],
+      "url": "https://khabargpt.onrender.com/"
+    }
+    </script>
     <script type="application/ld+json" id="khabar-ld-json">
     {
       "@context": "https://schema.org",
       "@type": "NewsMediaOrganization",
       "name": "Khabar GPT",
       "alternateName": ["खबर GPT", "Khabar GPT Nepal"],
-      "url": "https://facebook.com/khabargpt",
-      "logo": "/logo.png",
+      "url": "https://khabargpt.onrender.com/",
+      "logo": "https://khabargpt.onrender.com/logo.png",
+      "image": "https://khabargpt.onrender.com/logo.png",
       "sameAs": [
-        "https://facebook.com/khabargpt"
+        "https://facebook.com/khabargpt",
+        "https://instagram.com/khabargpt"
       ],
-      "description": "Nepal-focused public-interest information and current affairs digital explainer portal.",
-      "publishingPrinciples": "/editorial-standards",
-      "correctionsPolicy": "/corrections"
+      "description": "नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण, भिडियो रिपोर्ट, सुनचाँदी, नेप्से तथा बजार सूचकांकको विश्वसनीय डिजिटल सूचना पोर्टल।",
+      "publishingPrinciples": "https://khabargpt.onrender.com/editorial-standards",
+      "correctionsPolicy": "https://khabargpt.onrender.com/corrections"
     }
     </script>
   </head>

@@ -10,8 +10,8 @@ const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
   const isProd = process.env.NODE_ENV === 'production';
+  const PORT = isProd && process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
   // Request body parsers (support base64 images and videos up to 50MB)
   app.use(express.json({ limit: '50mb' }));
@@ -53,6 +53,16 @@ async function startServer() {
   app.get('/google0087e514b59ec8b5.html', (_req, res) => {
     res.setHeader('Content-Type', 'text/html');
     return res.send('google-site-verification: google0087e514b59ec8b5.html');
+  });
+
+  // Google Search & Browser Favicon.ico
+  app.get('/favicon.ico', (_req, res) => {
+    const icoPath = path.resolve(publicDir, 'favicon.ico');
+    if (fs.existsSync(icoPath)) {
+      res.setHeader('Content-Type', 'image/x-icon');
+      return res.sendFile(icoPath);
+    }
+    return res.status(204).end();
   });
 
   // Dynamic XML Sitemap: /sitemap.xml
@@ -98,8 +108,7 @@ async function startServer() {
     const vite = await createViteServer({
       server: {
         middlewareMode: true,
-        host: '0.0.0.0',
-        port: PORT
+        hmr: false
       },
       appType: 'spa'
     });
