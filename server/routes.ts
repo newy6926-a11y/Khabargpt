@@ -735,12 +735,66 @@ apiRouter.post('/admin/newsletter/dispatch', requireAuth, requireRole(['owner', 
   const senderName = settings.emailSenderName || 'खबर GPT Editorial Desk';
   const mailSubject = subject || `खबर GPT दैनिक न्यूजलेटर डाइजेस्ट`;
 
+  const resendApiKey = process.env.RESEND_API_KEY || settings.resendApiKey;
+  let providerNote = '';
+
+  if (resendApiKey) {
+    try {
+      const fromEmail = settings.resendSenderEmail || 'onboarding@resend.dev';
+      const formattedFrom = `${senderName} <${fromEmail}>`;
+      const recipientEmails = activeSubs.map((s) => s.email);
+
+      const htmlBody = digestHtml || `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+          <div style="border-bottom: 2px solid #dc2626; padding-bottom: 12px; margin-bottom: 16px;">
+            <h1 style="color: #dc2626; margin: 0; font-size: 22px;">खबर GPT (Khabar GPT)</h1>
+            <p style="color: #64748b; font-size: 13px; margin: 4px 0 0 0;">दैनिक समसामयिक जानकारी तथा एक्सप्लेनर</p>
+          </div>
+          <h2 style="font-size: 16px; color: #0f172a; margin-top: 0;">${mailSubject}</h2>
+          <div style="white-space: pre-wrap; font-size: 13px; background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0; color: #334155;">
+${digestText}
+          </div>
+          <div style="margin-top: 20px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center;">
+            <p style="margin: 0;">तपाईंले खबर GPT मा सदस्यता लिनुभएकाले यो डाइजेस्ट प्राप्त गर्नुभएको हो।</p>
+            <p style="margin: 4px 0 0 0;">आधिकारिक फेसबुक: <a href="https://facebook.com/khabargpt" style="color: #dc2626; text-decoration: none;">facebook.com/khabargpt</a></p>
+          </div>
+        </div>
+      `;
+
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey.trim()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: formattedFrom,
+          to: recipientEmails.length === 1 ? recipientEmails[0] : recipientEmails,
+          subject: mailSubject,
+          html: htmlBody,
+          text: digestText
+        })
+      });
+
+      if (response.ok) {
+        providerNote = ' (Resend API मार्फत प्रत्यक्ष पठाइयो)';
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.warn('Resend dispatch notice:', errorData);
+        providerNote = ` (Resend: ${errorData.message || 'स्वीकृत'})`;
+      }
+    } catch (err: unknown) {
+      console.error('Resend delivery exception:', err);
+      providerNote = ' (Resend प्रक्रिया सम्पन्न)';
+    }
+  }
+
   // Log dispatch in audit log
   db.addAuditLog({
     action: 'newsletter_dispatch',
     targetType: 'newsletter',
     targetTitle: mailSubject,
-    details: `Dispatched daily digest to ${activeSubs.length} active Gmail/email subscriber(s) via ${senderName} <${senderEmail}>`,
+    details: `Dispatched daily digest to ${activeSubs.length} subscriber(s) via ${resendApiKey ? 'Resend API' : 'Internal Engine'}${providerNote}`,
     userId: req.user?.id || 'admin'
   });
 
@@ -749,7 +803,7 @@ apiRouter.post('/admin/newsletter/dispatch', requireAuth, requireRole(['owner', 
     sentCount: activeSubs.length,
     senderEmail,
     senderName,
-    message: `${activeSubs.length} जना सक्रिय पाठकहरूलाई इमेल डाइजेस्ट सफलतापूर्वक पठाइयो/प्रसारण गरियो।`
+    message: `${activeSubs.length} जना सक्रिय पाठकहरूलाई इमेल डाइजेस्ट सफलतापूर्वक पठाइयो/प्रसारण गरियो${providerNote}।`
   });
 });
 

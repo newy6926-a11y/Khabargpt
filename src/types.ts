@@ -264,6 +264,10 @@ export interface SiteSettings {
   emailSmtpUser?: string;
   emailSmtpPass?: string;
   emailServiceActive?: boolean;
+
+  // Resend Email API
+  resendApiKey?: string;
+  resendSenderEmail?: string;
 }
 
 export interface NewsletterSubscriber {

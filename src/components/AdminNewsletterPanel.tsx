@@ -55,9 +55,11 @@ export const AdminNewsletterPanel: React.FC<AdminNewsletterPanelProps> = ({ cont
   const [loadingSubscribers, setLoadingSubscribers] = useState(true);
   const [newEmail, setNewEmail] = useState('');
   const [newFrequency, setNewFrequency] = useState<'daily' | 'weekly'>('daily');
-  const [activeSubTab, setActiveSubTab] = useState<'create' | 'subscribers' | 'how_it_works'>('create');
+  const [activeSubTab, setActiveSubTab] = useState<'create' | 'subscribers' | 'how_it_works' | 'settings'>('create');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'unsubscribed'>('all');
+  const [resendKeyInput, setResendKeyInput] = useState('');
+  const [resendSenderInput, setResendSenderInput] = useState('onboarding@resend.dev');
 
   const fetchSubscribers = async () => {
     setLoadingSubscribers(true);
@@ -79,7 +81,25 @@ export const AdminNewsletterPanel: React.FC<AdminNewsletterPanelProps> = ({ cont
   useEffect(() => {
     fetchSubscribers();
     api.getMarketData().then((m) => setMarketSnapshot(m)).catch(() => {});
+    api.getSettings().then((s) => {
+      if (s.resendApiKey) setResendKeyInput(s.resendApiKey);
+      if (s.resendSenderEmail) setResendSenderInput(s.resendSenderEmail);
+    }).catch(() => {});
   }, []);
+
+  const handleSaveResend = async () => {
+    try {
+      await api.updateSettings({
+        resendApiKey: resendKeyInput.trim(),
+        resendSenderEmail: resendSenderInput.trim() || 'onboarding@resend.dev'
+      });
+      setSentNotice('Resend API सेटिङ्स सफलतापूर्वक सुरक्षित गरियो!');
+      setTimeout(() => setSentNotice(null), 4000);
+    } catch {
+      setSendError('सेटिङ्स सेभ गर्न असफल');
+      setTimeout(() => setSendError(null), 4000);
+    }
+  };
 
   const toggleSelect = (id: string) => {
     if (selectedItemIds.includes(id)) {
@@ -258,6 +278,16 @@ export const AdminNewsletterPanel: React.FC<AdminNewsletterPanelProps> = ({ cont
             >
               <Info className="w-3.5 h-3.5 text-emerald-600" />
               <span>कसरी काम गर्छ?</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveSubTab('settings')}
+              className={`px-3 py-1.5 rounded-lg cursor-pointer transition-colors flex items-center gap-1.5 ${
+                activeSubTab === 'settings' ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'text-slate-600'
+              }`}
+            >
+              <Send className="w-3.5 h-3.5 text-purple-600" />
+              <span>Resend / Gmail सेटिङ्स</span>
             </button>
           </div>
         </div>
@@ -673,6 +703,99 @@ export const AdminNewsletterPanel: React.FC<AdminNewsletterPanelProps> = ({ cont
               <p className="text-xs text-slate-600 leading-relaxed">
                 एड्मिनले आजका मुख्य समाचार र बजार दर छानेर 'डाइजेस्ट पठाउनुहोस्' बटन थिच्दा सबै सक्रिय जीमेल पाठकहरूलाई सोझै इनबक्समा पठाइन्छ वा समुदायमा सेयर गर्न सकिन्छ।
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab: Resend API & Gmail Settings */}
+      {activeSubTab === 'settings' && (
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+          <div className="border-b border-slate-100 pb-4">
+            <div className="flex items-center gap-2 text-xs font-bold text-purple-600 uppercase tracking-wider">
+              <Send className="w-4 h-4" />
+              <span>इमेल डेलिभरी प्रदायक व्यवस्थापन (Email Delivery Provider)</span>
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mt-1">
+              Resend API वा Gmail SMTP कन्फिगरेसन
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              अहिले Resend API प्रयोग गरी निःशुल्क १०० वटा इमेल दैनिक पठाउन सक्नुहुन्छ। पछि जुनसुकै बेला यसलाई हटाएर आफ्नै Gmail प्रयोग गर्न सक्नुहुन्छ।
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Resend Option */}
+            <div className="p-5 rounded-2xl bg-purple-50/50 border border-purple-200 space-y-4 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-sm text-purple-950 flex items-center gap-1.5">
+                  <span>🚀 Resend API (सक्रिय विकल्प)</span>
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-[10px] font-bold">
+                  {resendKeyInput ? '✓ Key सेट छ' : 'अपेक्षित'}
+                </span>
+              </div>
+              <p className="text-slate-600 leading-relaxed">
+                Resend ले १०० इमेल/दिन निःशुल्क दिन्छ। तपाईंको <code>re_...</code> कि यहाँ राख्नुहोस् वा Render को Environment मा <code>RESEND_API_KEY</code> मा राख्नुहोस्।
+              </p>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Resend API Key:
+                </label>
+                <input
+                  type="password"
+                  value={resendKeyInput}
+                  onChange={(e) => setResendKeyInput(e.target.value)}
+                  placeholder="re_123456789_abcdefg"
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono"
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  प्रेषक इमेल (Sender From Email):
+                </label>
+                <input
+                  type="text"
+                  value={resendSenderInput}
+                  onChange={(e) => setResendSenderInput(e.target.value)}
+                  placeholder="onboarding@resend.dev"
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono"
+                />
+                <span className="text-[10px] text-slate-500 block mt-1">
+                  डोमेन प्रमाणीकरण नभएसम्म Resend को निःशुल्क <code>onboarding@resend.dev</code> प्रयोग हुन्छ।
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleSaveResend}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition cursor-pointer"
+              >
+                Resend सेटिङ्स सेभ गर्नुहोस्
+              </button>
+            </div>
+
+            {/* Switch to Gmail Option */}
+            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                  <Mail className="w-4 h-4 text-red-600" />
+                  <span>आफ्नै Gmail SMTP (कुनै पनि बेला परिवर्तन गर्न सकिने)</span>
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold">
+                  वैकल्पिक
+                </span>
+              </div>
+              <p className="text-slate-600 leading-relaxed">
+                यदि पछि Resend हटाएर आफ्नै व्यक्तिगत वा संस्थागत Gmail प्रयोग गर्न चाहनुहुन्छ भने:
+              </p>
+              <ol className="list-decimal list-inside space-y-1.5 text-slate-600 pl-1 text-[11px]">
+                <li>Google Account &gt; Security &gt; 2-Step Verification अन गर्नुहोस्।</li>
+                <li>त्यहाँबाट १६ अक्षरको <strong>App Password</strong> बनाउनुहोस्।</li>
+                <li>माथिको Resend Key खाली छोडेर आफ्नो Gmail जोड्न सक्नुहुन्छ।</li>
+              </ol>
+              <div className="p-3 bg-white rounded-xl border border-slate-200 text-[11px] text-slate-500">
+                💡 तपाईंले चाहेको बेला Resend र Gmail बीच १ मिनेटमै स्विच गर्न सक्नुहुन्छ।
+              </div>
             </div>
           </div>
         </div>
