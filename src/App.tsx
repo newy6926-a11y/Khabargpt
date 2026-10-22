@@ -7,7 +7,7 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 import { SavedArticlesDrawer } from './components/SavedArticlesDrawer';
 import { AdBanner } from './components/AdBanner';
 import { offlineStorage } from './utils/offlineStorage';
-import { Bookmark, WifiOff, Eye, Mail, MessageCircle, Calendar } from 'lucide-react';
+import { Bookmark, WifiOff, Eye, Mail, MessageCircle, Calendar, Wrench } from 'lucide-react';
 import { NepaliCalendarModal } from './components/NepaliCalendarModal';
 import { AccessibilityToolbar } from './components/AccessibilityToolbar';
 import { CommunityBroadcastModal } from './components/CommunityBroadcastModal';
@@ -202,6 +202,62 @@ export default function App() {
     (typeof window !== 'undefined' &&
       (window.location.search.includes('admin_access=khabar') ||
         window.location.search.includes('secret_access=kg')));
+
+  // Maintenance Mode Interceptor
+  if (settings.maintenanceModeActive && !isSecretAdminRoute) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 text-white text-center font-sans">
+        <div className="max-w-md w-full bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-md space-y-6">
+          <div className="flex justify-center">
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+              <Wrench className="w-8 h-8 animate-bounce" />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <span className="text-[11px] uppercase tracking-widest text-amber-400 font-bold px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
+              प्राविधिक मर्मत सम्भार (Maintenance)
+            </span>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+              वेबसाइट हाल मर्मत सम्भारमा छ
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed pt-1">
+              {settings.maintenanceModeMessage ||
+                'हाम्रो प्रणालीलाई अझ प्रभावकारी र सुरक्षित बनाउन नियमित प्राविधिक मर्मत भइरहेको छ। केही समयमै सेवा पुन: सञ्चालनमा आउनेछ।'}
+            </p>
+          </div>
+
+          {settings.maintenanceEstimatedTime && (
+            <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 text-xs text-slate-300">
+              <span className="text-slate-400">अनुमानित समय: </span>
+              <span className="font-bold text-amber-300">{settings.maintenanceEstimatedTime}</span>
+            </div>
+          )}
+
+          <div className="pt-2 border-t border-slate-800 space-y-3">
+            <a
+              href={settings.facebookUrl || 'https://facebook.com/khabargpt'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition"
+            >
+              <span>👉 ताजा भिडियो तथा अपडेटका लागि फेसबुक पेजमा जानुहोस्</span>
+            </a>
+
+            <div className="pt-2 text-center">
+              <button
+                type="button"
+                onClick={() => navigate('/admin')}
+                className="text-[11px] text-slate-500 hover:text-slate-300 transition underline cursor-pointer"
+              >
+                🔑 व्यवस्थापक लगइन (Admin Access)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">

@@ -56,7 +56,8 @@ import {
   Facebook,
   Edit3,
   Sliders,
-  Database
+  Database,
+  Wrench
 } from 'lucide-react';
 import { AdminSeoPanel } from '../components/AdminSeoPanel';
 import { AdminLiveEventsPanel } from '../components/AdminLiveEventsPanel';
@@ -2049,6 +2050,68 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 <p className="text-[11px] text-slate-600 leading-relaxed">
                   यदि साइट तयारीको चरणमा छ भने गुगल र अन्य सर्च इन्जिनलाई खोज नतिजामा नदेखाउन robots.txt मा Disallow आदेश दिइन्छ।
                 </p>
+              </div>
+
+              {/* Maintenance Mode (मर्मत सम्भार मोड) */}
+              <div className={`p-4 rounded-xl border space-y-3 transition-colors ${
+                settingsForm.maintenanceModeActive
+                  ? 'bg-amber-50 border-amber-300'
+                  : 'bg-slate-50 border-slate-200'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <Wrench className="w-5 h-5 text-amber-600 shrink-0" />
+                    <div>
+                      <span className="font-bold text-slate-900 block text-xs">
+                        वेबसाइट मर्मत सम्भार मोड (Maintenance Mode)
+                      </span>
+                      <span className="text-[11px] text-slate-500">
+                        सक्रिय गर्दा सर्वसाधारणलाई मर्मत सम्भार सूचना मात्र देखिनेछ, तपाईं एडमिन पोर्टल चलाउन सक्नुहुन्छ
+                      </span>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={!!settingsForm.maintenanceModeActive}
+                    onChange={(e) =>
+                      setSettingsForm({ ...settingsForm, maintenanceModeActive: e.target.checked })
+                    }
+                    className="w-5 h-5 accent-amber-600 rounded cursor-pointer shrink-0"
+                  />
+                </div>
+
+                {settingsForm.maintenanceModeActive && (
+                  <div className="space-y-3 pt-2.5 border-t border-amber-200 text-xs">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        आगन्तुकहरूलाई देखाइने सूचना (Maintenance Message):
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={settingsForm.maintenanceModeMessage || ''}
+                        onChange={(e) =>
+                          setSettingsForm({ ...settingsForm, maintenanceModeMessage: e.target.value })
+                        }
+                        placeholder="हाम्रो प्रणालीलाई अझ प्रभावकारी र सुरक्षित बनाउन नियमित प्राविधिक मर्मत भइरहेको छ। केही समयमै सेवा पुन: सञ्चालनमा आउनेछ।"
+                        className="w-full px-3 py-2 border border-amber-300 rounded-lg bg-white text-xs font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        अनुमानित सम्पन्न हुने समय (Estimated Completion Time):
+                      </label>
+                      <input
+                        type="text"
+                        value={settingsForm.maintenanceEstimatedTime || ''}
+                        onChange={(e) =>
+                          setSettingsForm({ ...settingsForm, maintenanceEstimatedTime: e.target.value })
+                        }
+                        placeholder="उदा: आज साँझ ६:०० बजेसम्म वा चाँडै नै"
+                        className="w-full px-3 py-2 border border-amber-300 rounded-lg bg-white text-xs font-medium"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

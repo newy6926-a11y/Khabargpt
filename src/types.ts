@@ -251,6 +251,11 @@ export interface SiteSettings {
   entryPopupButtonLink?: string;
   entryPopupShowAlways?: boolean;
 
+  // Maintenance Mode (मर्मत सम्भार मोड)
+  maintenanceModeActive?: boolean;
+  maintenanceModeMessage?: string;
+  maintenanceEstimatedTime?: string;
+
   // Gmail & Email Newsletter Dispatcher Configuration
   emailSenderName?: string;
   emailSenderAddress?: string;
