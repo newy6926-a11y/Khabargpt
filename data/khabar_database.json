@@ -53,7 +53,7 @@
       "salt": "0caceaaebaf02531bcd290346be1eb73",
       "role": "owner",
       "createdAt": "2026-10-12T16:09:41.440Z",
-      "lastLogin": "2026-10-17T10:01:06.164Z"
+      "lastLogin": "2026-10-22T07:25:11.386Z"
     }
   ],
   "categories": [
@@ -135,6 +135,10 @@
     "d7ab36cae4586bad02c7733d83a030ee7e71657f0d389fa28b0bd7544ae02bc8": {
       "userId": "user-owner",
       "expiresAt": 1792317666165
+    },
+    "27e2667694b633e2ee5619ccf38e74b7e089393d2e63a22f2befc8652645bf1f": {
+      "userId": "user-owner",
+      "expiresAt": 1792740311387
     }
   },
   "auditLogs": [],
@@ -143,40 +147,40 @@
   "feedbacks": [],
   "subscribers": [],
   "marketSnapshot": {
-    "updatedDate": "२०२६ अक्टोबर २१, बुधबार (०९:२१ अपराह्न NPT - प्रत्यक्ष अद्यावधिक)",
+    "updatedDate": "२०२६ अक्टोबर २२, बिहिबार (०१:१० अपराह्न NPT - प्रत्यक्ष अद्यावधिक)",
     "nepse": {
-      "index": 2631.85,
-      "change": 18.77,
-      "percentChange": 0.71,
-      "turnoverCrores": 619.1,
+      "index": 2639.51,
+      "change": 11.92,
+      "percentChange": 0.45,
+      "turnoverCrores": 591.01,
       "points": [
         {
           "time": "11:00 AM",
-          "value": 2615.85
+          "value": 2623.51
         },
         {
           "time": "12:00 PM",
-          "value": 2623.35
+          "value": 2631.01
         },
         {
           "time": "01:00 PM",
-          "value": 2629.75
+          "value": 2637.41
         },
         {
           "time": "02:00 PM",
-          "value": 2636.15
+          "value": 2643.81
         },
         {
           "time": "03:00 PM",
-          "value": 2631.85
+          "value": 2639.51
         }
       ]
     },
     "goldSilver": {
-      "fineGoldTola": 292433,
-      "fineGold10g": 250718,
-      "tejabiGoldTola": 290933,
-      "silverTola": 3017,
+      "fineGoldTola": 291115,
+      "fineGold10g": 249588,
+      "tejabiGoldTola": 289615,
+      "silverTola": 3052,
       "changeGold": 1200,
       "source": "नेपाल सुनचाँदी व्यवसायी महासंघ (FENEGOSIDA - स्वचालित ताजा दर)"
     },
@@ -189,84 +193,84 @@
     },
     "forex": {
       "usd": {
-        "buy": 136.46,
-        "sell": 137.06
+        "buy": 136.24,
+        "sell": 136.84
       },
       "eur": {
-        "buy": 148.66,
-        "sell": 149.36
+        "buy": 148.56,
+        "sell": 149.26
       },
       "gbp": {
-        "buy": 176.7,
-        "sell": 177.5
+        "buy": 177,
+        "sell": 177.8
       },
       "aed": {
-        "buy": 37.06,
-        "sell": 37.22
+        "buy": 37.09,
+        "sell": 37.25
       },
       "qar": {
-        "buy": 37.39,
-        "sell": 37.55
+        "buy": 37.37,
+        "sell": 37.53
       },
       "source": "नेपाल राष्ट्र बैंक (NRB - प्रत्यक्ष विनिमय दर)"
     },
     "disclaimer": "⚠️ प्रत्यक्ष बजार दर डिस्क्लेमर: सेयर बजार, सुनचाँदी, विदेशी विनिमय तथा इन्धनका मूल्य निरन्तर परिवर्तनशील हुन्छन्। यी दरहरू आधिकारिक निकायहरूको सार्वजनिक खुला तथ्यांक अनुसार हालको समयसँग स्वचालित रूपमा अद्यावधिक हुन्छन्।",
     "trends": [
       {
-        "date": "अक्टोबर १५",
-        "nepse": 2610.83,
-        "goldFine": 289082,
-        "petrol": 172.5,
-        "diesel": 158.5,
-        "usdToNpr": 135.96
-      },
-      {
         "date": "अक्टोबर १६",
-        "nepse": 2608.02,
-        "goldFine": 289166,
+        "nepse": 2618.49,
+        "goldFine": 287764,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.05
+        "usdToNpr": 135.74
       },
       {
         "date": "अक्टोबर १७",
-        "nepse": 2601.73,
-        "goldFine": 288982,
+        "nepse": 2615.68,
+        "goldFine": 287848,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.14
+        "usdToNpr": 135.83
       },
       {
         "date": "अक्टोबर १८",
-        "nepse": 2609.68,
-        "goldFine": 289898,
+        "nepse": 2609.39,
+        "goldFine": 287664,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.23
+        "usdToNpr": 135.92
       },
       {
         "date": "अक्टोबर १९",
-        "nepse": 2628.72,
-        "goldFine": 291671,
+        "nepse": 2617.34,
+        "goldFine": 288580,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.32
+        "usdToNpr": 136.01
       },
       {
         "date": "अक्टोबर २०",
-        "nepse": 2639.45,
-        "goldFine": 292802,
+        "nepse": 2636.38,
+        "goldFine": 290353,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.41
+        "usdToNpr": 136.1
+      },
+      {
+        "date": "अक्टोबर २१",
+        "nepse": 2647.11,
+        "goldFine": 291484,
+        "petrol": 172.5,
+        "diesel": 158.5,
+        "usdToNpr": 136.19
       },
       {
         "date": "आज (Today)",
-        "nepse": 2631.85,
-        "goldFine": 292433,
+        "nepse": 2639.51,
+        "goldFine": 291115,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.46
+        "usdToNpr": 136.24
       }
     ]
   }

@@ -604,11 +604,35 @@ class Database {
 
   private loadDatabase(): DatabaseSchema {
     try {
-      if (fs.existsSync(DB_FILE)) {
+      let parsed: DatabaseSchema | null = null;
+
+      // 1. Check for persistent database injected via Environment Variable
+      if (process.env.KHABAR_PERSISTENT_DATA) {
+        try {
+          const raw = Buffer.from(process.env.KHABAR_PERSISTENT_DATA, 'base64').toString('utf-8');
+          parsed = JSON.parse(raw);
+        } catch {
+          try {
+            parsed = JSON.parse(process.env.KHABAR_PERSISTENT_DATA);
+          } catch {}
+        }
+      }
+
+      // 2. Otherwise load from DB_FILE on disk
+      if (!parsed && fs.existsSync(DB_FILE)) {
         const fileContent = fs.readFileSync(DB_FILE, 'utf-8');
-        const parsed = JSON.parse(fileContent);
-        if (parsed && (parsed.version || parsed.settings)) {
-          // Schema migrations & defaults
+        parsed = JSON.parse(fileContent);
+      }
+
+      if (parsed && (parsed.version || parsed.settings)) {
+        // If KHABAR_SETTINGS_JSON environment variable is provided on Render, merge it permanently
+        if (process.env.KHABAR_SETTINGS_JSON) {
+          try {
+            const envSettings = JSON.parse(process.env.KHABAR_SETTINGS_JSON);
+            parsed.settings = { ...parsed.settings, ...envSettings };
+          } catch {}
+        }
+        // Schema migrations & defaults
           if (!parsed.auditLogs) parsed.auditLogs = [];
           if (!parsed.liveEvents) parsed.liveEvents = [];
           if (!parsed.ads) parsed.ads = [];
@@ -661,10 +685,19 @@ class Database {
               active: true,
               createdAt: new Date().toISOString()
             });
+          } else if (process.env.ADMIN_PASSWORD) {
+            // When ADMIN_PASSWORD is set in Render Environment, permanently synchronize the owner password hash
+            const ownerUser = parsed.users.find(
+              (u) => u.role === 'owner' || u.username.toLowerCase() === (process.env.ADMIN_USERNAME || 'admin').toLowerCase()
+            );
+            if (ownerUser) {
+              const newSalt = crypto.randomBytes(16).toString('hex');
+              ownerUser.salt = newSalt;
+              ownerUser.passwordHash = hashPassword(process.env.ADMIN_PASSWORD, newSalt);
+            }
           }
           return parsed;
         }
-      }
     } catch (err) {
       console.error('Error loading database file, initializing fresh database:', err);
     }
@@ -715,8 +748,27 @@ class Database {
   }
 
   public verifyPassword(user: AdminUser, plainPassword: string): boolean {
-    const hashed = hashPassword(plainPassword, user.salt);
-    return crypto.timingSafeEqual(Buffer.from(hashed, 'utf-8'), Buffer.from(user.passwordHash, 'utf-8'));
+    const envAdminPassword = process.env.ADMIN_PASSWORD;
+    if (
+      envAdminPassword &&
+      (user.role === 'owner' || user.username.toLowerCase() === (process.env.ADMIN_USERNAME || 'admin').toLowerCase())
+    ) {
+      if (plainPassword === envAdminPassword) {
+        return true;
+      }
+    }
+
+    try {
+      const hashed = hashPassword(plainPassword, user.salt);
+      const hashBuffer = Buffer.from(hashed, 'utf-8');
+      const userBuffer = Buffer.from(user.passwordHash, 'utf-8');
+      if (hashBuffer.length !== userBuffer.length) {
+        return false;
+      }
+      return crypto.timingSafeEqual(hashBuffer, userBuffer);
+    } catch {
+      return false;
+    }
   }
 
   public updatePassword(userId: string, newPassword: string): boolean {
