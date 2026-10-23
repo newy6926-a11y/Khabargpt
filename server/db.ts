@@ -260,6 +260,15 @@ export interface SiteSettings {
   emailSmtpUser?: string;
   emailSmtpPass?: string;
   emailServiceActive?: boolean;
+
+  // Resend API
+  resendApiKey?: string;
+  resendSenderEmail?: string;
+
+  // Emergency Maintenance Mode
+  maintenanceModeActive?: boolean;
+  maintenanceModeMessage?: string;
+  maintenanceEstimatedTime?: string;
 }
 
 export interface NewsletterSubscriber {

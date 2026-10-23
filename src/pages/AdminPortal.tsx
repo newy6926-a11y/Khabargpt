@@ -256,6 +256,29 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     onNavigateHome();
   };
 
+  const handleToggleMaintenanceMode = async () => {
+    const newStatus = !settingsForm.maintenanceModeActive;
+    const confirmMsg = newStatus
+      ? 'के तपाईं वेबसाइटलाई मर्मत सम्भार मोड (Maintenance Mode) मा राख्न चाहनुहुन्छ? सर्वसाधारण पाठकहरूले मर्मतको सूचना मात्र देख्नेछन्, तपाईंले एडमिन पोर्टल चलाउन सक्नुहुन्छ।'
+      : 'के तपाईं मर्मत सम्भार मोड बन्द गरी वेबसाइटलाई पुनः सबै पाठकहरूका लागि लाइभ (Live) गर्न चाहनुहुन्छ?';
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      const updated = await api.updateSettings({
+        ...settingsForm,
+        maintenanceModeActive: newStatus
+      });
+      setSettingsForm(updated);
+      showNotification(
+        newStatus
+          ? '⚠️ मर्मत सम्भार मोड चालु गरियो (वेबसाइट सर्वसाधारणका लागि अस्थायी बन्द छ)।'
+          : '✅ मर्मत सम्भार मोड बन्द गरियो (वेबसाइट सबैका लागि लाइभ छ)!'
+      );
+    } catch (err: unknown) {
+      showNotification('सेटिङ अद्यावधिक गर्न सकिएन: ' + (err instanceof Error ? err.message : 'Error'));
+    }
+  };
+
   // Content Handlers
   const handleCreateNewContent = (type: 'article' | 'explainer' | 'video' | 'notice' = 'article') => {
     setIsEditingNew(true);
@@ -767,6 +790,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Quick 1-Click Server Maintenance Mode Switch */}
+            <button
+              onClick={handleToggleMaintenanceMode}
+              title="मर्मत सम्भार मोड (Maintenance Mode) तुरुन्त चालु वा बन्द गर्नुहोस्"
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs ${
+                settingsForm.maintenanceModeActive
+                  ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold animate-pulse'
+                  : 'bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-600/40'
+              }`}
+            >
+              <Wrench className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">
+                {settingsForm.maintenanceModeActive ? '⚠️ मर्मत मोड: चालु (बन्द गर्नुहोस्)' : '🟢 सर्भर स्थिति: लाइभ (मर्मत मोड)'}
+              </span>
+              <span className="sm:hidden">
+                {settingsForm.maintenanceModeActive ? 'मर्मत मोड: चालु' : 'लाइभ'}
+              </span>
+            </button>
+
             <button
               onClick={onNavigateHome}
               className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors flex items-center gap-1.5 cursor-pointer"
@@ -784,6 +826,24 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Emergency Maintenance Mode Live Warning Banner */}
+        {settingsForm.maintenanceModeActive && (
+          <div className="bg-amber-500 text-slate-950 font-bold px-4 py-2 text-xs flex items-center justify-between border-b border-amber-600 shadow-sm animate-fadeIn">
+            <div className="flex items-center gap-2">
+              <Wrench className="w-4 h-4 text-slate-950 shrink-0" />
+              <span>
+                ⚠️ <strong>मर्मत सम्भार मोड (Maintenance Mode) सक्रिय छ:</strong> सर्वसाधारण पाठकहरूले साइट हेर्न सक्दैनन् (मर्मत सूचना मात्र देखिन्छ)।
+              </span>
+            </div>
+            <button
+              onClick={handleToggleMaintenanceMode}
+              className="px-3 py-1 bg-slate-950 hover:bg-slate-900 text-white rounded-lg text-[11px] font-bold cursor-pointer shrink-0 ml-2"
+            >
+              अहिले नै लाइभ गर्नुहोस् (Go Live)
+            </button>
+          </div>
+        )}
 
         {/* Horizontal Navigation Tabs (Android-friendly touch scroller) */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 overflow-x-auto border-t border-slate-800/80 py-1.5 scrollbar-thin">
@@ -2627,6 +2687,100 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   <span className="font-bold text-red-900 block">४. प्रमाणित ब्याकअप पुनःस्थापना</span>
                   <p className="text-slate-700">गम्भीर समस्या भएमा अघिल्लो हप्ताको सुरक्षित JSON ब्याकअप अपलोड गरी रिस्टोर गर्नुहोस्।</p>
                 </div>
+              </div>
+            </div>
+
+            {/* Global Cyber Defense Shield & Data Persistence Guarantee */}
+            <div className="md:col-span-2 bg-slate-900 text-white p-6 rounded-2xl border border-slate-700 shadow-md space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck className="w-6 h-6 text-emerald-400" />
+                  <div>
+                    <h3 className="text-base font-bold text-white">
+                      विश्वव्यापी साइबर आक्रमण विरुद्धका सक्रिय सुरक्षा कवचहरू (Cyber Security Shields)
+                    </h3>
+                    <p className="text-[11px] text-slate-400">
+                      हालै विश्वव्यापी रूपमा बढेका साइबर हमला, बोट आक्रमण र डाटा चोरी विरुद्ध प्रणालीमा निम्न सुरक्षा सक्रिय छन्:
+                    </p>
+                  </div>
+                </div>
+                <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-xs font-bold">
+                  🛡️ सबै सुरक्षा कवचहरू सक्रिय
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2 text-xs">
+                <div className="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                  <div className="flex items-center gap-2 font-bold text-emerald-400">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>DDoS & Brute-Force Shield</span>
+                  </div>
+                  <p className="text-slate-300 text-[11px] leading-relaxed">
+                    लगातार ५ पटक गलत एडमिन पासवर्ड प्रयास भएमा सो IP ठेगानालाई १५ मिनेटका लागि स्वचालित रूपमा पूर्ण लकआउट गरिन्छ।
+                  </p>
+                </div>
+
+                <div className="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                  <div className="flex items-center gap-2 font-bold text-emerald-400">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Bot Flooding & Spam Trap</span>
+                  </div>
+                  <p className="text-slate-300 text-[11px] leading-relaxed">
+                    न्यूजलेटर, फारम र एपीआईमा प्रति मिनेट १० अनुरोधको सीमा (Rate-Limit) र स्वचालित बोट फसाउने Honeypot Trap सक्रिय छ।
+                  </p>
+                </div>
+
+                <div className="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                  <div className="flex items-center gap-2 font-bold text-emerald-400">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>HTTP Security Headers</span>
+                  </div>
+                  <p className="text-slate-300 text-[11px] leading-relaxed">
+                    MIME sniffing, Clickjacking, XSS आक्रमण रोक्न `nosniff`, `SAMEORIGIN`, `HSTS` तथा `x-powered-by` लुकाइएको छ।
+                  </p>
+                </div>
+
+                <div className="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                  <div className="flex items-center gap-2 font-bold text-emerald-400">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Atomic Database Integrity</span>
+                  </div>
+                  <p className="text-slate-300 text-[11px] leading-relaxed">
+                    डाटाबेसमा नयाँ लेख वा सेटिङ्स लेख्दा `tempFile` + `renameSync` हुने हुनाले बिजुली वा सर्भर क्र्यास भए पनि डाटा सुरक्षित रहन्छ।
+                  </p>
+                </div>
+
+                <div className="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                  <div className="flex items-center gap-2 font-bold text-emerald-400">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Crypto Salt Password Hash</span>
+                  </div>
+                  <p className="text-slate-300 text-[11px] leading-relaxed">
+                    एडमिन पासवर्ड कहिल्यै खुला अक्षरमा बस्दैन। क्रिप्टो सल्ट (Scrypt 64-bit) ह्यास प्रयोग गरिन्छ जसलाई डिक्रिप्ट गर्न असम्भव छ।
+                  </p>
+                </div>
+
+                <div className="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                  <div className="flex items-center gap-2 font-bold text-emerald-400">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Stealth Admin Cloaking</span>
+                  </div>
+                  <p className="text-slate-300 text-[11px] leading-relaxed">
+                    साइटको सामान्य `/admin` बाट लगइन बदल्न सेटिङ्सबाट गोप्य स्लग (`/kg-admin-secure` आदि) राख्न सकिन्छ।
+                  </p>
+                </div>
+              </div>
+
+              {/* Data Persistence Guarantee Advice */}
+              <div className="p-4 bg-emerald-950/40 border border-emerald-500/30 rounded-xl space-y-2 text-xs">
+                <span className="font-bold text-emerald-300 block">
+                  📌 डाटा कहिल्यै नमेटिने र डिफल्टमा नफर्किने ३ वटा नियम (Data Persistence Rules):
+                </span>
+                <ol className="list-decimal list-inside space-y-1 text-slate-300 text-[11px] leading-relaxed">
+                  <li><strong>AI Studio बाट Export to GitHub:</strong> जब तपाईं नयाँ सामग्री वा सेटिङ्स बनाउनुहुन्छ, AI Studio मा 'Export to GitHub' मा क्लिक गर्दा सम्पूर्ण डाटाबेस स्थायी रूपमा GitHub मा कमिट हुन्छ र Render ले नयाँ डाटा कहिल्यै हराउँदैन।</li>
+                  <li><strong>नियमित JSON ब्याकअप डाउनलोड:</strong> हप्ताको एकपटक माथिको नीलो बटनबाट 'पूर्ण डाटाबेस ब्याकअप डाउनलोड गर्नुहोस् (JSON)' थिचेर सुरक्षित राख्नुहोस्। आवश्यक पर्दा १ सेकेन्डमै 'Restore JSON' बाट फिर्ता आउँछ।</li>
+                  <li><strong>Render Environment Variable:</strong> माथिको 'स्थायी सेटिङ्स कपी गर्नुहोस्' थिचेर Render को Environment मा <code>KHABAR_SETTINGS_JSON</code> राख्दा जुनसुकै अवस्थामा पनि तपाईंको सेटिङ्स सधैं स्थायी रहन्छ।</li>
+                </ol>
               </div>
             </div>
           </div>

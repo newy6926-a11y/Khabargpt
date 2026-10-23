@@ -13,6 +13,22 @@ async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';
   const PORT = isProd && process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
+  // Cyber Attack Defense: Disable server signature fingerprinting
+  app.disable('x-powered-by');
+
+  // Global HTTP Cyber Security Headers (Protection against XSS, Clickjacking, MIME sniffing, and Protocol downgrade)
+  app.use((_req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'geolocation=(), camera=(), microphone=()');
+    if (isProd) {
+      res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    }
+    next();
+  });
+
   // Request body parsers (support base64 images and videos up to 50MB)
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -31,6 +47,18 @@ async function startServer() {
   if (fs.existsSync(publicDir)) {
     app.use(express.static(publicDir));
   }
+
+  // Dedicated unthrottled Ping & Health endpoint for Uptime Bots (Render 24/7 keep-alive)
+  app.get(['/ping', '/api/ping'], (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(200).json({
+      status: 'ok',
+      service: 'Khabar GPT Server',
+      uptimeSeconds: Math.floor(process.uptime()),
+      timestamp: Date.now()
+    });
+  });
 
   // Mount API Router under /api
   app.use('/api', apiRouter);

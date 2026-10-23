@@ -15,6 +15,7 @@ export interface AuthenticatedRequest extends Request {
 const loginAttempts = new Map<string, { count: number; firstAttempt: number }>();
 const contactRateLimits = new Map<string, { count: number; firstAttempt: number }>();
 const feedbackRateLimits = new Map<string, { count: number; firstAttempt: number }>();
+const newsletterRateLimits = new Map<string, { count: number; firstAttempt: number }>();
 
 function checkRateLimit(
   map: Map<string, { count: number; firstAttempt: number }>,
@@ -659,6 +660,11 @@ apiRouter.post('/admin/market/reset', requireAuth, requireRole(['owner', 'editor
 // ================= NEWSLETTER & GMAIL SUBSCRIBER ENGINE =================
 
 apiRouter.post('/newsletter/subscribe', (req: Request, res: Response) => {
+  const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
+  if (!checkRateLimit(newsletterRateLimits, clientIp, 10, 60 * 1000)) {
+    return res.status(429).json({ error: 'धेरै पटक अनुरोध गरियो। कृपया केही मिनेटपछि पुनः प्रयास गर्नुहोस् (Rate limit exceeded)' });
+  }
+
   const { email, frequency } = req.body;
   if (!email || !String(email).includes('@')) {
     return res.status(400).json({ error: 'कृपया मान्य इमेल ठेगाना प्रविष्ट गर्नुहोस् (Invalid email address)' });
@@ -1271,7 +1277,14 @@ apiRouter.get('/audit-logs', requireAuth, (_req: AuthenticatedRequest, res: Resp
   return res.json(db.getAuditLogs());
 });
 
-// ================= SYSTEM HEALTH & DIAGNOSTICS =================
+apiRouter.get(['/ping'], (_req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  return res.json({
+    status: 'ok',
+    uptimeSeconds: Math.floor(process.uptime()),
+    timestamp: Date.now()
+  });
+});
 
 apiRouter.get('/health', (_req: Request, res: Response) => {
   return res.json({
