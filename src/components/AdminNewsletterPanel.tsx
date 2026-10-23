@@ -61,26 +61,39 @@ export const AdminNewsletterPanel: React.FC<AdminNewsletterPanelProps> = ({ cont
   const [resendKeyInput, setResendKeyInput] = useState('');
   const [resendSenderInput, setResendSenderInput] = useState('onboarding@resend.dev');
 
+  const [editableDigestText, setEditableDigestText] = useState('');
+  const [isCustomEdited, setIsCustomEdited] = useState(false);
+
   const fetchSubscribers = async () => {
     setLoadingSubscribers(true);
     try {
       const data = await api.getNewsletterSubscribers();
-      setSubscribers(data);
-    } catch {
-      // Fallback initial
-      setSubscribers([
-        { id: 'sub-1', email: 'kathmandu.reader@gmail.com', frequency: 'daily', status: 'active', subscribedAt: new Date().toISOString() },
-        { id: 'sub-2', email: 'pokhara.news@gmail.com', frequency: 'daily', status: 'active', subscribedAt: new Date().toISOString() },
-        { id: 'sub-3', email: 'diaspora.sydney@gmail.com', frequency: 'weekly', status: 'active', subscribedAt: new Date().toISOString() }
-      ]);
+      setSubscribers(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Subscribers fetch error:', err);
+      setSubscribers([]);
     } finally {
       setLoadingSubscribers(false);
     }
   };
 
+  const refreshMarketData = async () => {
+    try {
+      const m = await api.getMarketData();
+      setMarketSnapshot(m);
+      setSentNotice('ताजा बजार दर सफलतापूर्वक लोड भयो!');
+      setTimeout(() => setSentNotice(null), 3000);
+    } catch {
+      setSendError('बजार दर लोड गर्न असफल');
+      setTimeout(() => setSendError(null), 3000);
+    }
+  };
+
   useEffect(() => {
     fetchSubscribers();
-    api.getMarketData().then((m) => setMarketSnapshot(m)).catch(() => {});
+    api.getMarketData().then((m) => {
+      setMarketSnapshot(m);
+    }).catch(() => {});
     api.getSettings().then((s) => {
       if (s.resendApiKey) setResendKeyInput(s.resendApiKey);
       if (s.resendSenderEmail) setResendSenderInput(s.resendSenderEmail);
@@ -111,7 +124,7 @@ export const AdminNewsletterPanel: React.FC<AdminNewsletterPanelProps> = ({ cont
 
   const selectedArticles = publishedItems.filter((c) => selectedItemIds.includes(c.id));
 
-  // Auto-generate digest text with clean formatting
+  // Auto-generate digest text with clean formatting (Nepal news & render URL, NO WhatsApp)
   const generateDigestText = () => {
     let out = `📰 ${digestTitle}\n`;
     out += `📅 मिति: ${nepaliDate.dateFormattedNp} (${nepaliDate.tithiNp})\n`;
@@ -124,13 +137,14 @@ export const AdminNewsletterPanel: React.FC<AdminNewsletterPanelProps> = ({ cont
       out += `${toNepaliDigits(idx + 1)}. *${art.title}*\n`;
       out += `   श्रेणी: ${art.category} | लेखक: ${art.author}\n`;
       out += `   सार: ${art.summary}\n`;
-      out += `   👉 विस्तृत पढ्नुहोस्: https://khabargpt.com/article/${art.slug}\n\n`;
+      out += `   👉 विस्तृत पढ्नुहोस्: https://khabargpt.onrender.com/article/${art.slug}\n\n`;
     });
 
     if (includeMarketRates && marketSnapshot) {
-      out += `📊 आजको बजार दर (Nepal Market Snapshot):\n`;
+      out += `📊 आजको ताजा बजार दर (Nepal Live Market Snapshot):\n`;
       out += `• नेप्से परिसूचक: ${marketSnapshot.nepse.index.toLocaleString()} (${marketSnapshot.nepse.change >= 0 ? '+' : ''}${marketSnapshot.nepse.change} अंक)\n`;
       out += `• छापावाल सुन: रु ${marketSnapshot.goldSilver.fineGoldTola.toLocaleString()} / तोला\n`;
+      out += `• तेजाबी सुन: रु ${marketSnapshot.goldSilver.tejabiGoldTola?.toLocaleString() || marketSnapshot.goldSilver.fineGoldTola.toLocaleString()} / तोला\n`;
       out += `• चाँदी: रु ${marketSnapshot.goldSilver.silverTola.toLocaleString()} / तोला\n`;
       out += `• पेट्रोल: रु ${marketSnapshot.fuel.petrolLitre} / लिटर | डिजेल: रु ${marketSnapshot.fuel.dieselLitre} / लिटर\n`;
       out += `• अमेरिकी डलर (USD): खरिद रु ${marketSnapshot.forex.usd.buy} / बिक्री रु ${marketSnapshot.forex.usd.sell}\n\n`;
@@ -138,13 +152,19 @@ export const AdminNewsletterPanel: React.FC<AdminNewsletterPanelProps> = ({ cont
 
     out += `--------------------------------------------------\n`;
     out += `नोट: खबर GPT सार्वजनिक सरोकारका जानकारी सरल भाषामा प्रस्तुत गर्ने डिजिटल सूचना पृष्ठ हो।\n`;
-    out += `📲 आधिकारिक WhatsApp च्यानल: https://whatsapp.com/channel/khabargpt\n`;
-    out += `🌐 पोर्टल: https://khabargpt.com\n`;
+    out += `🌐 आधिकारिक पोर्टल: https://khabargpt.onrender.com\n`;
     return out;
   };
 
+  useEffect(() => {
+    if (!isCustomEdited) {
+      setEditableDigestText(generateDigestText());
+    }
+  }, [selectedItemIds, includeMarketRates, marketSnapshot, digestTitle, digestIntro, isCustomEdited]);
+
   const handleCopy = () => {
-    navigator.clipboard.writeText(generateDigestText());
+    const textToCopy = editableDigestText || generateDigestText();
+    navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -155,10 +175,12 @@ export const AdminNewsletterPanel: React.FC<AdminNewsletterPanelProps> = ({ cont
     setSentNotice(null);
     setSendError(null);
 
+    const textToSend = editableDigestText || generateDigestText();
+
     try {
       const result = await api.dispatchNewsletter({
         subject: digestTitle,
-        digestText: generateDigestText()
+        digestText: textToSend
       });
       setSentNotice(result.message || `${result.sentCount} जना सक्रिय सदस्यहरूलाई इमेल सफलतापूर्वक पठाइयो।`);
       setTimeout(() => setSentNotice(null), 5000);
@@ -176,9 +198,9 @@ export const AdminNewsletterPanel: React.FC<AdminNewsletterPanelProps> = ({ cont
 
     try {
       const added = await api.addNewsletterSubscriber(newEmail.trim(), newFrequency);
-      setSubscribers([added, ...subscribers]);
+      await fetchSubscribers();
       setNewEmail('');
-      setSentNotice(`नयाँ ग्राहक (${newEmail}) सफलतापूर्वक थपियो!`);
+      setSentNotice(`नयाँ ग्राहक (${newEmail}) सफलतापूर्वक डेटाबेसमा दर्ता भयो!`);
       setTimeout(() => setSentNotice(null), 4000);
     } catch (err: unknown) {
       setSendError(err instanceof Error ? err.message : 'ग्राहक थप्न त्रुटि भयो');
@@ -343,17 +365,27 @@ export const AdminNewsletterPanel: React.FC<AdminNewsletterPanelProps> = ({ cont
                 />
               </div>
 
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="incRates"
-                  checked={includeMarketRates}
-                  onChange={(e) => setIncludeMarketRates(e.target.checked)}
-                  className="w-4 h-4 text-red-600 rounded cursor-pointer accent-red-600"
-                />
-                <label htmlFor="incRates" className="text-xs font-medium text-slate-700 cursor-pointer">
-                  आजको नेपाल बजार दर (नेप्से, सुन-चाँदी, इन्धन, डलर) समावेश गर्नुहोस्
-                </label>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 border-t border-slate-100">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="incRates"
+                    checked={includeMarketRates}
+                    onChange={(e) => setIncludeMarketRates(e.target.checked)}
+                    className="w-4 h-4 text-red-600 rounded cursor-pointer accent-red-600"
+                  />
+                  <label htmlFor="incRates" className="text-xs font-medium text-slate-700 cursor-pointer">
+                    आजको ताजा बजार दर (नेप्से, सुन-चाँदी, इन्धन, डलर) समावेश गर्नुहोस्
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  onClick={refreshMarketData}
+                  className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition-colors flex items-center gap-1 cursor-pointer shrink-0"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>ताजा बजार दर लोड गर्नुहोस्</span>
+                </button>
               </div>
             </div>
 
@@ -406,22 +438,51 @@ export const AdminNewsletterPanel: React.FC<AdminNewsletterPanelProps> = ({ cont
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="font-bold text-xs uppercase text-slate-700 tracking-wider">
-                    प्रत्यक्ष पूर्वावलोकन (Live Preview)
+                    इमेल सन्देश सम्पादन & पूर्वावलोकन (Editable)
                   </span>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleCopy}
-                  className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors flex items-center gap-1 cursor-pointer"
-                >
-                  {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                  <span>{copied ? 'कपि भयो!' : 'कपि गर्नुहोस्'}</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditableDigestText(generateDigestText());
+                      setIsCustomEdited(false);
+                      setSentNotice('मस्यौदा पुन: लोड गरियो!');
+                      setTimeout(() => setSentNotice(null), 3000);
+                    }}
+                    title="छानिएका समाचार र ताजा दरहरूबाट पुन: मस्यौदा बनाउनुहोस्"
+                    className="px-2 py-1 text-[11px] font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1 cursor-pointer"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    <span>रिसेट</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCopy}
+                    className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors flex items-center gap-1 cursor-pointer"
+                  >
+                    {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                    <span>{copied ? 'कपि भयो!' : 'कपि गर्नुहोस्'}</span>
+                  </button>
+                </div>
               </div>
 
-              {/* Formatted Text Box */}
-              <div className="bg-slate-900 text-slate-200 p-4 rounded-xl font-mono text-[11px] leading-relaxed whitespace-pre-wrap flex-1 max-h-96 overflow-y-auto selection:bg-red-500 selection:text-white">
-                {generateDigestText()}
+              {/* Editable Formatted Text Box */}
+              <div className="flex-1 flex flex-col space-y-2">
+                <textarea
+                  value={editableDigestText}
+                  onChange={(e) => {
+                    setEditableDigestText(e.target.value);
+                    setIsCustomEdited(true);
+                  }}
+                  rows={14}
+                  className="w-full bg-slate-950 text-slate-100 p-3.5 rounded-xl font-mono text-xs leading-relaxed focus:ring-2 focus:ring-red-500 border border-slate-800 resize-y selection:bg-red-500 selection:text-white"
+                  placeholder="यहाँ तपाईंले आफ्नो इच्छा अनुसार इमेल सन्देश सम्पादन, थपघट वा परिवर्तन गर्न सक्नुहुन्छ..."
+                />
+                <p className="text-[11px] text-slate-500 flex items-center gap-1">
+                  <Info className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                  <span>तपाईंले यो बक्सभित्र जुनसुकै अक्षर, समाचार वा बजार दर आफ्नो इच्छा अनुसार सम्पादन गर्न सक्नुहुन्छ।</span>
+                </p>
               </div>
 
               {/* Action Buttons */}

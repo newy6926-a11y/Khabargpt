@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { KhabarLogo } from './KhabarLogo';
-import { ShieldCheck, Facebook, AlertCircle, Mail, MapPin } from 'lucide-react';
+import { ShieldCheck, Facebook, AlertCircle, Mail, MapPin, CheckCircle, Send } from 'lucide-react';
 import { SiteSettings } from '../types';
+import { api } from '../services/api';
 
 interface FooterProps {
   onNavigate: (path: string) => void;
@@ -9,9 +10,77 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate, settings }) => {
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [newsletterSuccess, setNewsletterSuccess] = useState(false);
+  const [newsletterError, setNewsletterError] = useState<string | null>(null);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail || !newsletterEmail.includes('@')) return;
+    setSubmitting(true);
+    setNewsletterError(null);
+    try {
+      await api.subscribeNewsletter(newsletterEmail.trim(), 'daily');
+      setNewsletterSuccess(true);
+      setNewsletterEmail('');
+      setTimeout(() => setNewsletterSuccess(false), 5000);
+    } catch (err: unknown) {
+      setNewsletterError(err instanceof Error ? err.message : 'दर्ता गर्न सकिएन');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <footer className="bg-slate-900 text-slate-300 pt-12 pb-24 lg:pb-12 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Newsletter Subscription Bar in Footer */}
+        <div className="bg-gradient-to-r from-red-950/80 via-slate-900 to-slate-900 p-6 sm:p-8 rounded-3xl border border-red-900/40 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-6 mb-12">
+          <div className="space-y-1.5 text-center lg:text-left">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-red-400 bg-red-950/60 px-2.5 py-0.5 rounded-full border border-red-800/40">
+              निःशुल्क इमेल सेवा
+            </span>
+            <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              खबर GPT दैनिक जीमेल न्यूजलेटर सदस्यता
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-400 max-w-xl">
+              नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण र सुनचाँदी-नेप्सेको बजार दर हरेक बिहान सोझै आफ्नो Gmail मा प्राप्त गर्नुहोस्।
+            </p>
+          </div>
+
+          <form onSubmit={handleNewsletterSubmit} className="w-full lg:w-auto flex-1 max-w-md">
+            {newsletterSuccess ? (
+              <div className="p-3.5 bg-emerald-950/80 border border-emerald-800 text-emerald-300 rounded-2xl text-xs font-semibold text-center flex items-center justify-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>तपाईंको जीमेल सफलतापूर्वक दर्ता भयो! धन्यवाद।</span>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="email"
+                  required
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  placeholder="तपाईंको Gmail ठेगाना (उदा: name@gmail.com)"
+                  className="flex-1 px-4 py-3 bg-slate-950/80 border border-slate-700 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-red-500 font-medium"
+                />
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-colors whitespace-nowrap cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{submitting ? 'दर्ता गर्दै...' : 'सदस्यता लिनुहोस्'}</span>
+                </button>
+              </div>
+            )}
+            {newsletterError && (
+              <p className="text-[11px] text-red-400 mt-1.5 text-center sm:text-left">{newsletterError}</p>
+            )}
+          </form>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Brand & Introduction */}
           <div className="space-y-4">
