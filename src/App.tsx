@@ -25,6 +25,13 @@ import { CorrectionsPage } from './pages/CorrectionsPage';
 import { ContactPage } from './pages/ContactPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { TermsCopyrightPage } from './pages/TermsCopyrightPage';
+import { PosterStudioPage } from './pages/PosterStudioPage';
+import { KnowledgeQuizPage } from './pages/KnowledgeQuizPage';
+import { VerifyInformationPage } from './pages/VerifyInformationPage';
+import { PersonalizationSettingsPage } from './pages/PersonalizationSettingsPage';
+import { CollaborationMediaKitPage } from './pages/CollaborationMediaKitPage';
+import { ContentDisclaimerPage } from './pages/ContentDisclaimerPage';
+import { CopyrightCorrectionsPolicyPage } from './pages/CopyrightCorrectionsPolicyPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { AdminPortal } from './pages/AdminPortal';
 import { LiveEventDetailPage } from './pages/LiveEventDetailPage';
@@ -375,6 +382,20 @@ export default function App() {
           <PrivacyPolicyPage />
         ) : currentPath === '/terms' ? (
           <TermsCopyrightPage />
+        ) : currentPath === '/poster-studio' ? (
+          <PosterStudioPage settings={settings} onNavigate={navigate} />
+        ) : currentPath === '/quiz' ? (
+          <KnowledgeQuizPage settings={settings} onNavigate={navigate} />
+        ) : currentPath === '/verify-information' ? (
+          <VerifyInformationPage settings={settings} onNavigate={navigate} />
+        ) : currentPath === '/settings' ? (
+          <PersonalizationSettingsPage settings={settings} onNavigate={navigate} />
+        ) : currentPath === '/collaborate' ? (
+          <CollaborationMediaKitPage settings={settings} content={content} onNavigate={navigate} />
+        ) : currentPath === '/content-disclaimer' ? (
+          <ContentDisclaimerPage settings={settings} onNavigate={navigate} />
+        ) : currentPath === '/copyright-and-corrections' ? (
+          <CopyrightCorrectionsPolicyPage settings={settings} onNavigate={navigate} />
         ) : isSecretAdminRoute ? (
           <AdminPortal
             user={user}

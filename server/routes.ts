@@ -822,6 +822,10 @@ apiRouter.post('/admin/logo/update-default', requireAuth, requireRole(['owner', 
     const distLogoPath = path.resolve(process.cwd(), 'dist', 'logo.svg');
 
     if (svgContent && typeof svgContent === 'string' && svgContent.includes('<svg')) {
+      // Disallow embedded script execution in SVG
+      if (/<script|onload=|onerror=|onclick=|javascript:/i.test(svgContent)) {
+        return res.status(400).json({ error: 'अमान्य SVG फाइल: स्क्रिप्ट वा इभेन्ट समावेश गर्न पाइँदैन।' });
+      }
       fs.writeFileSync(publicLogoPath, svgContent.trim(), 'utf-8');
       if (fs.existsSync(distLogoPath)) {
         fs.writeFileSync(distLogoPath, svgContent.trim(), 'utf-8');
@@ -1117,8 +1121,18 @@ apiRouter.post('/corrections', requireAuth, (req: AuthenticatedRequest, res: Res
 
 // ================= SETTINGS ROUTES =================
 
-apiRouter.get('/settings', (_req: Request, res: Response) => {
-  return res.json(db.getSettings());
+apiRouter.get('/settings', optionalAuth, (req: AuthenticatedRequest, res: Response) => {
+  const settings = db.getSettings();
+  if (!req.user) {
+    const {
+      emailSmtpPass,
+      emailSmtpUser,
+      resendApiKey,
+      ...publicSettings
+    } = settings;
+    return res.json(publicSettings);
+  }
+  return res.json(settings);
 });
 
 apiRouter.put('/settings', requireAuth, requireRole(['owner', 'editor_in_chief']), (req: AuthenticatedRequest, res: Response) => {
@@ -1170,9 +1184,11 @@ apiRouter.post('/media/upload', requireAuth, (req: AuthenticatedRequest, res: Re
     return res.status(400).json({ error: 'फाइल आकार ४० MB भन्दा कम हुनुपर्छ।' });
   }
 
-  const ext = path.extname(filename) || '.jpg';
-  const safeBase = path.basename(filename, ext).replace(/[^\w-]/g, '');
-  const uniqueFilename = `${safeBase || 'img'}-${Date.now()}${ext}`;
+  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.mp4', '.webm', '.ogg', '.mov'];
+  let rawExt = path.extname(filename).toLowerCase();
+  const ext = allowedExtensions.includes(rawExt) ? rawExt : '.jpg';
+  const safeBase = path.basename(filename, rawExt).replace(/[^\w-]/g, '').slice(0, 50);
+  const uniqueFilename = `${safeBase || 'media'}-${Date.now()}${ext}`;
   const uploadsDir = path.resolve(process.cwd(), 'uploads');
 
   fs.writeFileSync(path.resolve(uploadsDir, uniqueFilename), buffer);
@@ -1262,7 +1278,7 @@ apiRouter.put('/contact/messages/:id/read', requireAuth, (req: AuthenticatedRequ
   return res.json({ success: marked });
 });
 
-apiRouter.post('/contact/messages/:id/reply', requireAuth, requireRole(['owner', 'editor_in_chief', 'sub_editor', 'editor']), async (req: AuthenticatedRequest, res: Response) => {
+apiRouter.post('/contact/messages/:id/reply', requireAuth, requireRole(['owner', 'editor_in_chief', 'sub_editor']), async (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params;
   const { replySubject, replyMessage, sendViaEmail } = req.body;
 

@@ -214,7 +214,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, settings }) => {
           {/* Core Navigation */}
           <div>
             <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">
-              महत्त्वपूर्ण पृष्ठहरू
+              महत्त्वपूर्ण पृष्ठहरू & इन्टर्‍याक्टिभ हब
             </h3>
             <ul className="space-y-2 text-sm text-slate-400">
               <li>
@@ -227,10 +227,34 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, settings }) => {
               </li>
               <li>
                 <button
-                  onClick={() => onNavigate('/news')}
+                  onClick={() => onNavigate('/poster-studio')}
+                  className="hover:text-white transition-colors cursor-pointer text-left text-red-400 font-semibold"
+                >
+                  पोस्टर स्टुडियो (Poster Studio)
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('/quiz')}
+                  className="hover:text-white transition-colors cursor-pointer text-left text-blue-400 font-semibold"
+                >
+                  ज्ञान क्विज (Knowledge Quiz)
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('/verify-information')}
+                  className="hover:text-white transition-colors cursor-pointer text-left text-emerald-400 font-semibold"
+                >
+                  तथ्य जाँच निर्देशिका (Verify Info)
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('/collaborate')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  समाचार तथा अपडेटहरू (News Listing)
+                  सहकार्य & मिडिया किट (Collaborate)
                 </button>
               </li>
               <li>
@@ -243,18 +267,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, settings }) => {
               </li>
               <li>
                 <button
-                  onClick={() => onNavigate('/videos')}
-                  className="hover:text-white transition-colors cursor-pointer text-left"
+                  onClick={() => onNavigate('/settings')}
+                  className="hover:text-white transition-colors cursor-pointer text-left text-slate-400 hover:text-white"
                 >
-                  भिडियो & Reels (Videos Hub)
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => onNavigate('/about')}
-                  className="hover:text-white transition-colors cursor-pointer text-left"
-                >
-                  हाम्रोबारे (About Khabar GPT)
+                  व्यक्तिगत सेटिङ (Settings)
                 </button>
               </li>
             </ul>
@@ -281,7 +297,23 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, settings }) => {
                   className="hover:text-white transition-colors cursor-pointer text-left flex items-center gap-1.5"
                 >
                   <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>सच्याइ नीति (Corrections Policy)</span>
+                  <span>सच्याइ संग्रह (Corrections Policy)</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('/content-disclaimer')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  सामग्री डिस्क्लेमर (Content Disclaimer)
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('/copyright-and-corrections')}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  प्रतिलिपि अधिकार नीति (Copyright Notice)
                 </button>
               </li>
               <li>
@@ -297,7 +329,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, settings }) => {
                   onClick={() => onNavigate('/terms')}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  प्रतिलिपि अधिकार तथा सर्तहरू (Copyright & Terms)
+                  प्रयोगका सर्तहरू (Terms & Conditions)
                 </button>
               </li>
               <li>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, BookOpen, PlayCircle, Info } from 'lucide-react';
+import { Home, Sparkles, HelpCircle, BookOpen, Settings } from 'lucide-react';
 
 interface MobileBottomNavProps {
   currentPath: string;
@@ -12,14 +12,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 }) => {
   const tabs = [
     { label: 'गृहपृष्ठ', path: '/', icon: Home },
+    { label: 'पोस्टर स्टुडियो', path: '/poster-studio', icon: Sparkles },
+    { label: 'क्विज', path: '/quiz', icon: HelpCircle },
     { label: 'एक्सप्लेनर', path: '/explainers', icon: BookOpen },
-    { label: 'भिडियो', path: '/videos', icon: PlayCircle },
-    { label: 'हाम्रोबारे', path: '/about', icon: Info }
+    { label: 'सेटिङ', path: '/settings', icon: Settings }
   ];
 
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-lg">
-      <nav className="grid grid-cols-4 items-center h-15 max-w-md mx-auto">
+      <nav className="grid grid-cols-5 items-center h-15 max-w-lg mx-auto">
         {tabs.map((tab) => {
           const isActive =
             tab.path === '/'

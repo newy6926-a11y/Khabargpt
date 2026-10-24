@@ -229,7 +229,7 @@ export const AdminAdsManagerPanel: React.FC = () => {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={loadAds}
+            onClick={loadAdsAndMedia}
             disabled={loading}
             className="p-2 text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
             title="रिफ्रेस गर्नुहोस्"

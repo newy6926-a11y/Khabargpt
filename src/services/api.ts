@@ -583,6 +583,10 @@ export const api = {
   },
 
   // Backup / Restore
+  async getBackupSnapshot(): Promise<any> {
+    return this.fetchWithAuth('/api/backup/export');
+  },
+
   async restoreBackup(backupData: any): Promise<{ success: boolean; message: string }> {
     return this.fetchWithAuth('/api/backup/restore', {
       method: 'POST',

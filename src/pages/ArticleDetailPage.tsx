@@ -370,7 +370,7 @@ export const ArticleDetailPage: React.FC<ArticleDetailPageProps> = ({
         </div>
 
         <a
-          href={settings.facebookUrl || 'https://facebook.com/khabargpt'}
+          href={settings?.facebookUrl || 'https://facebook.com/khabargpt'}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full sm:w-auto px-6 py-3 bg-white text-blue-900 hover:bg-blue-50 font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"

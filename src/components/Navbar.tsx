@@ -12,7 +12,8 @@ import {
   Mail,
   Eye,
   Type,
-  Sparkles
+  Sparkles,
+  Settings
 } from 'lucide-react';
 import { SiteSettings } from '../types';
 
@@ -39,11 +40,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const navLinks = [
     { label: 'गृहपृष्ठ', path: '/' },
-    { label: 'समाचार/अपडेट', path: '/news' },
     { label: 'एक्सप्लेनर', path: '/explainers' },
-    { label: 'भिडियो & Reels', path: '/videos' },
-    { label: 'सच्याइ (Corrections)', path: '/corrections' },
-    { label: 'हाम्रोबारे', path: '/about' }
+    { label: 'पोस्टर स्टुडियो', path: '/poster-studio' },
+    { label: 'ज्ञान क्विज', path: '/quiz' },
+    { label: 'तथ्य जाँच गाइड', path: '/verify-information' },
+    { label: 'सहकार्य', path: '/collaborate' }
   ];
 
   const facebookUrl = settings?.facebookUrl || 'https://facebook.com/khabargpt';
@@ -108,6 +109,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span>पहुँचयोग्यता</span>
               </button>
             )}
+
+            <span className="text-slate-700">|</span>
+
+            <button
+              onClick={() => onNavigate('/settings')}
+              className="hover:text-white transition-colors cursor-pointer flex items-center gap-1 text-slate-300"
+              title="व्यक्तिगत सेटिङ"
+            >
+              <Settings className="w-3 h-3 text-slate-400" />
+              <span>सेटिङ</span>
+            </button>
           </div>
         </div>
       </div>

@@ -35,12 +35,20 @@ async function startServer() {
 
   const rootDir = process.cwd();
 
-  // Serve uploaded media statically
+  // Serve uploaded media statically with strict sandbox security
   const uploadsDir = path.resolve(rootDir, 'uploads');
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
-  app.use('/uploads', express.static(uploadsDir));
+  app.use(
+    '/uploads',
+    (_req, res, next) => {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox");
+      next();
+    },
+    express.static(uploadsDir)
+  );
 
   // Serve static public folder (logos, favicons, robots, assets)
   const publicDir = path.resolve(rootDir, 'public');
@@ -107,9 +115,10 @@ Allow: /uploads/
 
 User-agent: *
 Allow: /
+Allow: /api/
 Disallow: /admin
 Disallow: /${secretSlug}
-Disallow: /api/
+Disallow: /api/admin
 
 Sitemap: ${baseUrl}/sitemap.xml
 `
@@ -131,6 +140,11 @@ Sitemap: ${baseUrl}/sitemap.xml
     const items = db.getContentList({ includeDrafts: false });
     const staticPages = [
       { url: '/', priority: '1.0', changefreq: 'daily' },
+      { url: '/poster-studio', priority: '0.9', changefreq: 'weekly' },
+      { url: '/quiz', priority: '0.9', changefreq: 'weekly' },
+      { url: '/verify-information', priority: '0.9', changefreq: 'weekly' },
+      { url: '/collaborate', priority: '0.8', changefreq: 'monthly' },
+      { url: '/settings', priority: '0.6', changefreq: 'monthly' },
       { url: '/news', priority: '0.8', changefreq: 'daily' },
       { url: '/explainers', priority: '0.9', changefreq: 'weekly' },
       { url: '/videos', priority: '0.8', changefreq: 'weekly' },
@@ -138,6 +152,8 @@ Sitemap: ${baseUrl}/sitemap.xml
       { url: '/editorial-standards', priority: '0.7', changefreq: 'monthly' },
       { url: '/corrections', priority: '0.7', changefreq: 'weekly' },
       { url: '/contact', priority: '0.6', changefreq: 'monthly' },
+      { url: '/content-disclaimer', priority: '0.6', changefreq: 'yearly' },
+      { url: '/copyright-and-corrections', priority: '0.6', changefreq: 'yearly' },
       { url: '/privacy', priority: '0.5', changefreq: 'yearly' },
       { url: '/terms', priority: '0.5', changefreq: 'yearly' }
     ];

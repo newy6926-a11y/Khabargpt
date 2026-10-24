@@ -1,0 +1,15 @@
+User-agent: Googlebot-Image
+Allow: /
+Allow: /favicon*
+Allow: /logo*
+Allow: /android-chrome*
+Allow: /apple-touch-icon*
+Allow: /uploads/
+
+User-agent: *
+Allow: /
+Allow: /api/
+Disallow: /admin
+Disallow: /api/admin
+
+Sitemap: https://khabargpt.onrender.com/sitemap.xml

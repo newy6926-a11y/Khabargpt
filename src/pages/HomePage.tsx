@@ -36,7 +36,11 @@ import {
   RotateCcw,
   X,
   Share2,
-  Copy
+  Copy,
+  HelpCircle,
+  Palette,
+  Award,
+  Handshake
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -65,6 +69,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   const [noticeZoomLevel, setNoticeZoomLevel] = useState<number>(1);
   const [copiedNotice, setCopiedNotice] = useState<boolean>(false);
   const [showMobileStickyBar, setShowMobileStickyBar] = useState<boolean>(true);
+  const [inFeedAd, setInFeedAd] = useState<AdItem | null>(null);
 
   const handleCopyNoticeLink = async () => {
     try {
@@ -448,6 +453,109 @@ export const HomePage: React.FC<HomePageProps> = ({
               <MapPin className="w-4 h-4 text-red-600 shrink-0" />
               <span className="font-semibold">ठेगाना:</span>
               <span>{settings.address || 'काठमाडौँ, नेपाल'}</span>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= KHABAR GPT INTERACTIVE HUB SHOWCASE ================= */}
+        <section className="bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white border border-slate-800 shadow-xl space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-red-400 bg-red-950/70 border border-red-800/60 px-3 py-1 rounded-full inline-block mb-1">
+                डिजिटल अन्तरक्रियात्मक हब (Interactive Hub)
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                नागरिक सचेतना, डिजिटल पोस्टर तथा ज्ञान क्विज
+              </h2>
+            </div>
+            <p className="text-xs text-slate-400 max-w-md">
+              नेपाली चाडपर्वका शुभकामना पोस्टर बनाउनुहोस्, समसामयिक ज्ञान जाँच्नुहोस् र सूचना प्रमाणीकरणका सीप सिक्नुहोस्।
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* 1. Poster Studio */}
+            <div
+              onClick={() => onNavigate('/poster-studio')}
+              className="group p-5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-red-500/60 transition-all cursor-pointer space-y-3 hover:-translate-y-1"
+            >
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-colors">
+                <Palette className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-white group-hover:text-red-400 transition-colors">
+                  पोस्टर स्टुडियो (Poster Studio)
+                </h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  चाडपर्व, जन्मदिन, उपहार कार्ड र व्यावसायिक अफरका लागि रेडी-मेड पोस्टर सम्पादन र डाउनलोड।
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-red-400 flex items-center gap-1">
+                कार्ड बनाउनुहोस् <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
+
+            {/* 2. Knowledge Quiz */}
+            <div
+              onClick={() => onNavigate('/quiz')}
+              className="group p-5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-blue-500/60 transition-all cursor-pointer space-y-3 hover:-translate-y-1"
+            >
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                <HelpCircle className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
+                  ज्ञान क्विज (Knowledge Quiz)
+                </h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  नेपालको संविधान, भूगोल, सम्पदा र डिजिटल साक्षरतामा आफ्नो सामान्य ज्ञान परीक्षण गर्नुहोस्।
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-blue-400 flex items-center gap-1">
+                क्विज खेल्नुहोस् <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
+
+            {/* 3. Verification Guide */}
+            <div
+              onClick={() => onNavigate('/verify-information')}
+              className="group p-5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/60 transition-all cursor-pointer space-y-3 hover:-translate-y-1"
+            >
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <Shield className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">
+                  तथ्य जाँच निर्देशिका (Verify Info)
+                </h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  सामाजिक सञ्जालमा गलत सूचना र AI तस्बिर पहिचान गर्ने ६ वटा व्यावहारिक नियमहरू र चेकलिस्ट।
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-emerald-400 flex items-center gap-1">
+                निर्देशिका पढ्नुहोस् <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
+
+            {/* 4. Collaboration & Media Kit */}
+            <div
+              onClick={() => onNavigate('/collaborate')}
+              className="group p-5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/60 transition-all cursor-pointer space-y-3 hover:-translate-y-1"
+            >
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                <Handshake className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
+                  सहकार्य & मिडिया किट (Collaborate)
+                </h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  नैतिक व्यवसाय तथा सामाजिक अभियानहरूका लागि प्रायोजित शैक्षिक एक्सप्लेनर र सहकार्य अवसर।
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-amber-400 flex items-center gap-1">
+                प्रस्ताव पठाउनुहोस् <ChevronRight className="w-3.5 h-3.5" />
+              </span>
             </div>
           </div>
         </section>

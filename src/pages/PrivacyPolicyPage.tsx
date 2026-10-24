@@ -34,10 +34,15 @@ export const PrivacyPolicyPage: React.FC = () => {
         </section>
 
         <section className="bg-white border border-slate-200 rounded-xl p-5 space-y-2">
-          <h2 className="text-base font-bold text-slate-900">३. कुकिज र लोकल स्टोरेज (Cookies & LocalStorage)</h2>
+          <h2 className="text-base font-bold text-slate-900">३. कुकिज, लोकल स्टोरेज र पोस्टर स्टुडियो (Cookies & LocalStorage)</h2>
           <p>
-            हाम्रो सार्वजनिक वेबसाइटले अनावश्यक ट्र्याकिङ वा विज्ञापन कुकिज प्रयोग गर्दैन। वेबसाइटमा व्यवस्थापक लगइन सत्र (Admin Session) सुरक्षित राख्नका लागि केवल आवश्यक टोकन (Authentication Token) ब्राउजरको सुरक्षित स्टोरेजमा राखिन्छ।
+            हाम्रो सार्वजनिक वेबसाइटले कुनै पनि अनाधिकृत ट्र्याकिङ, विज्ञापन सञ्जाल वा प्रयोगकर्ता जासुसी कुकिज प्रयोग गर्दैन।
           </p>
+          <ul className="list-disc pl-5 space-y-1 text-xs text-slate-600">
+            <li><strong>व्यक्तिगत प्राथमिकताहरू (Settings):</strong> भाषा, पोस्टर ढाँचा, र थिम प्राथमिकता केवल तपाईंको ब्राउजरको <code>localStorage</code> मा सुरक्षित रहन्छन् र कुनै पनि सर्भरमा पठाइँदैन।</li>
+            <li><strong>पोस्टर स्टुडियो (Poster Studio):</strong> प्रयोगकर्ताले पोस्टर स्टुडियोमा लेखेका नाम, सन्देश वा सिर्जना गरिएका पोस्टरहरू सोझै ब्राउजरको HTML5 क्यानभासमा प्रोसेस हुन्छन्; कुनै पनि व्यक्तिगत फोटो वा नाम सर्भरमा सञ्चित हुँदैन।</li>
+            <li><strong>सुरक्षित सेसन:</strong> केवल व्यवस्थापक लगइन प्रमाणीकरणका लागि आवश्यक टोकनहरू सुरक्षित रूपमा राखिन्छ।</li>
+          </ul>
         </section>
 
         <section className="bg-white border border-slate-200 rounded-xl p-5 space-y-2">
