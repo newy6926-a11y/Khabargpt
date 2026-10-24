@@ -57,7 +57,8 @@ import {
   Edit3,
   Sliders,
   Database,
-  Wrench
+  Wrench,
+  FolderOpen
 } from 'lucide-react';
 import { AdminSeoPanel } from '../components/AdminSeoPanel';
 import { AdminLiveEventsPanel } from '../components/AdminLiveEventsPanel';
@@ -168,6 +169,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [svgEditorOpen, setSvgEditorOpen] = useState(false);
   const [svgCodeText, setSvgCodeText] = useState('');
 
+  // Message Reply states
+  const [replyingMessage, setReplyingMessage] = useState<ContactMessage | null>(null);
+  const [replySubject, setReplySubject] = useState('');
+  const [replyBody, setReplyBody] = useState('');
+  const [replySendViaEmail, setReplySendViaEmail] = useState(true);
+  const [sendingReply, setSendingReply] = useState(false);
+
   // Sync settingsForm with props
   useEffect(() => {
     setSettingsForm(settings);
@@ -177,6 +185,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [copiedMediaUrl, setCopiedMediaUrl] = useState<string | null>(null);
+
+  // Content Image upload states
+  const contentImageFileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingContentImage, setUploadingContentImage] = useState(false);
+  const [showContentMediaPicker, setShowContentMediaPicker] = useState(false);
 
   // Search in content
   const [contentSearch, setContentSearch] = useState('');
@@ -227,6 +240,77 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       showNotification('सन्देश हटाइयो।');
     } catch (err: unknown) {
       showNotification(err instanceof Error ? err.message : 'सन्देश हटाउन असफल', 'error');
+    }
+  };
+
+  const handleOpenReply = (msg: ContactMessage) => {
+    setReplyingMessage(msg);
+    setReplySubject(`Re: ${msg.subject} - खबर GPT`);
+    setReplyBody(
+      msg.replyMessage ||
+      `नमस्ते ${msg.name} जी,\n\nखबर GPT मा सम्पर्क गर्नुभएकोमा हार्दिक धन्यवाद।\n\nतपाईंको जिज्ञासा / सल्लाह अनुसार:\n\n\nसादर,\nसम्पादकीय डेस्क, खबर GPT`
+    );
+  };
+
+  const handleSendReply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!replyingMessage || !replyBody.trim()) return;
+    setSendingReply(true);
+    try {
+      const res = await api.replyContactMessage(replyingMessage.id, {
+        replySubject: replySubject.trim(),
+        replyMessage: replyBody.trim(),
+        sendViaEmail: replySendViaEmail
+      });
+
+      setMessagesList((prev) =>
+        prev.map((m) => (m.id === replyingMessage.id ? { ...m, ...res.updatedMessage } : m))
+      );
+      showNotification(res.message, res.emailDispatched || !replySendViaEmail ? 'success' : 'error');
+      setReplyingMessage(null);
+    } catch (err: unknown) {
+      showNotification(err instanceof Error ? err.message : 'जवाफ पठाउन असफल भयो', 'error');
+    } finally {
+      setSendingReply(false);
+    }
+  };
+
+  const handleMarkRepliedViaGmail = async (msg: ContactMessage) => {
+    try {
+      const res = await api.replyContactMessage(msg.id, {
+        replySubject: `Gmail मार्फत पठाइएको (Re: ${msg.subject})`,
+        replyMessage: 'आधिकारिक Gmail मार्फत जवाफ पठाइयो।',
+        sendViaEmail: false
+      });
+      setMessagesList((prev) =>
+        prev.map((m) => (m.id === msg.id ? { ...m, ...res.updatedMessage } : m))
+      );
+      showNotification('✅ Gmail मार्फत जवाफ पठाइएको अभिलेख सुरक्षित गरियो!');
+    } catch (err: unknown) {
+      showNotification(err instanceof Error ? err.message : 'अभिलेख अद्यावधिक गर्न सकिएन', 'error');
+    }
+  };
+
+  const handleContentImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 20 * 1024 * 1024) {
+      showNotification('तस्बिरको आकार २० MB भन्दा कम हुनुपर्छ।', 'error');
+      return;
+    }
+
+    setUploadingContentImage(true);
+    try {
+      const res = await api.uploadMedia(file);
+      setEditingItem((prev) => (prev ? { ...prev, featuredImage: res.url } : prev));
+      setMediaList((prev) => [res, ...prev.filter((m) => m.id !== res.id)]);
+      showNotification('तस्बिर सफलतापूर्वक सिधै अपलोड भयो र सामग्रीमा जोडिएको छ!');
+    } catch (err: unknown) {
+      showNotification(err instanceof Error ? err.message : 'तस्बिर अपलोड असफल', 'error');
+    } finally {
+      setUploadingContentImage(false);
+      if (contentImageFileInputRef.current) contentImageFileInputRef.current.value = '';
     }
   };
 
@@ -1503,50 +1587,314 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           </div>
         )}
 
-        {/* ================= TAB 7: MESSAGES ================= */}
+        {/* ================= TAB 7: MESSAGES & INQUIRIES ================= */}
         {activeTab === 'messages' && (
           <div className="space-y-4">
-            <div>
-              <h3 className="text-base font-bold text-slate-900">सम्पर्क सन्देशहरू (Received Inquiries)</h3>
-              <p className="text-xs text-slate-500">वेबसाइटको सम्पर्क फाराम मार्फत प्राप्त प्रतिक्रियाहरू।</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-red-600" />
+                  <span>सम्पर्क सन्देश तथा सोधपुछ (Received Inquiries & Corrections)</span>
+                </h3>
+                <p className="text-xs text-slate-500">
+                  पाठक तथा आगन्तुकहरूबाट प्राप्त सोधपुछ, सच्याइ अनुरोध र प्रतिक्रियाहरूको जवाफ सिधै यहीँबाट पठाउनुहोस्।
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 text-xs">
+                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-lg font-medium">
+                  जम्मा सन्देश: <strong>{messagesList.length}</strong>
+                </span>
+                <span className="px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg font-medium">
+                  जवाफ बाँकी: <strong>{messagesList.filter((m) => !m.replySent).length}</strong>
+                </span>
+              </div>
             </div>
 
             {messagesList.length === 0 ? (
-              <div className="bg-white border border-dashed border-slate-300 rounded-xl p-12 text-center text-slate-500 text-xs">
-                कुनै नयाँ सन्देश छैन।
+              <div className="bg-white border border-dashed border-slate-300 rounded-2xl p-12 text-center text-slate-500 text-xs space-y-2">
+                <Mail className="w-8 h-8 mx-auto text-slate-300" />
+                <p className="font-semibold text-slate-700">हाल कुनै नयाँ सन्देश छैन।</p>
+                <p className="text-slate-400">वेबसाइटको सम्पर्क वा सच्याइ फारमबाट सन्देश आउनासाथ यहाँ देखिनेछ।</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {messagesList.map((msg) => (
-                  <div key={msg.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-2">
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                      <div>
-                        <span className="font-bold text-slate-900 text-sm block">{msg.subject}</span>
-                        <span className="text-xs text-slate-500">
-                          {msg.name} ({msg.email}) {msg.phone ? `· ${msg.phone}` : ''}
-                        </span>
+              <div className="space-y-4">
+                {messagesList.map((msg) => {
+                  const isReplying = replyingMessage?.id === msg.id;
+                  const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(msg.email)}&su=${encodeURIComponent(`Re: ${msg.subject} - खबर GPT`)}&body=${encodeURIComponent(`नमस्ते ${msg.name} जी,\n\nखबर GPT मा सम्पर्क गर्नुभएकोमा धन्यवाद।\n\n\n\n--- प्राप्त सन्देश ---\n${msg.message}`)}`;
+                  const cleanPhone = msg.phone ? msg.phone.replace(/[^0-9]/g, '') : '';
+                  const whatsappUrl = cleanPhone
+                    ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`नमस्ते ${msg.name} जी, खबर GPT मा सन्देश पठाउनुभएको सम्बन्धमा:`)}`
+                    : null;
+
+                  return (
+                    <div
+                      key={msg.id}
+                      className={`bg-white rounded-2xl border transition-all shadow-xs overflow-hidden ${
+                        msg.replySent
+                          ? 'border-emerald-200/80 bg-gradient-to-b from-white to-emerald-50/10'
+                          : 'border-slate-200'
+                      }`}
+                    >
+                      {/* Message Header */}
+                      <div className="p-4 sm:p-5 border-b border-slate-100 space-y-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="font-bold text-slate-900 text-sm sm:text-base">
+                                {msg.subject}
+                              </h4>
+                              {msg.replySent ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                  <CheckCircle className="w-3 h-3 text-emerald-600" />
+                                  <span>जवाफ पठाइसकिएको</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                  <span>⏳ नयाँ (जवाफ बाँकी)</span>
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                              <span className="font-medium text-slate-800">{msg.name}</span>
+                              <span>·</span>
+                              <a
+                                href={`mailto:${msg.email}`}
+                                className="text-blue-600 hover:underline flex items-center gap-1 font-mono"
+                              >
+                                <span>{msg.email}</span>
+                              </a>
+                              {msg.phone && (
+                                <>
+                                  <span>·</span>
+                                  <span className="font-mono text-slate-700">📞 {msg.phone}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <span className="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700">
+                              {msg.type === 'correction'
+                                ? 'सच्याइ/सुझाव'
+                                : msg.type === 'copyright'
+                                ? 'प्रतिलिपि अधिकार'
+                                : msg.type === 'privacy'
+                                ? 'गोपनीयता'
+                                : msg.type === 'sponsorship'
+                                ? 'विज्ञापन/प्रायोजन'
+                                : 'सम्पर्क/सोधपुछ'}
+                            </span>
+                            <span className="text-[11px] text-slate-400 font-mono">
+                              {new Date(msg.createdAt).toLocaleDateString('ne-NP')}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteMessage(msg.id)}
+                              className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg cursor-pointer transition"
+                              title="सन्देश मेटाउनुहोस्"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-slate-100 text-slate-700">
-                          {msg.type}
-                        </span>
-                        <span className="text-[11px] text-slate-400 font-mono">
-                          {new Date(msg.createdAt).toLocaleDateString('ne-NP')}
-                        </span>
-                        <button
-                          onClick={() => handleDeleteMessage(msg.id)}
-                          className="p-1 hover:bg-red-50 text-red-600 rounded cursor-pointer"
-                          title="सन्देश मेटाउनुहोस्"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+
+                      {/* User's Original Message Body */}
+                      <div className="p-4 sm:p-5 space-y-4">
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-wrap">
+                          {msg.message}
+                        </div>
+
+                        {/* Already Sent Reply Accordion/Box */}
+                        {msg.replySent && msg.replyMessage && (
+                          <div className="bg-emerald-50/80 border border-emerald-200 rounded-xl p-4 text-xs space-y-2">
+                            <div className="flex items-center justify-between flex-wrap gap-2 text-emerald-900 border-b border-emerald-200 pb-2">
+                              <div className="flex items-center gap-1.5 font-bold">
+                                <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                                <span>पठाइएको जवाफ (Sent by {msg.repliedBy || 'Admin'})</span>
+                              </div>
+                              {msg.repliedAt && (
+                                <span className="text-[11px] font-mono text-emerald-700">
+                                  {new Date(msg.repliedAt).toLocaleString('ne-NP')}
+                                </span>
+                              )}
+                            </div>
+                            {msg.replySubject && (
+                              <p className="font-semibold text-emerald-950">
+                                विषय: {msg.replySubject}
+                              </p>
+                            )}
+                            <div className="bg-white/80 p-3 rounded-lg border border-emerald-100 text-slate-800 whitespace-pre-wrap font-sans text-xs sm:text-sm">
+                              {msg.replyMessage}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Quick Action Toolbar */}
+                        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-100">
+                          <button
+                            type="button"
+                            onClick={() => (isReplying ? setReplyingMessage(null) : handleOpenReply(msg))}
+                            className={`px-4 py-2 text-xs font-bold rounded-xl flex items-center gap-1.5 transition cursor-pointer shadow-xs ${
+                              isReplying
+                                ? 'bg-slate-800 text-white hover:bg-slate-900'
+                                : 'bg-red-600 text-white hover:bg-red-700'
+                            }`}
+                          >
+                            <Send className="w-3.5 h-3.5" />
+                            <span>
+                              {isReplying
+                                ? 'सम्पादन बन्द गर्नुहोस्'
+                                : msg.replySent
+                                ? 'पुनः नयाँ जवाफ पठाउनुहोस्'
+                                : 'जवाफ पठाउनुहोस् (Reply)'}
+                            </span>
+                          </button>
+
+                          <a
+                            href={gmailComposeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3.5 py-2 bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition border border-slate-200 cursor-pointer shadow-2xs"
+                            title="तपाईंको व्यक्तिगत वा आधिकारिक Gmail कम्पोज बक्समा खोल्छ (१००% सिधै काम गर्छ)"
+                          >
+                            <Mail className="w-3.5 h-3.5 text-red-500" />
+                            <span>Gmail मा खोल्नुहोस्</span>
+                            <ExternalLink className="w-3 h-3 text-slate-400" />
+                          </a>
+
+                          {!msg.replySent && (
+                            <button
+                              type="button"
+                              onClick={() => handleMarkRepliedViaGmail(msg)}
+                              className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition border border-emerald-200 cursor-pointer"
+                              title="Gmail मा पठाइसकेपछि यो सन्देशलाई 'जवाफ पठाइसकिएको' स्थितिमा राख्नुहोस्"
+                            >
+                              <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Gmail बाट पठाइसकियो</span>
+                            </button>
+                          )}
+
+                          {whatsappUrl && (
+                            <a
+                              href={whatsappUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition border border-emerald-200 cursor-pointer"
+                            >
+                              <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>WhatsApp मा जवाफ</span>
+                              <ExternalLink className="w-3 h-3 text-emerald-600" />
+                            </a>
+                          )}
+                        </div>
+
+                        {/* Interactive Reply Panel (Shown when user clicks Reply) */}
+                        {isReplying && (
+                          <form
+                            onSubmit={handleSendReply}
+                            className="mt-4 p-4 sm:p-5 bg-gradient-to-b from-slate-50 to-red-50/20 border-2 border-red-200 rounded-2xl space-y-4 animate-in fade-in duration-200"
+                          >
+                            <div className="flex items-center justify-between border-b border-red-100 pb-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-lg bg-red-100 text-red-700 flex items-center justify-center">
+                                  <Send className="w-3.5 h-3.5" />
+                                </div>
+                                <h5 className="font-bold text-slate-900 text-xs sm:text-sm">
+                                  {msg.name} लाई आधिकारिक सम्पादकीय जवाफ पठाउनुहोस्
+                                </h5>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setReplyingMessage(null)}
+                                className="text-slate-400 hover:text-slate-600 p-1 rounded cursor-pointer"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            <div className="space-y-3 text-xs">
+                              <div>
+                                <label className="block font-semibold text-slate-700 mb-1">
+                                  प्रापक (Recipient):
+                                </label>
+                                <input
+                                  type="text"
+                                  disabled
+                                  value={`${msg.name} <${msg.email}>`}
+                                  className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-600 font-mono text-xs cursor-not-allowed"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block font-semibold text-slate-700 mb-1">
+                                  जवाफको विषय (Subject):
+                                </label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={replySubject}
+                                  onChange={(e) => setReplySubject(e.target.value)}
+                                  className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-red-500 font-medium"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block font-semibold text-slate-700 mb-1">
+                                  जवाफको व्यहोरा (Your Reply Message):
+                                </label>
+                                <textarea
+                                  rows={5}
+                                  required
+                                  value={replyBody}
+                                  onChange={(e) => setReplyBody(e.target.value)}
+                                  placeholder="नमस्ते, खबर GPT मा सम्पर्क गर्नुभएकोमा धन्यवाद..."
+                                  className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-red-500 font-sans leading-relaxed"
+                                />
+                              </div>
+
+                              <div className="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between">
+                                <div>
+                                  <span className="font-bold text-slate-800 block text-xs">
+                                    सिधै प्रणाली मार्फत इमेल पठाउनुहोस् (Send Email via Resend / SMTP)
+                                  </span>
+                                  <span className="text-[11px] text-slate-500">
+                                    सक्रिय गर्दा {msg.email} मा आधिकारिक ढाँचाको इमेल तुरुन्तै पठाइनेछ।
+                                  </span>
+                                </div>
+                                <input
+                                  type="checkbox"
+                                  checked={replySendViaEmail}
+                                  onChange={(e) => setReplySendViaEmail(e.target.checked)}
+                                  className="w-5 h-5 accent-red-600 rounded cursor-pointer"
+                                />
+                              </div>
+
+                              <div className="flex flex-wrap items-center justify-end gap-2 pt-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setReplyingMessage(null)}
+                                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl cursor-pointer"
+                                >
+                                  रद्द गर्नुहोस्
+                                </button>
+                                <button
+                                  type="submit"
+                                  disabled={sendingReply}
+                                  className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-md transition cursor-pointer flex items-center gap-2 disabled:opacity-50"
+                                >
+                                  <Send className="w-3.5 h-3.5" />
+                                  <span>{sendingReply ? 'पठाउँदै...' : 'जवाफ पठाउनुहोस् र सुरक्षित गर्नुहोस्'}</span>
+                                </button>
+                              </div>
+                            </div>
+                          </form>
+                        )}
                       </div>
                     </div>
-                    <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-lg">
-                      {msg.message}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -3054,28 +3402,137 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 </div>
               </div>
 
-              {/* Featured Image */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">फिचर्ड तस्बिर URL</label>
-                  <input
-                    type="text"
-                    value={editingItem.featuredImage || ''}
-                    onChange={(e) => setEditingItem({ ...editingItem, featuredImage: e.target.value })}
-                    placeholder="/uploads/... वा बाह्य लिङ्क"
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
-                  />
+              {/* Featured Image with Direct Upload & Gallery Picker */}
+              <div className="space-y-2 p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <label className="block font-bold text-slate-800 text-xs">
+                      फिचर्ड तस्बिर (Featured Image)
+                    </label>
+                    <span className="text-[11px] text-slate-500">
+                      कम्प्युटर वा मोबाइलबाट सिधै फोटो छान्नुहोस् वा तल लिङ्क राख्नुहोस्
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="file"
+                      ref={contentImageFileInputRef}
+                      onChange={handleContentImageUpload}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => contentImageFileInputRef.current?.click()}
+                      disabled={uploadingContentImage}
+                      className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{uploadingContentImage ? 'अपलोड हुँदै...' : 'तस्बिर अपलोड (Upload)'}</span>
+                    </button>
+
+                    {mediaList.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowContentMediaPicker(!showContentMediaPicker)}
+                        className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                      >
+                        <FolderOpen className="w-3.5 h-3.5 text-blue-600" />
+                        <span>ग्यालरीबाट छान्नुहोस्</span>
+                      </button>
+                    )}
+
+                    {editingItem.featuredImage && (
+                      <button
+                        type="button"
+                        onClick={() => setEditingItem({ ...editingItem, featuredImage: '' })}
+                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg cursor-pointer"
+                        title="तस्बिर हटाउनुहोस्"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">तस्बिर Alt Text (SEO/पहुँचयोग्यता)</label>
-                  <input
-                    type="text"
-                    value={editingItem.imageAlt || ''}
-                    onChange={(e) => setEditingItem({ ...editingItem, imageAlt: e.target.value })}
-                    placeholder="तस्बिरको सङ्क्षिप्त विवरण"
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
-                  />
+
+                {/* Media Picker Drawer */}
+                {showContentMediaPicker && mediaList.length > 0 && (
+                  <div className="p-3 bg-white rounded-xl border border-blue-200 space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+                      <span>मिडिया ग्यालरीका तस्बिरहरू (क्लिक गरी छान्नुहोस्):</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowContentMediaPicker(false)}
+                        className="text-slate-400 hover:text-slate-600"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-40 overflow-y-auto p-1">
+                      {mediaList.map((m) => (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => {
+                            setEditingItem({ ...editingItem, featuredImage: m.url });
+                            setShowContentMediaPicker(false);
+                            showNotification('ग्यालरीबाट तस्बिर छानियो!');
+                          }}
+                          className={`aspect-video rounded-lg overflow-hidden border-2 transition hover:scale-105 cursor-pointer ${
+                            editingItem.featuredImage === m.url ? 'border-red-600 ring-2 ring-red-400' : 'border-slate-200'
+                          }`}
+                        >
+                          <img src={m.url} alt={m.originalName} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {editingItem.featuredImage && (
+                  <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-900">
+                    <div className="flex items-center gap-2 truncate">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span className="font-medium truncate">
+                        तस्बिर जोडिएको छ: <code className="bg-emerald-100 px-1 py-0.5 rounded font-mono text-[11px]">{editingItem.featuredImage}</code>
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">तस्बिर URL / स्रोत</label>
+                    <input
+                      type="text"
+                      value={editingItem.featuredImage || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, featuredImage: e.target.value })}
+                      placeholder="/uploads/... वा बाह्य लिङ्क"
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">तस्बिर Alt Text (SEO/पहुँचयोग्यता)</label>
+                    <input
+                      type="text"
+                      value={editingItem.imageAlt || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, imageAlt: e.target.value })}
+                      placeholder="तस्बिरको सङ्क्षिप्त विवरण (उदा: प्रधानमन्त्री कार्यालय)"
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white"
+                    />
+                  </div>
                 </div>
+
+                {editingItem.featuredImage && (
+                  <div className="relative aspect-video max-h-48 rounded-xl overflow-hidden border border-slate-200 bg-slate-900/5 p-1 flex items-center justify-center">
+                    <img
+                      src={editingItem.featuredImage}
+                      alt={editingItem.imageAlt || 'Featured'}
+                      className="max-h-48 w-auto object-contain rounded-lg shadow-sm"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-2 pt-2">

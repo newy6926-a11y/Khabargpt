@@ -1262,6 +1262,101 @@ apiRouter.put('/contact/messages/:id/read', requireAuth, (req: AuthenticatedRequ
   return res.json({ success: marked });
 });
 
+apiRouter.post('/contact/messages/:id/reply', requireAuth, requireRole(['owner', 'editor_in_chief', 'sub_editor', 'editor']), async (req: AuthenticatedRequest, res: Response) => {
+  const { id } = req.params;
+  const { replySubject, replyMessage, sendViaEmail } = req.body;
+
+  if (!replyMessage || !String(replyMessage).trim()) {
+    return res.status(400).json({ error: 'जवाफको व्यहोरा आवश्यक छ (Reply message required)' });
+  }
+
+  const targetMsg = db.getContactMessages().find((m) => m.id === id);
+  if (!targetMsg) {
+    return res.status(404).json({ error: 'सम्पर्क सन्देश फेला परेन' });
+  }
+
+  const settings = db.getSettings();
+  const resendApiKey = process.env.RESEND_API_KEY || settings.resendApiKey;
+  let emailDispatched = false;
+  let emailErrorNotice = '';
+
+  if (sendViaEmail && resendApiKey && targetMsg.email) {
+    try {
+      const fromEmail = settings.resendSenderEmail || 'onboarding@resend.dev';
+      const senderName = settings.siteTitle || 'खबर GPT Editorial Desk';
+      const subject = replySubject || `Re: ${targetMsg.subject} - खबर GPT`;
+
+      const htmlBody = `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+          <div style="border-bottom: 2px solid #dc2626; padding-bottom: 12px; margin-bottom: 16px;">
+            <h1 style="color: #dc2626; margin: 0; font-size: 20px;">खबर GPT (Khabar GPT)</h1>
+            <p style="color: #64748b; font-size: 12px; margin: 4px 0 0 0;">तथ्यपरक सूचना तथा सम्पादकीय डेस्क</p>
+          </div>
+          <p style="font-size: 14px; margin-top: 0;">नमस्ते <strong>${targetMsg.name}</strong> जी,</p>
+          <div style="white-space: pre-wrap; font-size: 14px; background: #f8fafc; padding: 14px; border-radius: 8px; border-left: 4px solid #dc2626; color: #334155; margin: 16px 0;">${replyMessage}</div>
+          <div style="margin-top: 20px; padding: 12px; background: #f1f5f9; border-radius: 8px; font-size: 12px; color: #64748b;">
+            <p style="margin: 0 0 4px 0; font-weight: bold; color: #475569;">तपाईंले खबर GPT मा पठाउनुभएको सन्देश:</p>
+            <p style="margin: 0; font-style: italic;">"${targetMsg.message}"</p>
+          </div>
+          <div style="margin-top: 20px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center;">
+            <p style="margin: 0;">खबर GPT आधिकारिक फेसबुक: <a href="${settings.facebookUrl || 'https://facebook.com/khabargpt'}" style="color: #dc2626; text-decoration: none;">facebook.com/khabargpt</a></p>
+          </div>
+        </div>
+      `;
+
+      const resp = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey.trim()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: `${senderName} <${fromEmail}>`,
+          to: [targetMsg.email],
+          subject,
+          html: htmlBody,
+          text: replyMessage
+        })
+      });
+
+      if (resp.ok) {
+        emailDispatched = true;
+      } else {
+        const errJson = await resp.json().catch(() => ({}));
+        emailErrorNotice = errJson.message || 'इमेल डेलिभरीमा समस्या आयो';
+      }
+    } catch (mailErr: unknown) {
+      console.warn('Reply email dispatch failed:', mailErr);
+      emailErrorNotice = mailErr instanceof Error ? mailErr.message : 'इमेल पठाउन सकिएन';
+    }
+  }
+
+  const updatedMsg = db.recordMessageReply(
+    id,
+    replySubject || `Re: ${targetMsg.subject}`,
+    String(replyMessage).trim(),
+    req.user?.fullName || req.user?.username || 'Admin'
+  );
+
+  db.addAuditLog({
+    action: 'team_update',
+    targetType: 'settings',
+    targetTitle: `जवाफ पठाइयो: ${targetMsg.name}`,
+    details: `Replied to inquiry "${targetMsg.subject}" (${targetMsg.email})${emailDispatched ? ' via Resend email' : ''}`,
+    userId: req.user?.id || 'admin'
+  });
+
+  return res.json({
+    success: true,
+    emailDispatched,
+    emailNotice: emailErrorNotice,
+    message: emailDispatched
+      ? 'जवाफ सफलतापूर्वक इमेल मार्फत पठाइयो र अभिलेख सुरक्षित भयो।'
+      : 'जवाफ सफलतापूर्वक सुरक्षित गरियो।',
+    updatedMessage: updatedMsg
+  });
+});
+
 apiRouter.delete('/contact/messages/:id', requireAuth, (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params;
   const deleted = db.deleteContactMessage(id);

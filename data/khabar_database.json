@@ -156,39 +156,39 @@
     }
   ],
   "marketSnapshot": {
-    "updatedDate": "२०२६ अक्टोबर २३, शुक्रबार (१२:५२ अपराह्न NPT - प्रत्यक्ष अद्यावधिक)",
+    "updatedDate": "२०२६ अक्टोबर २३, शुक्रबार (०१:४१ अपराह्न NPT - प्रत्यक्ष अद्यावधिक)",
     "nepse": {
-      "index": 2634.52,
-      "change": 18.87,
-      "percentChange": 0.72,
-      "turnoverCrores": 593.59,
+      "index": 2646.32,
+      "change": 18.54,
+      "percentChange": 0.7,
+      "turnoverCrores": 619.2,
       "points": [
         {
           "time": "11:00 AM",
-          "value": 2618.52
+          "value": 2630.32
         },
         {
           "time": "12:00 PM",
-          "value": 2626.02
+          "value": 2637.82
         },
         {
           "time": "01:00 PM",
-          "value": 2632.42
+          "value": 2644.22
         },
         {
           "time": "02:00 PM",
-          "value": 2638.82
+          "value": 2650.62
         },
         {
           "time": "03:00 PM",
-          "value": 2634.52
+          "value": 2646.32
         }
       ]
     },
     "goldSilver": {
-      "fineGoldTola": 292699,
-      "fineGold10g": 250947,
-      "tejabiGoldTola": 291199,
+      "fineGoldTola": 291387,
+      "fineGold10g": 249822,
+      "tejabiGoldTola": 289887,
       "silverTola": 3058,
       "changeGold": 1200,
       "source": "नेपाल सुनचाँदी व्यवसायी महासंघ (FENEGOSIDA - स्वचालित ताजा दर)"
@@ -202,24 +202,24 @@
     },
     "forex": {
       "usd": {
-        "buy": 136.37,
-        "sell": 136.97
+        "buy": 136.28,
+        "sell": 136.88
       },
       "eur": {
-        "buy": 148.45,
-        "sell": 149.15
+        "buy": 148.48,
+        "sell": 149.18
       },
       "gbp": {
-        "buy": 176.99,
-        "sell": 177.79
+        "buy": 176.83,
+        "sell": 177.63
       },
       "aed": {
-        "buy": 37.14,
-        "sell": 37.3
+        "buy": 37.11,
+        "sell": 37.27
       },
       "qar": {
-        "buy": 37.39,
-        "sell": 37.55
+        "buy": 37.37,
+        "sell": 37.53
       },
       "source": "नेपाल राष्ट्र बैंक (NRB - प्रत्यक्ष विनिमय दर)"
     },
@@ -227,59 +227,59 @@
     "trends": [
       {
         "date": "अक्टोबर १७",
-        "nepse": 2613.5,
-        "goldFine": 289348,
+        "nepse": 2625.3,
+        "goldFine": 288036,
+        "petrol": 172.5,
+        "diesel": 158.5,
+        "usdToNpr": 135.78
+      },
+      {
+        "date": "अक्टोबर १८",
+        "nepse": 2622.49,
+        "goldFine": 288120,
         "petrol": 172.5,
         "diesel": 158.5,
         "usdToNpr": 135.87
       },
       {
-        "date": "अक्टोबर १८",
-        "nepse": 2610.69,
-        "goldFine": 289432,
+        "date": "अक्टोबर १९",
+        "nepse": 2616.2,
+        "goldFine": 287936,
         "petrol": 172.5,
         "diesel": 158.5,
         "usdToNpr": 135.96
       },
       {
-        "date": "अक्टोबर १९",
-        "nepse": 2604.4,
-        "goldFine": 289248,
+        "date": "अक्टोबर २०",
+        "nepse": 2624.15,
+        "goldFine": 288852,
         "petrol": 172.5,
         "diesel": 158.5,
         "usdToNpr": 136.05
       },
       {
-        "date": "अक्टोबर २०",
-        "nepse": 2612.35,
-        "goldFine": 290164,
+        "date": "अक्टोबर २१",
+        "nepse": 2643.19,
+        "goldFine": 290625,
         "petrol": 172.5,
         "diesel": 158.5,
         "usdToNpr": 136.14
       },
       {
-        "date": "अक्टोबर २१",
-        "nepse": 2631.39,
-        "goldFine": 291937,
+        "date": "अक्टोबर २२",
+        "nepse": 2653.92,
+        "goldFine": 291756,
         "petrol": 172.5,
         "diesel": 158.5,
         "usdToNpr": 136.23
       },
       {
-        "date": "अक्टोबर २२",
-        "nepse": 2642.12,
-        "goldFine": 293068,
-        "petrol": 172.5,
-        "diesel": 158.5,
-        "usdToNpr": 136.32
-      },
-      {
         "date": "आज (Today)",
-        "nepse": 2634.52,
-        "goldFine": 292699,
+        "nepse": 2646.32,
+        "goldFine": 291387,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.37
+        "usdToNpr": 136.28
       }
     ]
   }

@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { SiteSettings } from '../types';
+import React, { useState, useRef, useEffect } from 'react';
+import { SiteSettings, MediaItem } from '../types';
 import { api } from '../services/api';
 import {
   BellRing,
@@ -15,7 +15,8 @@ import {
   Info,
   Sparkles,
   Link as LinkIcon,
-  X
+  X,
+  FolderOpen
 } from 'lucide-react';
 
 interface AdminNoticeManagerPanelProps {
@@ -48,9 +49,15 @@ export const AdminNoticeManagerPanel: React.FC<AdminNoticeManagerPanelProps> = (
   const [uploading, setUploading] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
   const [previewOpen, setPreviewOpen] = useState<boolean>(false);
+  const [mediaList, setMediaList] = useState<MediaItem[]>([]);
+  const [showMediaPicker, setShowMediaPicker] = useState<boolean>(false);
 
   const photoInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    api.getMedia().then(setMediaList).catch(() => {});
+  }, []);
 
   const notify = (msg: string, type: 'success' | 'error' = 'success') => {
     if (showNotification) {
@@ -332,33 +339,52 @@ export const AdminNoticeManagerPanel: React.FC<AdminNoticeManagerPanelProps> = (
           {mediaType === 'photo' && (
             <div className="space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-200">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <label className="text-xs font-bold text-slate-700">
-                  तस्बिर फाइल सिधै अपलोड गर्नुहोस् वा URL राख्नुहोस्
-                </label>
+                <div>
+                  <label className="text-xs font-bold text-slate-800">
+                    तस्बिर सिधै अपलोड गर्नुहोस् (कुनै बाह्य URL चाहिँदैन)
+                  </label>
+                  <span className="text-[11px] text-slate-500 block">
+                    आफ्नो कम्प्युटर वा मोबाइलको ग्यालरीबाट सिधै फोटो छान्नुहोस्
+                  </span>
+                </div>
 
                 <div className="flex items-center gap-2">
                   <input
                     type="file"
                     ref={photoInputRef}
                     accept="image/*"
-                    onChange={handlePhotoUpload}
+                    onChange={async (e) => {
+                      await handlePhotoUpload(e);
+                      api.getMedia().then(setMediaList).catch(() => {});
+                    }}
                     className="hidden"
                   />
                   <button
                     type="button"
                     onClick={() => photoInputRef.current?.click()}
                     disabled={uploading}
-                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                    className="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50 shadow-xs"
                   >
                     <Upload className="w-3.5 h-3.5" />
-                    <span>{uploading ? 'अपलोड हुँदै...' : 'फोटो अपलोड (Browse File)'}</span>
+                    <span>{uploading ? 'अपलोड हुँदै...' : 'फोटो अपलोड (Upload)'}</span>
                   </button>
+
+                  {mediaList.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowMediaPicker(!showMediaPicker)}
+                      className="px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <FolderOpen className="w-3.5 h-3.5 text-blue-600" />
+                      <span>ग्यालरीबाट छान्नुहोस्</span>
+                    </button>
+                  )}
 
                   {imageUrl && (
                     <button
                       type="button"
                       onClick={() => setImageUrl('')}
-                      className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg cursor-pointer"
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-xl cursor-pointer"
                       title="फोटो हटाउनुहोस्"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -367,13 +393,58 @@ export const AdminNoticeManagerPanel: React.FC<AdminNoticeManagerPanelProps> = (
                 </div>
               </div>
 
+              {/* Media Picker Drawer */}
+              {showMediaPicker && mediaList.length > 0 && (
+                <div className="p-3 bg-white rounded-xl border border-blue-200 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+                    <span>ग्यालरीका तस्बिरहरू (क्लिक गरी छान्नुहोस्):</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowMediaPicker(false)}
+                      className="text-slate-400 hover:text-slate-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-40 overflow-y-auto p-1">
+                    {mediaList.map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => {
+                          setImageUrl(m.url);
+                          setShowMediaPicker(false);
+                          notify('ग्यालरीबाट तस्बिर छानियो!');
+                        }}
+                        className={`aspect-video rounded-lg overflow-hidden border-2 transition hover:scale-105 cursor-pointer ${
+                          imageUrl === m.url ? 'border-red-600 ring-2 ring-red-400' : 'border-slate-200'
+                        }`}
+                      >
+                        <img src={m.url} alt={m.originalName} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {imageUrl && (
+                <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-900">
+                  <div className="flex items-center gap-2 truncate">
+                    <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span className="font-medium truncate">
+                      तस्बिर सुरक्षित: <code className="bg-emerald-100 px-1 py-0.5 rounded font-mono text-[11px]">{imageUrl}</code>
+                    </span>
+                  </div>
+                </div>
+              )}
+
               <div className="relative">
                 <LinkIcon className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" />
                 <input
-                  type="url"
+                  type="text"
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="वा तस्बिरको प्रत्यक्ष वेब लिङ्क: https://example.com/banner.jpg"
+                  placeholder="/uploads/... वा बाह्य तस्बिरको लिङ्क"
                   className="w-full pl-9 pr-4 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono focus:ring-2 focus:ring-red-500 outline-none"
                 />
               </div>

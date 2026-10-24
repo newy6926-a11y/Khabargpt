@@ -98,6 +98,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
   const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterError, setNewsletterError] = useState<string | null>(null);
 
   // Fetch live events and in-feed ads
   useEffect(() => {
@@ -166,13 +167,17 @@ export const HomePage: React.FC<HomePageProps> = ({
 
   const handleSubscribeNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newsletterEmail || !newsletterEmail.includes('@')) return;
+    const emailToSub = newsletterEmail.trim();
+    if (!emailToSub || !emailToSub.includes('@')) return;
     setNewsletterLoading(true);
+    setNewsletterError(null);
     try {
-      // simulate API registration
-      await new Promise((r) => setTimeout(r, 600));
+      await api.subscribeNewsletter(emailToSub, 'daily');
       setNewsletterSubscribed(true);
       setNewsletterEmail('');
+      setTimeout(() => setNewsletterSubscribed(false), 8000);
+    } catch (err: unknown) {
+      setNewsletterError(err instanceof Error ? err.message : 'सदस्यता सुरक्षित गर्न सकिएन');
     } finally {
       setNewsletterLoading(false);
     }
@@ -190,6 +195,9 @@ export const HomePage: React.FC<HomePageProps> = ({
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-sans tracking-tight text-white leading-tight">
+              <span className="text-red-500 block text-lg sm:text-xl md:text-2xl font-bold uppercase tracking-wider mb-2">
+                खबर GPT (Khabar GPT)
+              </span>
               {settings.siteSubtitle || 'समसामयिक विषय, तथ्यपरक जानकारी र सरल एक्सप्लेनर'}
             </h1>
 
@@ -806,6 +814,12 @@ export const HomePage: React.FC<HomePageProps> = ({
                   <span>{newsletterLoading ? 'दर्ता हुँदै...' : 'सदस्यता लिनुहोस्'}</span>
                 </button>
               </form>
+            )}
+
+            {newsletterError && (
+              <p className="text-xs text-red-400 bg-red-950/60 p-2.5 rounded-xl border border-red-800/60 max-w-md mx-auto">
+                {newsletterError}
+              </p>
             )}
           </div>
         </section>

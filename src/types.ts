@@ -299,6 +299,11 @@ export interface ContactMessage {
   message: string;
   createdAt: string;
   read: boolean;
+  replySent?: boolean;
+  replySubject?: string;
+  replyMessage?: string;
+  repliedAt?: string;
+  repliedBy?: string;
 }
 
 export type UserRole = 'owner' | 'editor' | 'reporter' | 'moderator' | 'editor_in_chief' | 'sub_editor';

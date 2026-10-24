@@ -63,7 +63,29 @@ async function startServer() {
   // Mount API Router under /api
   app.use('/api', apiRouter);
 
-  // Search Engine Directives: /robots.txt
+  // Dedicated Google Search Favicon & Logo Endpoints with optimized headers
+  const serveFaviconAsset = (filePath: string, contentType: string) => {
+    return (_req: express.Request, res: express.Response) => {
+      if (fs.existsSync(filePath)) {
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        return res.sendFile(filePath);
+      }
+      return res.status(404).end();
+    };
+  };
+
+  app.get('/favicon.ico', serveFaviconAsset(path.resolve(publicDir, 'favicon.ico'), 'image/x-icon'));
+  app.get('/favicon-48x48.png', serveFaviconAsset(path.resolve(publicDir, 'favicon-48x48.png'), 'image/png'));
+  app.get('/favicon-96x96.png', serveFaviconAsset(path.resolve(publicDir, 'favicon-96x96.png'), 'image/png'));
+  app.get('/favicon-192x192.png', serveFaviconAsset(path.resolve(publicDir, 'favicon-192x192.png'), 'image/png'));
+  app.get('/android-chrome-192x192.png', serveFaviconAsset(path.resolve(publicDir, 'android-chrome-192x192.png'), 'image/png'));
+  app.get('/apple-touch-icon.png', serveFaviconAsset(path.resolve(publicDir, 'apple-touch-icon.png'), 'image/png'));
+  app.get('/logo.png', serveFaviconAsset(path.resolve(publicDir, 'logo.png'), 'image/png'));
+  app.get('/logo.svg', serveFaviconAsset(path.resolve(publicDir, 'logo.svg'), 'image/svg+xml'));
+
+  // Search Engine Directives: /robots.txt with explicit Googlebot-Image crawlability
   app.get('/robots.txt', (req, res) => {
     const settings = db.getSettings();
     res.setHeader('Content-Type', 'text/plain');
@@ -74,23 +96,30 @@ async function startServer() {
     const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
     const baseUrl = settings.canonicalUrl?.replace(/\/$/, '') || `${protocol}://${host}`;
     const secretSlug = (settings.adminSecretSlug || 'kg-admin-secure').replace(/^\//, '');
-    return res.send(`User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /${secretSlug}\nDisallow: /api/\n\nSitemap: ${baseUrl}/sitemap.xml\n`);
+    return res.send(
+`User-agent: Googlebot-Image
+Allow: /
+Allow: /favicon*
+Allow: /logo*
+Allow: /android-chrome*
+Allow: /apple-touch-icon*
+Allow: /uploads/
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /${secretSlug}
+Disallow: /api/
+
+Sitemap: ${baseUrl}/sitemap.xml
+`
+    );
   });
 
   // Google Search Console Verification File
   app.get('/google0087e514b59ec8b5.html', (_req, res) => {
     res.setHeader('Content-Type', 'text/html');
     return res.send('google-site-verification: google0087e514b59ec8b5.html');
-  });
-
-  // Google Search & Browser Favicon.ico
-  app.get('/favicon.ico', (_req, res) => {
-    const icoPath = path.resolve(publicDir, 'favicon.ico');
-    if (fs.existsSync(icoPath)) {
-      res.setHeader('Content-Type', 'image/x-icon');
-      return res.sendFile(icoPath);
-    }
-    return res.status(204).end();
   });
 
   // Dynamic XML Sitemap: /sitemap.xml
@@ -144,9 +173,20 @@ async function startServer() {
   } else {
     const distPath = path.resolve(rootDir, 'dist');
     if (fs.existsSync(distPath)) {
-      app.use(express.static(distPath));
-      app.get('*', (_req, res) => {
-        res.sendFile(path.resolve(distPath, 'index.html'));
+      app.use(express.static(distPath, { index: false }));
+      app.get('*', (req, res) => {
+        const indexPath = path.resolve(distPath, 'index.html');
+        if (fs.existsSync(indexPath)) {
+          let html = fs.readFileSync(indexPath, 'utf-8');
+          const host = req.get('host') || 'localhost:3000';
+          const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+          const settings = db.getSettings();
+          const liveBaseUrl = settings.canonicalUrl?.replace(/\/$/, '') || `${protocol}://${host}`;
+          html = html.replace(/https:\/\/khabargpt\.onrender\.com/g, liveBaseUrl);
+          res.setHeader('Content-Type', 'text/html; charset=utf-8');
+          return res.send(html);
+        }
+        return res.status(404).send('Not Found');
       });
     }
   }

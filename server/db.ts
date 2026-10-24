@@ -149,6 +149,11 @@ export interface ContactMessage {
   message: string;
   createdAt: string;
   read: boolean;
+  replySent?: boolean;
+  replySubject?: string;
+  replyMessage?: string;
+  repliedAt?: string;
+  repliedBy?: string;
 }
 
 export interface SocialAccountLink {
@@ -1348,6 +1353,24 @@ class Database {
       return true;
     }
     return false;
+  }
+
+  public recordMessageReply(
+    id: string,
+    replySubject: string,
+    replyMessage: string,
+    repliedBy: string
+  ): ContactMessage | null {
+    const msg = this.data.messages.find((m) => m.id === id);
+    if (!msg) return null;
+    msg.read = true;
+    msg.replySent = true;
+    msg.replySubject = replySubject;
+    msg.replyMessage = replyMessage;
+    msg.repliedAt = new Date().toISOString();
+    msg.repliedBy = repliedBy;
+    this.save();
+    return msg;
   }
 
   public deleteContactMessage(id: string): boolean {

@@ -243,16 +243,6 @@ export default function App() {
             >
               <span>👉 ताजा भिडियो तथा अपडेटका लागि फेसबुक पेजमा जानुहोस्</span>
             </a>
-
-            <div className="pt-2 text-center">
-              <button
-                type="button"
-                onClick={() => navigate('/admin')}
-                className="text-[11px] text-slate-500 hover:text-slate-300 transition underline cursor-pointer"
-              >
-                🔑 व्यवस्थापक लगइन (Admin Access)
-              </button>
-            </div>
           </div>
         </div>
       </div>

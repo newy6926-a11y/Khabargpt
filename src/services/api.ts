@@ -556,6 +556,17 @@ export const api = {
     });
   },
 
+  async replyContactMessage(id: string, data: {
+    replySubject?: string;
+    replyMessage: string;
+    sendViaEmail?: boolean;
+  }): Promise<{ success: boolean; emailDispatched: boolean; emailNotice?: string; message: string; updatedMessage: ContactMessage }> {
+    return this.fetchWithAuth(`/api/contact/messages/${id}/reply`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  },
+
   async deleteContactMessage(id: string): Promise<{ success: boolean; message: string }> {
     return this.fetchWithAuth(`/api/contact/messages/${id}`, {
       method: 'DELETE'
