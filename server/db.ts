@@ -270,6 +270,11 @@ export interface SiteSettings {
   resendApiKey?: string;
   resendSenderEmail?: string;
 
+  // Real-Time Zero-Loss Notification & Auto-Reply Hub
+  adminNotificationEmail?: string;
+  inquiryWebhookUrl?: string;
+  autoReplyEnabled?: boolean;
+
   // Emergency Maintenance Mode
   maintenanceModeActive?: boolean;
   maintenanceModeMessage?: string;
@@ -567,7 +572,11 @@ function generateInitialDatabase(): DatabaseSchema {
       entryPopupMessage: '',
       entryPopupImageUrl: '/official-notice.svg',
       entryPopupButtonText: 'फेसबुक पेजमा जोडिनुहोस्',
-      entryPopupButtonLink: 'https://facebook.com/khabargpt'
+      entryPopupButtonLink: 'https://facebook.com/khabargpt',
+
+      // Real-Time Zero-Loss Notification & Auto-Reply Defaults
+      adminNotificationEmail: process.env.ADMIN_NOTIFICATION_EMAIL || '',
+      autoReplyEnabled: true
     },
     users: [
       {

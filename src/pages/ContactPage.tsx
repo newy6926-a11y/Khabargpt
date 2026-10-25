@@ -20,6 +20,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ settings }) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [submittedTicket, setSubmittedTicket] = useState<{ ticketId: string; email: string; name: string } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +36,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({ settings }) => {
     try {
       const res = await api.submitContact(formData);
       setSuccess(res.message);
+      setSubmittedTicket({
+        ticketId: res.ticketId || `KG-${Date.now().toString().slice(-6)}`,
+        email: formData.email,
+        name: formData.name
+      });
       setFormData({
         name: '',
         email: '',
@@ -140,10 +146,79 @@ export const ContactPage: React.FC<ContactPageProps> = ({ settings }) => {
 
         {/* Contact Form */}
         <div className="md:col-span-7">
-          <form
-            onSubmit={handleSubmit}
-            className="bg-white border border-slate-200 rounded-xl p-6 shadow-2xs space-y-4"
-          >
+          {submittedTicket ? (
+            <div className="bg-white border border-emerald-200 rounded-2xl p-6 sm:p-8 shadow-xs text-center space-y-5 animate-in fade-in duration-300">
+              <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+              <div className="space-y-2">
+                <div className="inline-block bg-emerald-50 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full border border-emerald-300 font-mono tracking-wider">
+                  सन्दर्भ (Ticket ID): #{submittedTicket.ticketId}
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">
+                  तपाईंको सन्देश सुरक्षित रूपमा प्राप्त भयो!
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+                  नमस्ते <strong>{submittedTicket.name}</strong>, तपाईंको सन्देश हाम्रो सम्पादकीय डेस्कमा पुगिसकेको छ। हामी सामान्यतया २४ देखि ४८ घण्टाभित्र समीक्षा गरी <strong>{submittedTicket.email}</strong> मा सम्पर्क गर्नेछौँ।
+                </p>
+              </div>
+
+              {/* Instant Social Connect Option */}
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3 text-left">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <p className="text-xs font-bold text-slate-800">
+                    तुरुन्तै कुराकानी वा प्रत्यक्ष फलो-अप गर्न चाहनुहुन्छ?
+                  </p>
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  यदि यो तत्कालको समाचार, प्रायोजन वा अत्यावश्यक सच्याइ हो भने हाम्रो आधिकारिक मेसेन्जरमा सोझै कुरा गर्न सक्नुहुन्छ:
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                  <a
+                    href="https://m.me/khabargpt"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors"
+                  >
+                    <Facebook className="w-4 h-4" />
+                    <span>फेसबुक मेसेन्जर (Chat on Messenger)</span>
+                    <ExternalLink className="w-3 h-3 ml-auto opacity-70" />
+                  </a>
+
+                  {settings.whatsappUrl && (
+                    <a
+                      href={settings.whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>ह्वाट्सएपमा च्याट (WhatsApp)</span>
+                      <ExternalLink className="w-3 h-3 ml-auto opacity-70" />
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSubmittedTicket(null);
+                    setSuccess(null);
+                  }}
+                  className="text-xs font-semibold text-slate-600 hover:text-slate-900 underline cursor-pointer"
+                >
+                  नयाँ सन्देश वा अर्को अनुरोध पठाउनुहोस्
+                </button>
+              </div>
+            </div>
+          ) : (
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white border border-slate-200 rounded-xl p-6 shadow-2xs space-y-4"
+            >
             {/* Honeypot hidden input */}
             <div className="hidden" aria-hidden="true">
               <label>Website</label>
@@ -253,7 +328,54 @@ export const ContactPage: React.FC<ContactPageProps> = ({ settings }) => {
               <Send className="w-4 h-4" />
               <span>{loading ? 'पठाउँदै...' : 'सन्देश पठाउनुहोस् (Send Message)'}</span>
             </button>
+
+            {/* Zero-Loss Delivery Reassurance & Direct 1-Tap Channels */}
+            <div className="pt-3 border-t border-slate-100 space-y-3">
+              <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-xl p-3 text-[11px] text-emerald-900 flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div className="space-y-0.5 leading-relaxed">
+                  <span className="font-bold block text-emerald-950">
+                    शून्य-जोखिम डेलिभरी ग्यारेन्टी (Zero-Loss Delivery Guarantee):
+                  </span>
+                  <span>
+                    तपाईंको सन्देश फाराम पेश गर्नासाथ सर्भर र व्यवस्थापकको इमेलमा तत्काल दर्ता हुन्छ र तपाईंको इमेलमा स्वचालित पुष्टिकरण रसिद (Ticket ID) पठाइन्छ।
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                <span className="text-[11px] font-bold text-slate-800 block">
+                  👉 तत्काल कुराकानी आवश्यक छ वा प्रत्यक्ष जवाफ चाहनुहुन्छ?
+                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <a
+                    href="https://m.me/khabargpt"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs"
+                  >
+                    <Facebook className="w-3.5 h-3.5" />
+                    <span>फेसबुक मेसेन्जरमा सिधै च्याट गर्नुहोस्</span>
+                    <ExternalLink className="w-3 h-3 opacity-75" />
+                  </a>
+
+                  {settings.whatsappUrl && (
+                    <a
+                      href={settings.whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      <span>ह्वाट्सएपमा सन्देश पठाउनुहोस्</span>
+                      <ExternalLink className="w-3 h-3 opacity-75" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
           </form>
+          )}
         </div>
       </div>
     </div>

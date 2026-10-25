@@ -929,6 +929,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const draftCount = contentList.filter((c) => c.status === 'draft').length;
   const archivedCount = contentList.filter((c) => c.status === 'archived').length;
   const videoCount = contentList.filter((c) => c.type === 'video').length;
+  const unreadMessagesCount = messagesList.filter((m) => !m.read).length;
 
   const filteredContent = contentList.filter((item) => {
     const matchType = contentFilterType === 'all' || item.type === contentFilterType;
@@ -1023,7 +1024,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             { id: 'notice', label: '📢 प्रारम्भिक सूचना' },
             { id: 'ads', label: '💰 विज्ञापन & आम्दानी' },
             { id: 'analytics', label: '📊 पाठक & प्रतिक्रिया' },
-            { id: 'messages', label: `💬 सम्पर्क सन्देशहरू (${messagesList.length})` },
+            { id: 'messages', label: `💬 सम्पर्क सन्देशहरू (${messagesList.length})${unreadMessagesCount > 0 ? ` 🔴 ${unreadMessagesCount} नयाँ` : ''}` },
             { id: 'seo', label: '🔍 SEO & सर्च इन्जिन' },
             { id: 'corrections', label: `⚖️ सच्याइ अभिलेख (${correctionsList.length})` },
             { id: 'team', label: '👥 टोली & प्रयोगकर्ता' },
@@ -1072,6 +1073,38 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Unread Inquiries / Collaborations Warning Banner */}
+        {unreadMessagesCount > 0 && activeTab !== 'messages' && (
+          <div className="mb-6 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white p-4 sm:p-5 rounded-2xl border-2 border-red-500 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in">
+            <div className="flex items-start gap-3.5">
+              <div className="p-2.5 bg-white text-red-600 rounded-xl shrink-0 mt-0.5 shadow-xs">
+                <Mail className="w-5 h-5 animate-bounce" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="font-extrabold text-sm sm:text-base text-white">
+                    तपाईंसँग {unreadMessagesCount} वटा नयाँ सोधपुछ वा सहकार्य प्रस्तावहरू छन्!
+                  </h4>
+                  <span className="text-[10px] bg-red-950 text-red-200 font-bold px-2.5 py-0.5 rounded-full border border-red-400">
+                    नपढिएका सन्देशहरू (Unread)
+                  </span>
+                </div>
+                <p className="text-xs text-red-100 font-medium leading-relaxed max-w-2xl">
+                  Render मा नयाँ डिब्लोय गर्नुअघि यी सन्देशहरू हेर्नुहोस् वा ब्याकअप सुरक्षित गर्नुहोस् ताकि कुनै पनि पाठक वा विज्ञापनदाताको सन्देश नछुटोस्।
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab('messages')}
+              className="px-5 py-2.5 bg-white hover:bg-slate-100 text-red-700 text-xs font-bold rounded-xl transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <span>सन्देशहरू हेर्नुहोस् ({unreadMessagesCount})</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
         {/* Render Redeploy Wipe & Auto-Restore Prompt Banner */}
         {resetDetected && (
           <div className="mb-6 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-slate-950 p-4 sm:p-5 rounded-2xl border-2 border-amber-600 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -2970,6 +3003,86 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               </div>
             </div>
 
+            {/* SECTION 7B: ZERO-LOSS INQUIRY, COLLABORATION & AUTO-REPLY HUB */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4 text-xs">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                  <h4 className="font-bold text-slate-900 text-sm">
+                    शून्य-जोखिम सोधपुछ तथा सहकार्य सूचना प्रणाली (Real-Time Zero-Loss Alert & Auto-Reply Hub)
+                  </h4>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                  Instant Forwarding
+                </span>
+              </div>
+
+              <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 text-xs text-emerald-950 space-y-2">
+                <span className="font-bold block text-emerald-900">
+                  🎯 यो प्रणालीले कसरी तपाईंका सन्देशहरू हराउनबाट १००% जोगाउँछ?
+                </span>
+                <p className="leading-relaxed text-emerald-900">
+                  Render को सर्भर रिस्टार्ट वा रिडिप्लोय भए पनि कुनै पनि पाठक वा विज्ञापनदाताको सन्देश हराउँदैन। वेबसाइटमा कसैले फाराम भर्नासाथ:
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-[11px] text-emerald-800">
+                  <li><strong>१. तपाईंको Gmail मा तत्काल अलर्ट:</strong> तल दिइएको तपाईंको इमेलमा सम्पूर्ण व्यहोरा र फोन नम्बरसहित १ सेकेन्डमै इमेल पुग्छ।</li>
+                  <li><strong>२. प्रेषकलाई स्वचालित रसिद (Auto-Ack):</strong> पठाउने व्यक्तिलाई खबर GPT को तर्फबाट Ticket ID र फेसबुक मेसेन्जरको लिङ्कसहितको पुष्टिकरण इमेल जान्छ, ताकि उसले "मेरो सन्देश पुगेन कि?" भनी शङ्का गर्नै पर्दैन।</li>
+                  <li><strong>३. Discord/Telegram Webhook:</strong> यदि तल Webhook लिङ्क राख्नुभएमा मोबाइलमा तुरुन्तै पुश नोटिफिकेसन आउँछ।</li>
+                </ul>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">
+                    सोधपुछ & सहकार्य अलर्ट पुग्ने इमेल (Admin Notification Recipient)
+                  </label>
+                  <input
+                    type="email"
+                    value={settingsForm.adminNotificationEmail || ''}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, adminNotificationEmail: e.target.value })}
+                    placeholder="उदा: admin@yourdomain.com"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    खाली राखेमा सम्पर्क इमेल (Contact Email) मा अलर्ट पठाइनेछ
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">
+                    Discord / Telegram / Zapier Webhook URL (ऐच्छिक)
+                  </label>
+                  <input
+                    type="url"
+                    value={settingsForm.inquiryWebhookUrl || ''}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, inquiryWebhookUrl: e.target.value })}
+                    placeholder="https://discord.com/api/webhooks/... वा Telegram Bot"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    Webhook राख्दा सन्देश आउनासाथ मोबाइलमा सिधै अलर्ट बज्छ
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-slate-800 block text-xs">
+                    प्रेषकलाई स्वचालित पुष्टिकरण रसिद पठाउनुहोस् (Send Auto-Reply Confirmation Email)
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    पाठक वा सहकार्य प्रस्तावकलाई "सन्देश प्राप्त भयो" भनी Ticket ID सहितको आधिकारिक इमेल तुरुन्तै पठाउँछ
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={settingsForm.autoReplyEnabled !== false}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, autoReplyEnabled: e.target.checked })}
+                  className="w-5 h-5 accent-emerald-600 rounded cursor-pointer shrink-0"
+                />
+              </div>
+            </div>
+
             {/* Sticky Save Button Bar */}
             <div className="sticky bottom-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-slate-200 shadow-xl flex items-center justify-between gap-4">
               <span className="text-xs text-slate-500 hidden sm:inline">
@@ -3127,6 +3240,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     </p>
                     <div className="p-2.5 bg-slate-900 rounded-xl border border-slate-800 text-[11px] font-mono text-emerald-400">
                       Name: <strong>KHABAR_PERSISTENT_DATA</strong>
+                    </div>
+
+                    <div className="p-2.5 bg-amber-950/30 border border-amber-500/30 rounded-xl text-[11px] text-amber-200 space-y-1">
+                      <span className="font-bold block text-amber-300">💡 नयाँ लेख थप्दा यो कोड आफै अपडेट हुन्छ?</span>
+                      <p className="leading-relaxed text-slate-300">
+                        <strong>हुँदैन (Render does not auto-edit Env Vars)</strong>। तर चिन्ता लिनु पर्दैन—<strong>ब्राउजर अटो-भल्ट (Method 3)</strong> ले सबै नयाँ लेख तपाईंको डिभाइसमा स्वतः सेभ राख्छ र रिडिप्लोय भए १-क्लिकमै रिस्टोर गरिदिन्छ। साथै सबै नयाँ सोधपुछहरू सिधै तपाईंको <strong>Gmail</strong> मा तुरुन्त पुग्छन्!
+                      </p>
                     </div>
                   </div>
                   <button

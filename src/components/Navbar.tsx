@@ -59,12 +59,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   );
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-2xs">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-2xs w-full">
       {/* 1. Official Safeguard Disclaimer Notice & Utility Bar */}
-      <div className="bg-slate-900 text-slate-300 text-[11px] py-1.5 px-3 sm:px-4 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-4">
+      <div className="bg-slate-900 text-slate-300 text-[11px] py-1.5 px-2.5 sm:px-4 border-b border-slate-800 w-full overflow-hidden">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-4 w-full">
           {/* Left: Live Nepali Date & Time */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2 max-w-full text-center">
             <NepaliDateClock
               compact
               onOpenCalendar={onOpenNepaliCalendar}
@@ -72,11 +72,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Right: Quick Action Links (Daily Digest, Community, Accessibility) */}
-          <div className="flex items-center gap-2.5 sm:gap-3 text-slate-300">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-2.5 gap-y-1 text-slate-300 text-[10px] sm:text-[11px] max-w-full">
             {onOpenDailyDigest && (
               <button
                 onClick={onOpenDailyDigest}
-                className="hover:text-white transition-colors cursor-pointer flex items-center gap-1 font-semibold text-amber-300"
+                className="hover:text-white transition-colors cursor-pointer flex items-center gap-1 font-semibold text-amber-300 shrink-0"
                 title="आजको दैनिक न्यूजलेटर डाइजेस्ट"
               >
                 <Mail className="w-3 h-3" />
@@ -84,12 +84,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
-            <span className="text-slate-700">|</span>
+            <span className="text-slate-700 hidden xs:inline">|</span>
 
             {onOpenCommunity && (
               <button
                 onClick={onOpenCommunity}
-                className="hover:text-white transition-colors cursor-pointer flex items-center gap-1 font-semibold text-emerald-400"
+                className="hover:text-white transition-colors cursor-pointer flex items-center gap-1 font-semibold text-emerald-400 shrink-0"
                 title="WhatsApp & Viber च्यानलमा जोडिनुहोस्"
               >
                 <MessageCircle className="w-3 h-3" />
@@ -97,12 +97,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
-            <span className="text-slate-700">|</span>
+            <span className="text-slate-700 hidden xs:inline">|</span>
 
             {onOpenAccessibility && (
               <button
                 onClick={onOpenAccessibility}
-                className="hover:text-white transition-colors cursor-pointer flex items-center gap-1 text-slate-300"
+                className="hover:text-white transition-colors cursor-pointer flex items-center gap-1 text-slate-300 shrink-0"
                 title="पहुँचयोग्यता सेटिङ (Alt+A)"
               >
                 <Eye className="w-3 h-3 text-blue-400" />
@@ -110,11 +110,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
-            <span className="text-slate-700">|</span>
+            <span className="text-slate-700 hidden xs:inline">|</span>
 
             <button
               onClick={() => onNavigate('/settings')}
-              className="hover:text-white transition-colors cursor-pointer flex items-center gap-1 text-slate-300"
+              className="hover:text-white transition-colors cursor-pointer flex items-center gap-1 text-slate-300 shrink-0"
               title="व्यक्तिगत सेटिङ"
             >
               <Settings className="w-3 h-3 text-slate-400" />
@@ -126,13 +126,13 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* 2. Live Breaking News Ticker (if enabled by admin) */}
       {isBreakingActive && (
-        <div className="bg-red-600 text-white text-xs py-1.5 px-4 overflow-hidden shadow-xs">
-          <div className="max-w-7xl mx-auto flex items-center gap-3">
+        <div className="bg-red-600 text-white text-xs py-1.5 px-3 sm:px-4 overflow-hidden shadow-xs w-full">
+          <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-3 w-full">
             <span className="inline-flex items-center gap-1 bg-white text-red-700 font-extrabold text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm shrink-0">
               <Zap className="w-3 h-3 fill-red-600" />
               ताजा अपडेट
             </span>
-            <span className="truncate font-medium text-xs text-red-50">
+            <span className="truncate font-medium text-xs text-red-50 min-w-0">
               {settings?.breakingNewsText}
             </span>
           </div>
@@ -140,14 +140,14 @@ export const Navbar: React.FC<NavbarProps> = ({
       )}
 
       {/* 3. Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-6 w-full">
         {/* Zone 1: Dynamic Brand Logo & Wordmark */}
         <button
           onClick={() => {
             onNavigate('/');
             setMobileMenuOpen(false);
           }}
-          className="flex items-center text-left hover:opacity-90 transition-opacity shrink-0 cursor-pointer"
+          className="flex items-center text-left hover:opacity-90 transition-opacity min-w-0 cursor-pointer"
           aria-label={`${siteTitle} Home`}
         >
           <KhabarLogo size="md" customUrl={customLogoUrl} title={siteTitle} />
@@ -212,7 +212,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {onOpenAccessibility && (
             <button
               onClick={onOpenAccessibility}
-              className="p-2 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
               title="पहुँचयोग्यता (Accessibility: Alt+A)"
               aria-label="पहुँचयोग्यता"
             >
@@ -225,20 +225,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             href={facebookUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs transition-colors whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs transition-colors whitespace-nowrap shrink-0"
             title="Follow Khabar GPT on Facebook"
           >
             <span>फेसबुक</span>
-            <ExternalLink className="w-3.5 h-3.5" />
+            <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           </a>
 
           {/* Mobile hamburger menu button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+            className="lg:hidden p-1.5 sm:p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer shrink-0"
             aria-label="Toggle navigation menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
           </button>
         </div>
       </div>

@@ -19,8 +19,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   ];
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-lg">
-      <nav className="grid grid-cols-5 items-center h-15 max-w-lg mx-auto">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-lg w-full max-w-full">
+      <nav className="grid grid-cols-5 items-center h-15 max-w-lg mx-auto w-full px-1">
         {tabs.map((tab) => {
           const isActive =
             tab.path === '/'
@@ -32,12 +32,12 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             <button
               key={tab.path}
               onClick={() => onNavigate(tab.path)}
-              className={`flex flex-col items-center justify-center h-full w-full touch-target transition-colors select-none cursor-pointer ${
+              className={`flex flex-col items-center justify-center h-full w-full py-1 transition-colors select-none cursor-pointer min-w-0 ${
                 isActive ? 'text-red-600 font-semibold' : 'text-slate-500 hover:text-slate-800'
               }`}
             >
-              <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
-              <span className="text-[11px] mt-0.5 tracking-tight">{tab.label}</span>
+              <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
+              <span className="text-[10px] sm:text-[11px] mt-0.5 tracking-tight truncate max-w-full text-center px-0.5">{tab.label}</span>
             </button>
           );
         })}

@@ -876,6 +876,55 @@ apiRouter.post('/feedback', (req: Request, res: Response) => {
     contactEmailOrPhone: contactEmailOrPhone ? String(contactEmailOrPhone).trim() : undefined
   });
 
+  // Zero-loss notification forwarder: Dispatch to Admin if correction/tip
+  const settings = db.getSettings();
+  const resendApiKey = process.env.RESEND_API_KEY || settings.resendApiKey;
+  const adminTargetEmail = settings.adminNotificationEmail || process.env.ADMIN_NOTIFICATION_EMAIL || settings.contactEmail || '';
+
+  if (resendApiKey && adminTargetEmail && (type === 'correction' || type === 'tip' || String(message).length > 20)) {
+    const fromEmail = settings.resendSenderEmail || 'onboarding@resend.dev';
+    const alertSubject = `[Khabar GPT पाठक प्रतिक्रिया / सच्याइ] ${type === 'correction' ? 'त्रुटि सच्याइ' : 'टिप/प्रतिक्रिया'}: ${articleTitle}`;
+    
+    fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey.trim()}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: `खबर GPT Feedback <${fromEmail}>`,
+        to: [adminTargetEmail],
+        subject: alertSubject,
+        html: `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+            <div style="background: #e11d48; color: #ffffff; padding: 12px 16px; border-radius: 8px 8px 0 0; margin: -20px -20px 16px -20px;">
+              <h3 style="margin: 0; color: #ffffff; font-size: 16px;">पाठकबाट नयाँ प्रतिक्रिया / त्रुटि जानकारी प्राप्त</h3>
+            </div>
+            <p><strong>सामग्री:</strong> ${articleTitle}</p>
+            <p><strong>प्रकार:</strong> ${type}</p>
+            <p><strong>सम्पर्क:</strong> ${contactName || 'अज्ञात'} (${contactEmailOrPhone || 'खुलाइएको छैन'})</p>
+            <div style="background: #f8fafc; border-left: 4px solid #e11d48; padding: 12px; margin: 12px 0; font-size: 13px;">
+              ${String(message).trim()}
+            </div>
+          </div>
+        `,
+        text: `पाठक प्रतिक्रिया:\nसामग्री: ${articleTitle}\nप्रकार: ${type}\nसम्पर्क: ${contactName || 'अज्ञात'} (${contactEmailOrPhone || 'N/A'})\n\nव्यहोरा:\n${message}`
+      })
+    }).catch((err) => console.warn('Feedback notification dispatch failed:', err));
+  }
+
+  // Webhook forwarder
+  const webhookUrl = settings.inquiryWebhookUrl || process.env.INQUIRY_WEBHOOK_URL;
+  if (webhookUrl && webhookUrl.startsWith('http')) {
+    fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: `📝 **[Khabar GPT पाठक प्रतिक्रिया]**\n**सामग्री:** ${articleTitle}\n**प्रकार:** ${type}\n**सम्पर्क:** ${contactName || 'अज्ञात'} (${contactEmailOrPhone || 'N/A'})\n**व्यहोरा:** ${message}`
+      })
+    }).catch(() => {});
+  }
+
   return res.status(201).json({ success: true, message: 'तपाईंको प्रतिक्रिया प्राप्त भयो। धन्यवाद!', id: fb.id });
 });
 
@@ -1235,10 +1284,10 @@ apiRouter.post('/backup/restore', requireAuth, requireRole(['owner']), (req: Aut
 
 // ================= CONTACT MESSAGES =================
 
-apiRouter.post('/contact', (req: Request, res: Response) => {
+apiRouter.post('/contact', async (req: Request, res: Response) => {
   const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
 
-  if (!checkRateLimit(contactRateLimits, clientIp, 5, 60 * 60 * 1000)) {
+  if (!checkRateLimit(contactRateLimits, clientIp, 10, 60 * 60 * 1000)) {
     return res.status(429).json({ error: 'सन्देश पठाउने सीमा समाप्त भयो। कृपया पछि प्रयास गर्नुहोस्। (Rate limit exceeded)' });
   }
 
@@ -1256,16 +1305,164 @@ apiRouter.post('/contact', (req: Request, res: Response) => {
     return res.status(400).json({ error: 'मान्य इमेल ठेगाना प्रविष्ट गर्नुहोस् (Invalid email address)' });
   }
 
+  const cleanName = String(name).trim();
+  const cleanEmail = String(email).trim();
+  const cleanPhone = phone ? String(phone).trim() : undefined;
+  const cleanSubject = String(subject).trim();
+  const cleanType = type || 'general';
+  const cleanMessage = String(message).trim();
+
   const saved = db.addContactMessage({
-    name: String(name).trim(),
-    email: String(email).trim(),
-    phone: phone ? String(phone).trim() : undefined,
-    subject: String(subject).trim(),
-    type: type || 'general',
-    message: String(message).trim()
+    name: cleanName,
+    email: cleanEmail,
+    phone: cleanPhone,
+    subject: cleanSubject,
+    type: cleanType,
+    message: cleanMessage
   });
 
-  return res.status(201).json({ success: true, message: 'सन्देश सफलतापूर्वक पठाइयो। हामी चाँडै सम्पर्क गर्नेछौँ।', id: saved.id });
+  const settings = db.getSettings();
+  const adminEmail = settings.adminNotificationEmail || process.env.ADMIN_NOTIFICATION_EMAIL || settings.contactEmail || '';
+  const resendApiKey = process.env.RESEND_API_KEY || settings.resendApiKey;
+  const fromEmail = settings.resendSenderEmail || 'onboarding@resend.dev';
+  const senderName = settings.siteTitle || 'खबर GPT Editorial Desk';
+  const ticketId = `KG-${saved.id.slice(-6).toUpperCase()}`;
+
+  let adminNotified = false;
+  let senderNotified = false;
+
+  // 1. Dispatch Instant Forwarding to Admin Email (No matter if Render redeploys, owner already has it in Gmail!)
+  if (resendApiKey && adminEmail) {
+    try {
+      const typeLabels: Record<string, string> = {
+        general: 'सामान्य सोधपुछ (General Inquiry)',
+        correction: 'तथ्य सच्याउने अनुरोध (Correction Request)',
+        copyright: 'प्रतिलिपि अधिकार (Copyright Claim)',
+        privacy: 'गोपनीयता सम्बन्धी गुनासो (Privacy Concern)',
+        sponsorship: 'सहकार्य तथा प्रायोजन (Business & Sponsorship)'
+      };
+
+      const adminEmailHtml = `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+          <div style="border-bottom: 2px solid #dc2626; padding-bottom: 12px; margin-bottom: 16px;">
+            <span style="background: #dc2626; color: #ffffff; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase;">नयाँ सन्देश [Ticket #${ticketId}]</span>
+            <h2 style="color: #0f172a; margin: 8px 0 0 0; font-size: 18px;">${cleanSubject}</h2>
+            <p style="color: #64748b; font-size: 12px; margin: 4px 0 0 0;">प्रकार: <strong>${typeLabels[cleanType] || cleanType}</strong></p>
+          </div>
+          
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 16px; font-size: 13px;">
+            <p style="margin: 0 0 6px 0;"><strong>प्रेषक:</strong> ${cleanName}</p>
+            <p style="margin: 0 0 6px 0;"><strong>इमेल:</strong> <a href="mailto:${cleanEmail}" style="color: #2563eb;">${cleanEmail}</a></p>
+            ${cleanPhone ? `<p style="margin: 0 0 6px 0;"><strong>फोन:</strong> <a href="tel:${cleanPhone}" style="color: #2563eb;">${cleanPhone}</a></p>` : ''}
+            <p style="margin: 0;"><strong>समय:</strong> ${new Date().toLocaleString('ne-NP')}</p>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <h3 style="font-size: 13px; color: #475569; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">सन्देश व्यहोरा:</h3>
+            <div style="white-space: pre-wrap; font-size: 14px; background: #ffffff; border-left: 4px solid #dc2626; padding: 12px 14px; color: #334155; line-height: 1.7; border-radius: 0 8px 8px 0; border-top: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9;">
+              ${cleanMessage}
+            </div>
+          </div>
+
+          <div style="text-align: center; margin: 24px 0 16px 0;">
+            <a href="mailto:${cleanEmail}?subject=Re:%20${encodeURIComponent(cleanSubject)}%20[Ticket%20%23${ticketId}]" style="background: #dc2626; color: #ffffff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; display: inline-block;">
+              प्रेषकलाई सिधै जवाफ पठाउनुहोस् (Reply to Sender)
+            </a>
+          </div>
+
+          <div style="font-size: 11px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+            यो सूचना खबर GPT वेबसाइट मार्फत तुरुन्त प्रेषित गरिएको हो। Render रिस्टार्ट भए पनि यो इमेल सुरक्षित रहन्छ।
+          </div>
+        </div>
+      `;
+
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey.trim()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: `${senderName} <${fromEmail}>`,
+          to: [adminEmail],
+          subject: `🚨 [नयाँ ${cleanType === 'sponsorship' ? 'सहकार्य प्रस्ताव' : cleanType === 'correction' ? 'सच्याइ अनुरोध' : 'सन्देश'}] ${cleanSubject} (${cleanName})`,
+          html: adminEmailHtml,
+          text: `नाम: ${cleanName}\nइमेल: ${cleanEmail}\nफोन: ${cleanPhone || 'N/A'}\nविषय: ${cleanSubject}\nसन्देश:\n${cleanMessage}`
+        })
+      }).then(r => { if (r.ok) adminNotified = true; }).catch(e => console.warn('Admin forward failed:', e));
+
+      // 2. Dispatch Auto-Acknowledgement Receipt to Sender
+      const userReceiptHtml = `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+          <div style="border-bottom: 2px solid #dc2626; padding-bottom: 12px; margin-bottom: 16px;">
+            <h1 style="color: #dc2626; margin: 0; font-size: 20px;">खबर GPT (Khabar GPT)</h1>
+            <p style="color: #64748b; font-size: 12px; margin: 4px 0 0 0;">तथ्यपरक सूचना तथा डिजिटल विश्लेषण</p>
+          </div>
+          <p style="font-size: 14px; margin-top: 0;">नमस्ते <strong>${cleanName}</strong> जी,</p>
+          <p style="font-size: 14px; color: #334155;">
+            खबर GPT मा तपाईंले पठाउनुभएको सन्देश/प्रस्ताव सफलतापूर्वक दर्ता भएको छ। तपाईंको सन्दर्भ नम्बर <strong>#${ticketId}</strong> हो।
+          </p>
+          <div style="background: #f8fafc; border-left: 4px solid #059669; padding: 12px; border-radius: 0 8px 8px 0; margin: 16px 0; font-size: 13px;">
+            <p style="margin: 0 0 4px 0; font-weight: bold; color: #065f46;">दर्ता विवरण:</p>
+            <p style="margin: 0 0 2px 0;"><strong>विषय:</strong> ${cleanSubject}</p>
+            <p style="margin: 0;"><strong>प्रकार:</strong> ${typeLabels[cleanType] || cleanType}</p>
+          </div>
+          <p style="font-size: 13px; color: #475569;">
+            हाम्रो सम्पादकीय टोलीले तपाईंको व्यहोरा अध्ययन गरिरहेको छ र २४ देखि ४८ घण्टाभित्र सम्पर्क गर्नेछ। तत्काल कुरा गर्न चाहनुहुन्छ भने हाम्रो आधिकारिक फेसबुक पेजमा पनि सिधै सन्देश पठाउन सक्नुहुन्छ:
+          </p>
+          <div style="text-align: center; margin: 20px 0;">
+            <a href="${settings.facebookUrl || 'https://facebook.com/khabargpt'}" style="background: #1877f2; color: #ffffff; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; display: inline-block;">
+              फेसबुक मेसेन्जरमा सम्पर्क (facebook.com/khabargpt)
+            </a>
+          </div>
+          <div style="margin-top: 24px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center;">
+            <p style="margin: 0;">खबर GPT सम्पादकीय तथा सञ्चार विभाग | काठमाडौँ, नेपाल</p>
+          </div>
+        </div>
+      `;
+
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey.trim()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: `${senderName} <${fromEmail}>`,
+          to: [cleanEmail],
+          subject: `सन्देश प्राप्त भयो [Ticket #${ticketId}]: ${cleanSubject} - खबर GPT`,
+          html: userReceiptHtml,
+          text: `नमस्ते ${cleanName},\nखबर GPT मा तपाईंको सन्देश प्राप्त भएको छ। Ticket #${ticketId}। हाम्रो टोलीले चाँडै सम्पर्क गर्नेछ।`
+        })
+      }).then(r => { if (r.ok) senderNotified = true; }).catch(e => console.warn('Sender confirmation failed:', e));
+
+    } catch (dispatchErr) {
+      console.warn('Email notification dispatch error:', dispatchErr);
+    }
+  }
+
+  // 3. Optional Webhook dispatch (e.g. Discord, Slack, Telegram bot webhook)
+  const webhookUrl = process.env.NOTIFICATION_WEBHOOK_URL || process.env.INQUIRY_WEBHOOK_URL || settings.inquiryWebhookUrl || (settings as any).notificationWebhookUrl;
+  if (webhookUrl) {
+    try {
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: `🚨 **[खबर GPT नयाँ सन्देश]** Ticket: #${ticketId}\n**नाम:** ${cleanName}\n**इमेल:** ${cleanEmail}\n**विषय:** ${cleanSubject}\n**सन्देश:** ${cleanMessage.slice(0, 300)}`
+        })
+      }).catch(() => {});
+    } catch {}
+  }
+
+  return res.status(201).json({
+    success: true,
+    message: 'सन्देश सफलतापूर्वक पठाइयो। हाम्रो टोलीले समीक्षा गरिरहेको छ।',
+    id: saved.id,
+    ticketId,
+    adminNotified,
+    senderNotified
+  });
 });
 
 apiRouter.get('/contact/messages', requireAuth, (_req: AuthenticatedRequest, res: Response) => {

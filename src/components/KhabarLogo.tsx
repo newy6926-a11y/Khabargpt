@@ -16,17 +16,17 @@ export const KhabarLogo: React.FC<KhabarLogoProps> = ({
   title = 'Khabar GPT'
 }) => {
   const iconDimensions = {
-    sm: 'w-8 h-8',
-    md: 'w-10 h-10',
-    lg: 'w-14 h-14',
-    xl: 'w-20 h-20'
+    sm: 'w-7 h-7 sm:w-8 sm:h-8',
+    md: 'w-8 h-8 sm:w-10 sm:h-10',
+    lg: 'w-11 h-11 sm:w-14 sm:h-14',
+    xl: 'w-16 h-16 sm:w-20 sm:h-20'
   };
 
   const textSizes = {
-    sm: 'text-base',
-    md: 'text-xl',
-    lg: 'text-2xl',
-    xl: 'text-3xl'
+    sm: 'text-sm sm:text-base',
+    md: 'text-base sm:text-xl',
+    lg: 'text-lg sm:text-2xl',
+    xl: 'text-2xl sm:text-3xl'
   };
 
   const [imgError, setImgError] = React.useState(false);
@@ -34,28 +34,44 @@ export const KhabarLogo: React.FC<KhabarLogoProps> = ({
   // Render brand text dynamically based on configured title
   const renderBrandText = () => {
     const cleanTitle = (title || 'Khabar GPT').trim();
-    // Check if it matches default pattern "Khabar GPT" or "खबर GPT"
     const lower = cleanTitle.toLowerCase();
+
     if (lower.startsWith('khabar') && lower.includes('gpt')) {
       const gptIndex = cleanTitle.toLowerCase().indexOf('gpt');
       const firstPart = cleanTitle.substring(0, gptIndex).trim();
       const secondPart = cleanTitle.substring(gptIndex);
+
+      let mainSecond = 'GPT';
+      let secondaryNp = '';
+      if (secondPart.includes('(')) {
+        const parenIdx = secondPart.indexOf('(');
+        mainSecond = secondPart.substring(0, parenIdx).trim();
+        secondaryNp = secondPart.substring(parenIdx).trim();
+      } else {
+        mainSecond = secondPart;
+      }
+
       return (
-        <div className={`flex items-baseline font-bold font-sans tracking-tight ${textSizes[size]}`}>
+        <div className={`flex items-baseline font-bold font-sans tracking-tight min-w-0 ${textSizes[size]}`}>
           <span className="text-red-600 font-extrabold">{firstPart}</span>
-          <span className="text-slate-900 font-black tracking-normal ml-1">{secondPart}</span>
+          <span className="text-slate-900 font-black tracking-normal ml-1">{mainSecond}</span>
+          {secondaryNp && (
+            <span className="text-slate-500 font-medium text-xs ml-1 hidden sm:inline truncate">
+              {secondaryNp}
+            </span>
+          )}
         </div>
       );
     } else if (cleanTitle.includes('खबर') && cleanTitle.includes('GPT')) {
       return (
-        <div className={`flex items-baseline font-bold font-sans tracking-tight ${textSizes[size]}`}>
+        <div className={`flex items-baseline font-bold font-sans tracking-tight min-w-0 ${textSizes[size]}`}>
           <span className="text-red-600 font-extrabold">खबर</span>
           <span className="text-slate-900 font-black tracking-normal ml-1">GPT</span>
         </div>
       );
     } else {
       return (
-        <div className={`font-bold font-sans tracking-tight text-slate-900 ${textSizes[size]}`}>
+        <div className={`font-bold font-sans tracking-tight text-slate-900 min-w-0 truncate ${textSizes[size]}`}>
           {cleanTitle}
         </div>
       );
@@ -63,7 +79,7 @@ export const KhabarLogo: React.FC<KhabarLogoProps> = ({
   };
 
   return (
-    <div className={`flex items-center gap-3 select-none ${className}`}>
+    <div className={`flex items-center gap-2 sm:gap-3 select-none min-w-0 ${className}`}>
       {/* Official Circular Logo Emblem */}
       <div
         className={`${iconDimensions[size]} rounded-full bg-white border border-slate-200/90 shadow-xs flex items-center justify-center shrink-0 overflow-hidden relative`}

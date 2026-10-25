@@ -418,7 +418,7 @@ export const api = {
     return this.getTrashList();
   },
 
-  async submitContact(msg: any): Promise<{ success: boolean; message: string }> {
+  async submitContact(msg: any): Promise<{ success: boolean; message: string; id?: string; ticketId?: string; adminNotified?: boolean; senderNotified?: boolean }> {
     return this.sendContactMessage(msg);
   },
 
@@ -524,7 +524,6 @@ export const api = {
     });
   },
 
-  // Contact
   async sendContactMessage(msg: {
     name: string;
     email: string;
@@ -533,7 +532,7 @@ export const api = {
     type?: string;
     message: string;
     website_trap?: string;
-  }): Promise<{ success: boolean; message: string }> {
+  }): Promise<{ success: boolean; message: string; id?: string; ticketId?: string; adminNotified?: boolean; senderNotified?: boolean }> {
     const res = await fetch('/api/contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

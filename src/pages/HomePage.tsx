@@ -189,39 +189,39 @@ export const HomePage: React.FC<HomePageProps> = ({
   };
 
   return (
-    <div className="space-y-10 pb-16">
+    <div className="space-y-8 sm:space-y-10 pb-16 w-full max-w-full overflow-hidden">
       {/* 1. Official Nepali Introduction Banner */}
-      <section className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-900 text-white pt-10 pb-12 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-950/70 px-3 py-1 rounded-full border border-red-800/60">
-              <Sparkles className="w-3.5 h-3.5 text-red-400" />
-              <span>नेपालको डिजिटल सूचना तथा एक्सप्लेनर प्लेटफर्म</span>
+      <section className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-900 text-white pt-8 sm:pt-10 pb-10 sm:pb-12 px-3 sm:px-6 lg:px-8 border-b border-slate-800 w-full overflow-hidden">
+        <div className="max-w-7xl mx-auto space-y-5 sm:space-y-6 w-full">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-950/70 px-2.5 sm:px-3 py-1 rounded-full border border-red-800/60 max-w-full">
+              <Sparkles className="w-3.5 h-3.5 text-red-400 shrink-0" />
+              <span className="truncate">नेपालको डिजिटल सूचना तथा एक्सप्लेनर प्लेटफर्म</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-sans tracking-tight text-white leading-tight">
-              <span className="text-red-500 block text-lg sm:text-xl md:text-2xl font-bold uppercase tracking-wider mb-2">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold font-sans tracking-tight text-white leading-tight break-words">
+              <span className="text-red-500 block text-base sm:text-xl md:text-2xl font-bold uppercase tracking-wider mb-1 sm:mb-2">
                 खबर GPT (Khabar GPT)
               </span>
               {settings.siteSubtitle || 'समसामयिक विषय, तथ्यपरक जानकारी र सरल एक्सप्लेनर'}
             </h1>
 
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-normal max-w-3xl">
+            <p className="text-sm sm:text-lg text-slate-300 leading-relaxed font-normal max-w-3xl">
               {settings.introTextNp ||
                 'खबर GPT नेपालका समसामयिक विषय, सार्वजनिक सरोकारका जानकारी र जटिल विषयलाई सरल भाषामा बुझाउने डिजिटल सूचना पृष्ठ हो।'}
             </p>
 
             {/* Direct Social Media Action Buttons */}
-            <div className="flex flex-wrap items-center gap-2.5 pt-2">
+            <div className="flex flex-wrap items-center gap-2 pt-2 w-full">
               <a
                 href={settings.facebookUrl || 'https://facebook.com/khabargpt'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg cursor-pointer"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg cursor-pointer"
               >
-                <Facebook className="w-4 h-4 fill-white" />
+                <Facebook className="w-4 h-4 fill-white shrink-0" />
                 <span>फेसबुक पेज</span>
-                <ExternalLink className="w-3.5 h-3.5 text-blue-200" />
+                <ExternalLink className="w-3.5 h-3.5 text-blue-200 shrink-0" />
               </a>
 
               {settings.youtubeUrl && (
@@ -229,11 +229,11 @@ export const HomePage: React.FC<HomePageProps> = ({
                   href={settings.youtubeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-md cursor-pointer"
+                  className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-md cursor-pointer"
                 >
-                  <Youtube className="w-4 h-4" />
+                  <Youtube className="w-4 h-4 shrink-0" />
                   <span>युट्युब</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-red-200" />
+                  <ExternalLink className="w-3.5 h-3.5 text-red-200 shrink-0" />
                 </a>
               )}
 
@@ -242,11 +242,11 @@ export const HomePage: React.FC<HomePageProps> = ({
                 href={settings.whatsappUrl || 'https://whatsapp.com/channel/khabargpt'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-md cursor-pointer"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-md cursor-pointer"
               >
-                <MessageCircle className="w-4 h-4" />
+                <MessageCircle className="w-4 h-4 shrink-0" />
                 <span>WhatsApp च्यानल</span>
-                <ExternalLink className="w-3.5 h-3.5 text-emerald-200" />
+                <ExternalLink className="w-3.5 h-3.5 text-emerald-200 shrink-0" />
               </a>
 
               {/* Dynamic Social Links Added from Admin Portal */}
@@ -259,10 +259,10 @@ export const HomePage: React.FC<HomePageProps> = ({
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold text-xs transition-all border border-slate-700 cursor-pointer shadow-xs"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold text-xs transition-all border border-slate-700 cursor-pointer shadow-xs"
                     >
                       <span>{link.label}</span>
-                      <ExternalLink className="w-3 h-3 text-slate-400" />
+                      <ExternalLink className="w-3 h-3 text-slate-400 shrink-0" />
                     </a>
                   ))}
             </div>
@@ -308,44 +308,44 @@ export const HomePage: React.FC<HomePageProps> = ({
       </section>
 
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-10 sm:space-y-12 w-full max-w-full overflow-hidden">
         {/* ================= OFFICIAL PUBLIC NOTICE POSTER & FACEBOOK HUB ================= */}
-        <section className="bg-white border-2 border-blue-200/80 rounded-3xl p-5 sm:p-8 shadow-sm space-y-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-red-600 to-blue-600 text-white flex items-center justify-center shadow-md shrink-0">
-                <BellRing className="w-6 h-6 animate-pulse" />
+        <section className="bg-white border-2 border-blue-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm space-y-5 sm:space-y-6 w-full max-w-full overflow-hidden">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4 border-b border-slate-100 pb-4 sm:pb-5 w-full">
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 max-w-full">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-red-600 to-blue-600 text-white flex items-center justify-center shadow-md shrink-0">
+                <BellRing className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
               </div>
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-red-600 bg-red-50 border border-red-200 px-2.5 py-0.5 rounded-full inline-block mb-1">
+              <div className="min-w-0 flex-1">
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full inline-block mb-0.5 sm:mb-1">
                   सार्वजनिक सूचना (Public Notice)
                 </span>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+                <h2 className="text-lg sm:text-2xl font-black text-slate-900 leading-tight break-words">
                   {settings.entryPopupTitle || 'आधिकारिक सूचना (Official Notice)'}
                 </h2>
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5 w-full md:w-auto">
               <a
                 href={settings.facebookUrl || 'https://facebook.com/khabargpt'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all"
               >
-                <Facebook className="w-4 h-4 fill-white" />
-                <span>फेसबुक पेजमा जानुहोस्</span>
-                <ExternalLink className="w-3.5 h-3.5" />
+                <Facebook className="w-4 h-4 fill-white shrink-0" />
+                <span className="truncate">फेसबुक पेजमा जानुहोस्</span>
+                <ExternalLink className="w-3.5 h-3.5 shrink-0" />
               </a>
 
               <a
                 href={settings.entryPopupImageUrl || '/official-notice.svg'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm shadow-sm transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm shadow-sm transition-all"
               >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>पूरा तस्बिर (Full View)</span>
+                <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate">पूरा तस्बिर (Full View)</span>
               </a>
             </div>
           </div>
@@ -356,7 +356,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               setIsNoticeZoomed(true);
               setNoticeZoomLevel(1);
             }}
-            className="max-w-2xl mx-auto rounded-2xl overflow-hidden border-2 border-slate-200 hover:border-red-400 shadow-md bg-white cursor-pointer group relative transition-all"
+            className="w-full max-w-2xl mx-auto rounded-xl sm:rounded-2xl overflow-hidden border-2 border-slate-200 hover:border-red-400 shadow-md bg-white cursor-pointer group relative transition-all"
             title="पूरा तस्बिर हेर्न थिच्नुहोस् (Click to view full image)"
           >
             <img
@@ -365,7 +365,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/official-notice.svg';
               }}
-              className="w-full h-auto object-contain transition-transform duration-200 group-hover:scale-[1.008]"
+              className="w-full h-auto max-w-full object-contain block transition-transform duration-200 group-hover:scale-[1.008]"
             />
 
             {/* Visual Indicator Overlay on Hover */}
@@ -377,82 +377,82 @@ export const HomePage: React.FC<HomePageProps> = ({
             </div>
 
             {/* Corner Badge */}
-            <div className="absolute bottom-2.5 right-2.5 bg-slate-950/80 text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-md pointer-events-none">
+            <div className="absolute bottom-2.5 right-2.5 bg-slate-950/80 text-white text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg flex items-center gap-1.5 shadow-md pointer-events-none">
               <Maximize2 className="w-3 h-3 text-red-400" />
               <span>पूरा तस्बिर (Full Size)</span>
             </div>
           </div>
 
           {/* Buttons below the notice image */}
-          <div className="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          <div className="w-full max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 pt-2">
             <button
               type="button"
               onClick={() => {
                 setIsNoticeZoomed(true);
                 setNoticeZoomLevel(1);
               }}
-              className="py-3 px-5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-md flex items-center justify-center gap-2 text-center cursor-pointer transition-all"
+              className="w-full py-2.5 sm:py-3 px-3 sm:px-5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md flex items-center justify-center gap-2 text-center cursor-pointer transition-all"
             >
-              <Maximize2 className="w-4 h-4 text-red-400" />
-              <span>🔍 पूरा तस्बिर हेर्नुहोस् (Show Full Image)</span>
+              <Maximize2 className="w-4 h-4 text-red-400 shrink-0" />
+              <span className="truncate">🔍 पूरा तस्बिर हेर्नुहोस् (Full Image)</span>
             </button>
 
             <a
               href={settings.facebookUrl || 'https://facebook.com/khabargpt'}
               target="_blank"
               rel="noopener noreferrer"
-              className="py-3 px-5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-sm rounded-xl shadow-md flex items-center justify-center gap-2 text-center transition-all cursor-pointer"
+              className="w-full py-2.5 sm:py-3 px-3 sm:px-5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md flex items-center justify-center gap-2 text-center transition-all cursor-pointer"
             >
-              <Facebook className="w-4 h-4 fill-white" />
-              <span>👉 खबर GPT फेसबुक पेजमा जानुहोस्</span>
+              <Facebook className="w-4 h-4 fill-white shrink-0" />
+              <span className="truncate">👉 खबर GPT फेसबुक पेजमा जानुहोस्</span>
             </a>
           </div>
 
           {/* Quick Notice Share & Copy Actions */}
-          <div className="max-w-2xl mx-auto flex items-center justify-center gap-2.5 flex-wrap pt-1">
+          <div className="w-full max-w-2xl mx-auto flex items-center justify-center gap-2 flex-wrap pt-1">
             <button
               type="button"
               onClick={handleShareNotice}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-300/80 transition-all cursor-pointer shadow-2xs"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-300/80 transition-all cursor-pointer shadow-2xs text-center"
               title="सूचना साथीहरूलाई पठाउनुहोस्"
             >
-              <Share2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>📲 साथीहरूलाई सूचना सेयर (WhatsApp / Viber)</span>
+              <Share2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>📲 साथीहरूलाई सेयर (WhatsApp/Viber)</span>
             </button>
 
             <button
               type="button"
               onClick={handleCopyNoticeLink}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-300 transition-all cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-300 transition-all cursor-pointer shrink-0"
               title="वेबसाइट लिङ्क कपी गर्नुहोस्"
             >
-              <Copy className="w-3.5 h-3.5 text-slate-600" />
+              <Copy className="w-3.5 h-3.5 text-slate-600 shrink-0" />
               <span>{copiedNotice ? '✓ लिङ्क कपी भयो!' : 'लिङ्क कपी'}</span>
             </button>
           </div>
 
           {/* Contact Details & Phone Strip (Gmail / Email hidden for now) */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-700">
-            <div className="flex items-center gap-2">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 sm:gap-4 text-xs text-slate-700 w-full overflow-hidden">
+            <div className="flex items-center gap-2 min-w-0">
               <Phone className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span className="font-semibold">आधिकारिक सम्पर्क:</span>
-              <span className="font-bold text-slate-900">{settings.contactPhone || 'Facebook Messenger'}</span>
+              <span className="font-semibold shrink-0">आधिकारिक सम्पर्क:</span>
+              <span className="font-bold text-slate-900 truncate">{settings.contactPhone || 'Facebook Messenger'}</span>
             </div>
 
             <a
               href={settings.facebookUrl || 'https://facebook.com/khabargpt'}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-bold hover:underline"
+              className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-700 font-bold hover:underline shrink-0"
             >
-              <Facebook className="w-4 h-4 fill-current" />
-              <span>Facebook Messenger मा सन्देश पठाउनुहोस्</span>
+              <Facebook className="w-4 h-4 fill-current shrink-0" />
+              <span>Facebook Messenger मा सन्देश</span>
             </a>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               <MapPin className="w-4 h-4 text-red-600 shrink-0" />
-              <span className="font-semibold">ठेगाना:</span>
-              <span>{settings.address || 'काठमाडौँ, नेपाल'}</span>
+              <span className="font-semibold shrink-0">ठेगाना:</span>
+              <span className="truncate">{settings.address || 'काठमाडौँ, नेपाल'}</span>
             </div>
           </div>
         </section>
@@ -1091,25 +1091,25 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       )}
 
-      {/* Mobile Floating Sticky Facebook Follow Bar */}
+      {/* Mobile Floating Sticky Facebook Follow Bar (Positioned above bottom nav) */}
       {showMobileStickyBar && (
-        <div className="fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 sm:hidden shadow-2xl flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shrink-0 shadow-sm">
-              <Facebook className="w-4 h-4 fill-white text-white" />
+        <div className="fixed bottom-15 inset-x-0 z-35 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-2.5 sm:hidden shadow-2xl flex items-center justify-between gap-2.5 max-w-full">
+          <div className="flex items-center gap-2 overflow-hidden min-w-0">
+            <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center shrink-0 shadow-sm">
+              <Facebook className="w-3.5 h-3.5 fill-white text-white" />
             </div>
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-white truncate">खबर GPT फेसबुक पेज</p>
-              <p className="text-[10px] text-slate-400 truncate">नियमित भिडियो र ताजा रिपोर्ट</p>
+            <div className="min-w-0 truncate">
+              <p className="text-[11px] font-bold text-white truncate">खबर GPT फेसबुक पेज</p>
+              <p className="text-[9px] text-slate-400 truncate">नियमित भिडियो र ताजा रिपोर्ट</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             <a
               href={settings.facebookUrl || 'https://facebook.com/khabargpt'}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm cursor-pointer whitespace-nowrap"
+              className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-lg shadow-sm cursor-pointer whitespace-nowrap"
             >
               जोडिनुहोस्
             </a>
@@ -1119,7 +1119,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               aria-label="Close"
               title="बन्द गर्नुहोस्"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

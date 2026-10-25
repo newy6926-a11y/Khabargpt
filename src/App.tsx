@@ -257,7 +257,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans w-full max-w-full overflow-x-hidden">
       {/* Offline Status Warning Bar */}
       {!isOnline && (
         <div className="bg-amber-600 text-white text-xs px-4 py-2 font-medium flex items-center justify-between shadow-xs sticky top-0 z-50">
@@ -320,7 +320,7 @@ export default function App() {
       />
 
       {/* Main Content View Container */}
-      <main className="flex-1">
+      <main className="flex-1 w-full max-w-full overflow-x-hidden">
         {loading ? (
           <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-3">
             <div className="w-8 h-8 border-3 border-red-600 border-t-transparent rounded-full animate-spin"></div>

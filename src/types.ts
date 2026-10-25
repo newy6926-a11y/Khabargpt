@@ -268,6 +268,11 @@ export interface SiteSettings {
   // Resend Email API
   resendApiKey?: string;
   resendSenderEmail?: string;
+
+  // Real-Time Zero-Loss Inquiry & Collaboration Notification System
+  adminNotificationEmail?: string;
+  inquiryWebhookUrl?: string;
+  autoReplyEnabled?: boolean;
 }
 
 export interface NewsletterSubscriber {

@@ -14,7 +14,9 @@ import {
   Info,
   DollarSign,
   TrendingUp,
-  Award
+  Award,
+  Facebook,
+  MessageCircle
 } from 'lucide-react';
 import { KhabarLogo } from '../components/KhabarLogo';
 import { SiteSettings, ContentItem } from '../types';
@@ -40,6 +42,7 @@ export const CollaborationMediaKitPage: React.FC<CollaborationMediaKitPageProps>
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [submittedTicket, setSubmittedTicket] = useState<{ ticketId: string; email: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,13 +56,17 @@ export const CollaborationMediaKitPage: React.FC<CollaborationMediaKitPageProps>
 
     try {
       const fullMessage = `[प्रस्ताव प्रकार: ${collaborationType}] [संस्था: ${organization.trim() || 'व्यक्तिगत'}] [फोन: ${phone.trim() || 'नखुलाइएको'}]\n\n${message.trim()}`;
-      await api.sendContactMessage({
+      const res = await api.sendContactMessage({
         name: name.trim(),
         email: email.trim(),
         phone: phone.trim() || undefined,
         subject: `व्यावसायिक सहकार्य प्रस्ताव: ${organization.trim() || name.trim()} (${collaborationType})`,
         type: 'sponsorship',
         message: fullMessage
+      });
+      setSubmittedTicket({
+        ticketId: res.ticketId || `KG-AD-${Date.now().toString().slice(-6)}`,
+        email: email.trim()
       });
       setSuccess(true);
       setName('');
@@ -199,14 +206,49 @@ export const CollaborationMediaKitPage: React.FC<CollaborationMediaKitPageProps>
         </div>
 
         {success ? (
-          <div className="p-6 bg-emerald-50 border border-emerald-300 rounded-2xl text-center space-y-2 animate-in fade-in">
-            <CheckCircle className="w-8 h-8 text-emerald-600 mx-auto" />
-            <h3 className="text-base font-bold text-emerald-950">
-              तपाईंको प्रस्ताव सफलतापूर्वक प्राप्त भयो!
-            </h3>
-            <p className="text-xs text-emerald-800 max-w-md mx-auto leading-relaxed">
-              धन्यवाद! हाम्रो टिमले तपाईंको प्रस्तावको अध्ययन गरी सम्भाव्यता र नीतिगत अनुकूलताका आधारमा छिट्टै सम्पर्क गर्नेछ।
-            </p>
+          <div className="p-6 sm:p-8 bg-emerald-50 border border-emerald-300 rounded-3xl text-center space-y-4 animate-in fade-in">
+            <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-xs">
+              <CheckCircle className="w-6 h-6" />
+            </div>
+            <div className="space-y-1.5">
+              {submittedTicket && (
+                <div className="inline-block bg-white text-emerald-800 text-xs font-mono font-bold px-3 py-1 rounded-full border border-emerald-300">
+                  प्रस्ताव सन्दर्भ (Ticket): #{submittedTicket.ticketId}
+                </div>
+              )}
+              <h3 className="text-lg font-bold text-emerald-950">
+                सहकार्य प्रस्ताव सफलतापूर्वक दर्ता भयो!
+              </h3>
+              <p className="text-xs text-emerald-800 max-w-md mx-auto leading-relaxed">
+                हाम्रो सम्पादकीय तथा प्रायोजन डेस्कलाई तपाईंको विवरण पठाइएको छ। हामी २४ देखि ४८ घण्टाभित्र समीक्षा गरी सम्पर्क गर्नेछौँ।
+              </p>
+            </div>
+
+            <div className="p-4 bg-white/80 border border-emerald-200 rounded-2xl max-w-md mx-auto space-y-2 text-left">
+              <span className="text-xs font-bold text-slate-800 block">
+                ⚡ तत्काल छलफल वा दररेट बुझ्न चाहनुहुन्छ?
+              </span>
+              <a
+                href={settings?.facebookUrl || 'https://facebook.com/khabargpt'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-2xs"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>फेसबुक मेसेन्जरमा तुरुन्त च्याट (Messenger)</span>
+              </a>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSuccess(false);
+                setSubmittedTicket(null);
+              }}
+              className="text-xs font-semibold text-slate-600 hover:text-slate-900 underline cursor-pointer pt-2 block mx-auto"
+            >
+              अर्को व्यावसायिक प्रस्ताव पेश गर्नुहोस्
+            </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -306,14 +348,39 @@ export const CollaborationMediaKitPage: React.FC<CollaborationMediaKitPageProps>
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-            >
-              <Send className="w-4 h-4" />
-              <span>{submitting ? 'प्रस्ताव पठाउँदै...' : 'सहकार्य प्रस्ताव पठाउनुहोस्'}</span>
-            </button>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0"
+              >
+                <Send className="w-4 h-4" />
+                <span>{submitting ? 'प्रस्ताव पठाउँदै...' : 'सहकार्य प्रस्ताव पठाउनुहोस्'}</span>
+              </button>
+
+              <a
+                href="https://m.me/khabargpt"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Facebook className="w-4 h-4" />
+                <span>मेसेन्जरमा सिधै कुरा गर्नुहोस् (m.me/khabargpt)</span>
+                <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+              </a>
+            </div>
+
+            <div className="bg-emerald-50/80 border border-emerald-200 rounded-xl p-3 text-[11px] text-emerald-900 flex items-start gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="space-y-0.5 leading-relaxed">
+                <span className="font-bold block text-emerald-950">
+                  शून्य-जोखिम डेलिभरी ग्यारेन्टी (Zero-Loss Delivery Guarantee):
+                </span>
+                <span>
+                  तपाईंले पठाउनुभएको प्रस्ताव सिधै व्यवस्थापन टोलीको आधिकारिक इमेलमा तुरुन्तै पुग्छ र तपाईंको इमेलमा स्वचालित दर्ता रसिद प्राप्त हुनेछ।
+                </span>
+              </div>
+            </div>
           </form>
         )}
       </div>
