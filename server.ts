@@ -52,10 +52,6 @@ async function startServer() {
 
   // Serve static public folder (logos, favicons, robots, assets)
   const publicDir = path.resolve(rootDir, 'public');
-  if (fs.existsSync(publicDir)) {
-    app.use(express.static(publicDir));
-  }
-
   // Dedicated unthrottled Ping & Health endpoint for Uptime Bots (Render 24/7 keep-alive)
   app.get(['/ping', '/api/ping'], (_req, res) => {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -68,9 +64,6 @@ async function startServer() {
     });
   });
 
-  // Mount API Router under /api
-  app.use('/api', apiRouter);
-
   // Dedicated Google Search Favicon & Logo Endpoints with optimized headers
   const serveFaviconAsset = (filePath: string, contentType: string) => {
     return (_req: express.Request, res: express.Response) => {
@@ -78,6 +71,7 @@ async function startServer() {
         res.setHeader('Content-Type', contentType);
         res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
         res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('X-Content-Type-Options', 'nosniff');
         return res.sendFile(filePath);
       }
       return res.status(404).end();
@@ -85,14 +79,30 @@ async function startServer() {
   };
 
   app.get('/favicon.ico', serveFaviconAsset(path.resolve(publicDir, 'favicon.ico'), 'image/x-icon'));
+  app.get('/favicon-32x32.png', serveFaviconAsset(path.resolve(publicDir, 'favicon-32x32.png'), 'image/png'));
   app.get('/favicon-48x48.png', serveFaviconAsset(path.resolve(publicDir, 'favicon-48x48.png'), 'image/png'));
   app.get('/favicon-96x96.png', serveFaviconAsset(path.resolve(publicDir, 'favicon-96x96.png'), 'image/png'));
   app.get('/favicon-144x144.png', serveFaviconAsset(path.resolve(publicDir, 'favicon-144x144.png'), 'image/png'));
   app.get('/favicon-192x192.png', serveFaviconAsset(path.resolve(publicDir, 'favicon-192x192.png'), 'image/png'));
   app.get('/android-chrome-192x192.png', serveFaviconAsset(path.resolve(publicDir, 'android-chrome-192x192.png'), 'image/png'));
+  app.get('/android-chrome-512x512.png', serveFaviconAsset(path.resolve(publicDir, 'android-chrome-512x512.png'), 'image/png'));
   app.get('/apple-touch-icon.png', serveFaviconAsset(path.resolve(publicDir, 'apple-touch-icon.png'), 'image/png'));
   app.get('/logo.png', serveFaviconAsset(path.resolve(publicDir, 'logo.png'), 'image/png'));
+  app.get('/khabar-logo.png', serveFaviconAsset(path.resolve(publicDir, 'khabar-logo.png'), 'image/png'));
   app.get('/logo.svg', serveFaviconAsset(path.resolve(publicDir, 'logo.svg'), 'image/svg+xml'));
+
+  // Serve static public folder for any remaining assets
+  if (fs.existsSync(publicDir)) {
+    app.use(express.static(publicDir, {
+      maxAge: '1d',
+      setHeaders: (res) => {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+      }
+    }));
+  }
+
+  // Mount API Router under /api
+  app.use('/api', apiRouter);
 
   // Search Engine Directives: /robots.txt with explicit Googlebot-Image crawlability
   app.get('/robots.txt', (req, res) => {
