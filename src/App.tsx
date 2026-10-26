@@ -3,7 +3,6 @@ import { ContentItem, Category, CorrectionItem, SiteSettings, AuthUser, AdItem, 
 import { api } from './services/api';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
-import { MobileBottomNav } from './components/MobileBottomNav';
 import { SavedArticlesDrawer } from './components/SavedArticlesDrawer';
 import { AdBanner } from './components/AdBanner';
 import { offlineStorage } from './utils/offlineStorage';
@@ -299,7 +298,7 @@ export default function App() {
           setSavedDrawerOpen(true);
         }}
         title="अफलाइन सेभ गरिएका लेखहरू"
-        className="fixed bottom-20 right-4 z-40 bg-slate-900 text-white p-3 rounded-full shadow-xl hover:bg-slate-800 transition-transform active:scale-95 flex items-center gap-2 border border-slate-700/60 cursor-pointer"
+        className="fixed bottom-6 right-4 z-40 bg-slate-900 text-white p-3 rounded-full shadow-xl hover:bg-slate-800 transition-transform active:scale-95 flex items-center gap-2 border border-slate-700/60 cursor-pointer"
       >
         <Bookmark className="w-5 h-5 text-amber-400" />
         {savedArticlesCount > 0 && (
@@ -411,9 +410,6 @@ export default function App() {
 
       {/* Editorial Footer */}
       <Footer onNavigate={navigate} settings={settings} />
-
-      {/* Android-first Mobile Bottom Navigation Bar */}
-      <MobileBottomNav currentPath={currentPath} onNavigate={navigate} />
 
       {/* Nepali Calendar & Panchanga Modal */}
       <NepaliCalendarModal

@@ -1091,9 +1091,9 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       )}
 
-      {/* Mobile Floating Sticky Facebook Follow Bar (Positioned above bottom nav) */}
+      {/* Mobile Floating Sticky Facebook Follow Bar */}
       {showMobileStickyBar && (
-        <div className="fixed bottom-15 inset-x-0 z-35 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-2.5 sm:hidden shadow-2xl flex items-center justify-between gap-2.5 max-w-full">
+        <div className="fixed bottom-0 inset-x-0 z-35 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-2.5 sm:hidden shadow-2xl flex items-center justify-between gap-2.5 max-w-full">
           <div className="flex items-center gap-2 overflow-hidden min-w-0">
             <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center shrink-0 shadow-sm">
               <Facebook className="w-3.5 h-3.5 fill-white text-white" />

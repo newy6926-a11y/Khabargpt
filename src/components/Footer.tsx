@@ -33,7 +33,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, settings }) => {
   };
 
   return (
-    <footer className="bg-slate-900 text-slate-300 pt-12 pb-24 lg:pb-12 border-t border-slate-800">
+    <footer className="bg-slate-900 text-slate-300 py-12 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Newsletter Subscription Bar in Footer */}
         <div className="bg-gradient-to-r from-red-950/80 via-slate-900 to-slate-900 p-6 sm:p-8 rounded-3xl border border-red-900/40 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-6 mb-12">

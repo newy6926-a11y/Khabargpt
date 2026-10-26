@@ -87,6 +87,7 @@ async function startServer() {
   app.get('/favicon.ico', serveFaviconAsset(path.resolve(publicDir, 'favicon.ico'), 'image/x-icon'));
   app.get('/favicon-48x48.png', serveFaviconAsset(path.resolve(publicDir, 'favicon-48x48.png'), 'image/png'));
   app.get('/favicon-96x96.png', serveFaviconAsset(path.resolve(publicDir, 'favicon-96x96.png'), 'image/png'));
+  app.get('/favicon-144x144.png', serveFaviconAsset(path.resolve(publicDir, 'favicon-144x144.png'), 'image/png'));
   app.get('/favicon-192x192.png', serveFaviconAsset(path.resolve(publicDir, 'favicon-192x192.png'), 'image/png'));
   app.get('/android-chrome-192x192.png', serveFaviconAsset(path.resolve(publicDir, 'android-chrome-192x192.png'), 'image/png'));
   app.get('/apple-touch-icon.png', serveFaviconAsset(path.resolve(publicDir, 'apple-touch-icon.png'), 'image/png'));
