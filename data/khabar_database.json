@@ -156,40 +156,40 @@
     }
   ],
   "marketSnapshot": {
-    "updatedDate": "२०२६ अक्टोबर २३, शुक्रबार (०१:४१ अपराह्न NPT - प्रत्यक्ष अद्यावधिक)",
+    "updatedDate": "२०२६ अक्टोबर २६, सोमबार (०९:१३ अपराह्न NPT - प्रत्यक्ष अद्यावधिक)",
     "nepse": {
-      "index": 2646.32,
-      "change": 18.54,
-      "percentChange": 0.7,
-      "turnoverCrores": 619.2,
+      "index": 2640.38,
+      "change": 11.04,
+      "percentChange": 0.42,
+      "turnoverCrores": 617.72,
       "points": [
         {
           "time": "11:00 AM",
-          "value": 2630.32
+          "value": 2624.38
         },
         {
           "time": "12:00 PM",
-          "value": 2637.82
+          "value": 2631.88
         },
         {
           "time": "01:00 PM",
-          "value": 2644.22
+          "value": 2638.28
         },
         {
           "time": "02:00 PM",
-          "value": 2650.62
+          "value": 2644.68
         },
         {
           "time": "03:00 PM",
-          "value": 2646.32
+          "value": 2640.38
         }
       ]
     },
     "goldSilver": {
-      "fineGoldTola": 291387,
-      "fineGold10g": 249822,
-      "tejabiGoldTola": 289887,
-      "silverTola": 3058,
+      "fineGoldTola": 292619,
+      "fineGold10g": 250878,
+      "tejabiGoldTola": 291119,
+      "silverTola": 2981,
       "changeGold": 1200,
       "source": "नेपाल सुनचाँदी व्यवसायी महासंघ (FENEGOSIDA - स्वचालित ताजा दर)"
     },
@@ -202,84 +202,84 @@
     },
     "forex": {
       "usd": {
-        "buy": 136.28,
-        "sell": 136.88
+        "buy": 136.47,
+        "sell": 137.07
       },
       "eur": {
-        "buy": 148.48,
-        "sell": 149.18
+        "buy": 148.59,
+        "sell": 149.29
       },
       "gbp": {
-        "buy": 176.83,
-        "sell": 177.63
+        "buy": 176.96,
+        "sell": 177.76
       },
       "aed": {
-        "buy": 37.11,
-        "sell": 37.27
+        "buy": 37.08,
+        "sell": 37.24
       },
       "qar": {
-        "buy": 37.37,
-        "sell": 37.53
+        "buy": 37.47,
+        "sell": 37.63
       },
       "source": "नेपाल राष्ट्र बैंक (NRB - प्रत्यक्ष विनिमय दर)"
     },
     "disclaimer": "⚠️ प्रत्यक्ष बजार दर डिस्क्लेमर: सेयर बजार, सुनचाँदी, विदेशी विनिमय तथा इन्धनका मूल्य निरन्तर परिवर्तनशील हुन्छन्। यी दरहरू आधिकारिक निकायहरूको सार्वजनिक खुला तथ्यांक अनुसार हालको समयसँग स्वचालित रूपमा अद्यावधिक हुन्छन्।",
     "trends": [
       {
-        "date": "अक्टोबर १७",
-        "nepse": 2625.3,
-        "goldFine": 288036,
-        "petrol": 172.5,
-        "diesel": 158.5,
-        "usdToNpr": 135.78
-      },
-      {
-        "date": "अक्टोबर १८",
-        "nepse": 2622.49,
-        "goldFine": 288120,
-        "petrol": 172.5,
-        "diesel": 158.5,
-        "usdToNpr": 135.87
-      },
-      {
-        "date": "अक्टोबर १९",
-        "nepse": 2616.2,
-        "goldFine": 287936,
-        "petrol": 172.5,
-        "diesel": 158.5,
-        "usdToNpr": 135.96
-      },
-      {
         "date": "अक्टोबर २०",
-        "nepse": 2624.15,
-        "goldFine": 288852,
+        "nepse": 2619.36,
+        "goldFine": 289268,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.05
+        "usdToNpr": 135.97
       },
       {
         "date": "अक्टोबर २१",
-        "nepse": 2643.19,
-        "goldFine": 290625,
+        "nepse": 2616.55,
+        "goldFine": 289352,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.14
+        "usdToNpr": 136.06
       },
       {
         "date": "अक्टोबर २२",
-        "nepse": 2653.92,
-        "goldFine": 291756,
+        "nepse": 2610.26,
+        "goldFine": 289168,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.23
+        "usdToNpr": 136.15
+      },
+      {
+        "date": "अक्टोबर २३",
+        "nepse": 2618.21,
+        "goldFine": 290084,
+        "petrol": 172.5,
+        "diesel": 158.5,
+        "usdToNpr": 136.24
+      },
+      {
+        "date": "अक्टोबर २४",
+        "nepse": 2637.25,
+        "goldFine": 291857,
+        "petrol": 172.5,
+        "diesel": 158.5,
+        "usdToNpr": 136.33
+      },
+      {
+        "date": "अक्टोबर २५",
+        "nepse": 2647.98,
+        "goldFine": 292988,
+        "petrol": 172.5,
+        "diesel": 158.5,
+        "usdToNpr": 136.42
       },
       {
         "date": "आज (Today)",
-        "nepse": 2646.32,
-        "goldFine": 291387,
+        "nepse": 2640.38,
+        "goldFine": 292619,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.28
+        "usdToNpr": 136.47
       }
     ]
   }

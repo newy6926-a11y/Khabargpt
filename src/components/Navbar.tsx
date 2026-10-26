@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { KhabarLogo } from './KhabarLogo';
 import { NepaliDateClock } from './NepaliDateClock';
 import {
@@ -50,7 +51,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Close menu on Escape key press
+  // Close menu on Escape key press & prevent background-page scrolling
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -59,14 +60,16 @@ export const Navbar: React.FC<NavbarProps> = ({
     };
     if (menuOpen) {
       window.addEventListener('keydown', handleKeyDown);
+      const originalOverflow = document.body.style.overflow;
+      const originalTouchAction = document.body.style.touchAction;
       document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+      document.body.style.touchAction = 'none';
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+        document.body.style.overflow = originalOverflow;
+        document.body.style.touchAction = originalTouchAction;
+      };
     }
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
-    };
   }, [menuOpen]);
 
   const facebookUrl = settings?.facebookUrl || 'https://facebook.com/khabargpt';
@@ -247,38 +250,49 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Slide-out Three-Line Full Drawer Menu & Backdrop */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden animate-in fade-in duration-200">
-          {/* Dimmed backdrop */}
+      {/* Slide-out Three-Line Full Mobile Menu Overlay / Drawer rendered via Portal directly into document.body */}
+      {menuOpen && typeof document !== 'undefined' && createPortal(
+        <div
+          className="fixed inset-0 z-[9999] overflow-hidden w-full h-full"
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100dvh' }}
+        >
+          {/* Dimmed backdrop - covers entire screen and closes on click */}
           <div
-            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
             onClick={() => setMenuOpen(false)}
             aria-hidden="true"
           />
 
-          {/* Drawer container (slides from right) */}
-          <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+          {/* Drawer container:
+              - Mobile (< 640px): 100% full width and height, completely covering underlying page.
+              - Tablet / Desktop (>= 640px): right-aligned drawer (max-w-md).
+          */}
+          <div className="fixed inset-y-0 right-0 w-full sm:max-w-md h-full flex flex-col justify-end sm:justify-start pointer-events-none">
             <aside
-              className="w-screen max-w-md bg-white shadow-2xl flex flex-col h-full overflow-hidden border-l border-slate-200"
+              className="w-full h-full bg-white shadow-2xl flex flex-col overflow-hidden border-l border-slate-200 pointer-events-auto animate-in slide-in-from-right duration-200"
+              style={{
+                height: '100dvh',
+                maxHeight: '100dvh'
+              }}
               role="dialog"
               aria-modal="true"
               aria-label="मुख्य नेभिगेसन मेनु"
             >
               {/* Drawer Top Header */}
-              <div className="px-5 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
-                <div className="flex items-center gap-2.5">
+              <div className="px-4 sm:px-5 py-3.5 sm:py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+                <div className="flex items-center gap-2.5 min-w-0">
                   <KhabarLogo size="sm" customUrl={customLogoUrl} title={siteTitle} />
-                  <div>
-                    <h2 className="text-sm font-bold text-white leading-tight">खबर GPT मेनु</h2>
-                    <p className="text-[10px] text-slate-400">स्वतन्त्र डिजिटल सूचना पोर्टल</p>
+                  <div className="min-w-0">
+                    <h2 className="text-sm sm:text-base font-bold text-white leading-tight truncate">खबर GPT मेनु</h2>
+                    <p className="text-[10px] sm:text-xs text-slate-400 truncate">स्वतन्त्र डिजिटल सूचना पोर्टल</p>
                   </div>
                 </div>
 
                 <button
                   onClick={() => setMenuOpen(false)}
-                  className="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors cursor-pointer"
-                  aria-label="मेनु बन्द गर्नुहोस्"
+                  className="p-2 sm:p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition-colors cursor-pointer shrink-0 min-w-[42px] min-h-[42px] flex items-center justify-center active:scale-95"
+                  aria-label="मेनु बन्द गर्नुहोस् (Close Menu)"
+                  title="मेनु बन्द गर्नुहोस्"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -578,7 +592,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </aside>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );
