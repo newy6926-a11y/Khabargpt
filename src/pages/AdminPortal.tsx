@@ -3489,7 +3489,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         {activeTab === 'live_events' && <AdminLiveEventsPanel />}
 
         {/* ================= TAB: ADS & REVENUE ANALYTICS ================= */}
-        {activeTab === 'ads' && <AdminAdsManagerPanel />}
+        {activeTab === 'ads' && (
+          <AdminAdsManagerPanel
+            settings={settingsForm}
+            onSettingsUpdate={(updated) => {
+              setSettingsForm(updated);
+              onSettingsUpdate(updated);
+            }}
+          />
+        )}
 
         {/* ================= TAB: EDITORIAL SCHEDULE & CALENDAR ================= */}
         {activeTab === 'schedule' && (

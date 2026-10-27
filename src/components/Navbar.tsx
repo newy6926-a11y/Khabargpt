@@ -223,6 +223,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
 
+          {/* Advertise & Sponsorship Quick Button on Desktop */}
+          <button
+            onClick={() => handleNavigateAndClose('/collaborate')}
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors cursor-pointer"
+            title="विज्ञापन तथा स्पोन्सरशिप (Advertise / Sponsor)"
+          >
+            <Handshake className="w-3.5 h-3.5 text-emerald-600" />
+            <span>विज्ञापन / स्पोन्सर</span>
+          </button>
+
           {/* Quick Contact & Inquiry Button on Desktop */}
           <button
             onClick={() => handleNavigateAndClose('/contact')}
@@ -300,6 +310,29 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               {/* Drawer Scrollable Content */}
               <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6">
+                {/* 0. Direct Sponsorship & Advertising Banner Card */}
+                <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200 rounded-2xl p-3.5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-emerald-950 uppercase tracking-wider flex items-center gap-1.5">
+                      <Handshake className="w-3.5 h-3.5 text-emerald-600" />
+                      विज्ञापन, स्पोन्सर & मिडिया किट
+                    </span>
+                    <span className="text-[10px] font-bold bg-emerald-600 text-white px-2 py-0.5 rounded-full">
+                      ब्रान्डिङ
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-emerald-900 leading-snug">
+                    फेसबुक भिडियो ओभरले, प्रायोजित पोस्ट/भिडियो, ब्यानर तथा अडियन्स भूगोल & भ्युज तथ्याङ्क:
+                  </p>
+                  <button
+                    onClick={() => handleNavigateAndClose('/collaborate')}
+                    className="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition shadow-xs"
+                  >
+                    <span>💰 मिडिया किट & स्पोन्सरशिप प्याकेज</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+
                 {/* 1. Priority Section: Contact, Inquiry & Correction (Explicitly requested) */}
                 <div className="bg-red-50/70 border border-red-200/80 rounded-2xl p-3.5 space-y-2">
                   <div className="flex items-center justify-between">

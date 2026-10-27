@@ -213,6 +213,7 @@ export interface SiteSettings {
   customCardLogoUrl?: string;
   bannerNotice?: string;
   bannerNoticeActive: boolean;
+  collaborateConfig?: CollaboratePageConfig;
   articlePublishingEnabled: boolean;
   disallowSearchIndexing: boolean;
   footerText: string;
@@ -276,6 +277,27 @@ export interface SiteSettings {
 
   // Photo & Poster Studio Customization (एड्मिनबाट पोस्टर तथा फोटो स्टुडियो नियन्त्रण)
   posterStudioSettings?: PosterStudioConfig;
+
+  // Google AdSense & Automated Monetization
+  googleAdsenseClientId?: string; // e.g. "ca-pub-XXXXXXXXXXXX"
+  googleAdsenseAutoAdsEnabled?: boolean;
+  monetizationBannerActive?: boolean;
+
+  // Media Kit Audience & Reach Analytics (सहकार्य तथा मिडिया किट तथ्याङ्क)
+  mediaKitStats?: MediaKitStatsConfig;
+}
+
+export interface MediaKitStatsConfig {
+  monthlyReach: string;
+  monthlyViews: string;
+  activeFollowers: string;
+  nepalPercent: number;
+  gulfPercent: number;
+  otherCountriesPercent: number;
+  topCitiesNp: string;
+  topDemographicsNp: string;
+  avgEngagementRate: string;
+  lastUpdatedDateNp?: string;
 }
 
 export interface PosterStudioConfig {
@@ -417,4 +439,57 @@ export interface SavedArticleItem {
   featuredImage?: string;
   author: string;
   savedAt: string;
+}
+
+
+export interface PromotionServiceItem {
+  id: string;
+  category: 'facebook' | 'website';
+  title: string;
+  titleNp: string;
+  format: string;
+  deliverables: string;
+  duration: string;
+  priceType: 'fixed' | 'quote';
+  priceNpr?: number;
+  priceCustomText?: string;
+  isAvailable: boolean;
+  notes?: string;
+}
+
+export interface VerifiedMetricItem {
+  id: string;
+  metricName: string;
+  metricNameNp: string;
+  value: string;
+  dateRange: string;
+  source: string;
+  lastUpdatedDate: string;
+  isVerified: boolean;
+  notes?: string;
+}
+
+export interface AnalyticsScreenshotItem {
+  id: string;
+  title: string;
+  imageUrl: string;
+  metricShown: string;
+  reportingPeriod: string;
+  source: string;
+  notes?: string;
+  isConfirmedByOwner: boolean;
+}
+
+export interface CollaboratePageConfig {
+  fbSectionTitle?: string;
+  fbSectionDesc?: string;
+  fbServices?: PromotionServiceItem[];
+  verifiedMetrics?: VerifiedMetricItem[];
+  analyticsScreenshots?: AnalyticsScreenshotItem[];
+  webSectionTitle?: string;
+  webSectionDesc?: string;
+  webServices?: PromotionServiceItem[];
+  webTrafficDisclaimer?: string;
+  editorialDisclaimer?: string;
+  notRegisteredPressNotice?: string;
 }

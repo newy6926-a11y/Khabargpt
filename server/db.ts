@@ -282,6 +282,82 @@ export interface SiteSettings {
 
   // Photo & Poster Studio Configuration
   posterStudioSettings?: PosterStudioConfig;
+
+  // Google AdSense & Monetization Settings
+  googleAdsenseClientId?: string;
+  googleAdsenseAutoAdsEnabled?: boolean;
+  monetizationBannerActive?: boolean;
+
+  // Media Kit Audience & Reach Analytics (सहकार्य तथा मिडिया किट तथ्याङ्क)
+  mediaKitStats?: MediaKitStatsConfig;
+
+  // Authentic Collaborate & Promotion Configuration (फेसबुक मुख्य तथा वेबसाइट सहायक प्रवर्द्धन)
+  collaborateConfig?: CollaboratePageConfig;
+}
+
+export interface PromotionServiceItem {
+  id: string;
+  category: 'facebook' | 'website';
+  title: string;
+  titleNp: string;
+  format: string;
+  deliverables: string;
+  duration: string;
+  priceType: 'fixed' | 'quote';
+  priceNpr?: number;
+  priceCustomText?: string;
+  isAvailable: boolean;
+  notes?: string;
+}
+
+export interface VerifiedMetricItem {
+  id: string;
+  metricName: string;
+  metricNameNp: string;
+  value: string;
+  dateRange: string;
+  source: string;
+  lastUpdatedDate: string;
+  isVerified: boolean;
+  notes?: string;
+}
+
+export interface AnalyticsScreenshotItem {
+  id: string;
+  title: string;
+  imageUrl: string;
+  metricShown: string;
+  reportingPeriod: string;
+  source: string;
+  notes?: string;
+  isConfirmedByOwner: boolean;
+}
+
+export interface CollaboratePageConfig {
+  fbSectionTitle?: string;
+  fbSectionDesc?: string;
+  fbServices?: PromotionServiceItem[];
+  verifiedMetrics?: VerifiedMetricItem[];
+  analyticsScreenshots?: AnalyticsScreenshotItem[];
+  webSectionTitle?: string;
+  webSectionDesc?: string;
+  webServices?: PromotionServiceItem[];
+  webTrafficDisclaimer?: string;
+  editorialDisclaimer?: string;
+  notRegisteredPressNotice?: string;
+}
+
+export interface MediaKitStatsConfig {
+  monthlyReach: string;
+  monthlyViews: string;
+  activeFollowers: string;
+  nepalPercent: number;
+  gulfPercent: number;
+  otherCountriesPercent: number;
+  topCitiesNp: string;
+  topDemographicsNp: string;
+  avgEngagementRate: string;
+  lastUpdatedDateNp?: string;
 }
 
 export interface PosterStudioConfig {
@@ -525,6 +601,178 @@ export function getDefaultMarketSnapshot(): MarketSnapshot {
   };
 }
 
+export function getDefaultCollaborateConfig(): CollaboratePageConfig {
+  return {
+    fbSectionTitle: 'Promote Your Business with Khabar GPT',
+    fbSectionDesc:
+      'हाम्रो प्रमुख प्रकाशन तथा पाठक पहुँच मुख्य रूपमा आधिकारिक फेसबुक पेजमा केन्द्रित छ। नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण र उपयोगी जानकारी खोज्ने पाठकहरूमाझ आफ्नो व्यवसाय, उत्पादन तथा सेवा पुर्‍याउन हामीसँग सोधपुछ गर्नुहोस्।',
+    fbServices: [
+      {
+        id: 'fb-service-1',
+        category: 'facebook',
+        title: 'Sponsored Facebook Image Posts',
+        titleNp: 'प्रायोजित फेसबुक तस्बिर तथा इन्फोग्राफिक पोस्ट',
+        format: '1:1 वा 4:5 उच्च-गुणस्तर डिजिटल पोस्टर / ग्राफिक्स',
+        deliverables: 'आधिकारिक खबर GPT फेसबुक पेजमा १ पटक स्थायी पोस्ट, लिङ्क, ट्याग तथा आधिकारिक क्याप्सन',
+        duration: 'स्थायी पोस्ट (Permanent Post)',
+        priceType: 'quote',
+        priceCustomText: 'Request a Quote',
+        isAvailable: true,
+        notes: 'सामग्रीको आधिकारिकता र तथ्य जाँच पश्चात मात्र प्रकाशन गरिनेछ।'
+      },
+      {
+        id: 'fb-service-2',
+        category: 'facebook',
+        title: 'Sponsored Reels & Short Videos',
+        titleNp: 'प्रायोजित रिल्स तथा छोटो भिडियो प्रवर्द्धन',
+        format: '9:16 ठाडो भिडियो (Vertical Reel, ३०-६० सेकेन्ड)',
+        deliverables: 'फेसबुक रिल्स र भिडियो फिडमा प्रसारण, भ्वाइसओभर तथा ब्रान्ड ओभरले',
+        duration: 'स्थायी रिल्स पोस्ट',
+        priceType: 'quote',
+        priceCustomText: 'Request a Quote',
+        isAvailable: true,
+        notes: 'रिल्स तथा भिडियो सामग्री व्यवस्थापकको पूर्वस्वीकृतिमा मात्र प्रकाशन हुन्छ।'
+      },
+      {
+        id: 'fb-service-3',
+        category: 'facebook',
+        title: 'Product & Service Awareness Campaigns',
+        titleNp: 'उत्पादन तथा सेवा सचेतना अभियान',
+        format: 'सिलसिलेवार जानकारीमूलक २-३ वटा पोस्ट/ग्राफिक्स',
+        deliverables: 'पाठकहरूका लागि उपयोगिता, समाधान र प्राविधिक पक्ष बुझाउने शृङ्खलाबद्ध प्रस्तुति',
+        duration: '१ देखि २ हप्ताको निर्धारित अभियान',
+        priceType: 'quote',
+        priceCustomText: 'Request a Quote',
+        isAvailable: true,
+        notes: 'उपभोक्तालाई झुक्याउने वा असत्य दाबी गरिएका उत्पादन स्वीकार गरिने छैन।'
+      },
+      {
+        id: 'fb-service-4',
+        category: 'facebook',
+        title: 'Festival Offers & Seasonal Promotions',
+        titleNp: 'चाडपर्व अफर तथा मौसमी प्रवर्द्धन',
+        format: 'चाडपर्व शुभकामना सहितको विशेष ब्रान्डेड पोस्टर',
+        deliverables: 'दसैँ, तिहार, नयाँ वर्ष वा विशेष अवसरमा केन्द्रित प्रचार पोस्ट',
+        duration: 'चाडपर्व अवधिभर विशेष प्रसारण',
+        priceType: 'quote',
+        priceCustomText: 'Request a Quote',
+        isAvailable: true,
+        notes: 'सिजनल अफरहरूको स्पष्ट सर्त खुलाइएको हुनुपर्दछ।'
+      },
+      {
+        id: 'fb-service-5',
+        category: 'facebook',
+        title: 'Business Announcements & Campaign Content',
+        titleNp: 'व्यावसायिक घोषणा तथा विशेष अभियान सामग्री',
+        format: 'आधिकारिक प्रेस नोट / नयाँ शाखा / नयाँ सेवा सार्वजनिक पोस्टर',
+        deliverables: 'पारदर्शी व्यावसायिक सूचना पोस्ट र पाठकका लागि आधिकारिक सोधपुछ लिङ्क',
+        duration: 'स्थायी अभिलेख',
+        priceType: 'quote',
+        priceCustomText: 'Request a Quote',
+        isAvailable: true,
+        notes: 'विज्ञापनदाता संस्थाको आधिकारिकता आवश्यक पर्दछ।'
+      }
+    ],
+    verifiedMetrics: [
+      {
+        id: 'metric-followers',
+        metricName: 'Current Facebook Followers',
+        metricNameNp: 'फेसबुक पेज फलोअर्स संख्या',
+        value: '',
+        dateRange: 'ताजा अद्यावधिक',
+        source: 'Khabar GPT Official Facebook Page',
+        lastUpdatedDate: '२०८२',
+        isVerified: false,
+        notes: 'आधिकारिक तथ्याङ्क व्यवस्थापकद्वारा प्रमाणीकरण पश्चात मात्र यहाँ देखाइनेछ।'
+      },
+      {
+        id: 'metric-reach',
+        metricName: '28-Day Page Reach',
+        metricNameNp: '२८-दिने जैविक पहुँच (Organic Reach)',
+        value: '',
+        dateRange: '२८ दिने रिपोर्टिङ अवधि',
+        source: 'Meta Business Suite Insights',
+        lastUpdatedDate: '२०८२',
+        isVerified: false,
+        notes: 'कुनै पनि अनुमानित वा नक्कली संख्या राखिएको छैन।'
+      },
+      {
+        id: 'metric-views',
+        metricName: 'Video & Content Plays',
+        metricNameNp: 'भिडियो तथा सामग्री भ्युज',
+        value: '',
+        dateRange: '२८ दिने रिपोर्टिङ अवधि',
+        source: 'Meta Business Suite Insights',
+        lastUpdatedDate: '२०८२',
+        isVerified: false,
+        notes: 'आधिकारिक एनालिटिक्स आउनासाथ अपडेट हुनेछ।'
+      },
+      {
+        id: 'metric-engagement',
+        metricName: 'Interactions & Engagement',
+        metricNameNp: 'इन्गेजमेन्ट तथा पाठक अन्तरक्रिया',
+        value: '',
+        dateRange: '२८ दिने रिपोर्टिङ अवधि',
+        source: 'Meta Business Suite Insights',
+        lastUpdatedDate: '२०८२',
+        isVerified: false,
+        notes: 'जैविक अन्तरक्रिया तथ्याङ्क।'
+      }
+    ],
+    analyticsScreenshots: [],
+    webSectionTitle: 'Promote Your Brand on the Khabar GPT Website',
+    webSectionDesc:
+      'हाम्रो वेबसाइटमा कार्यान्वयन भएका र तत्काल उपलब्ध विज्ञापन सेवाहरू निम्न अनुसार छन्। वेबसाइट विज्ञापन सहायक सेवाका रूपमा उपलब्ध छ:',
+    webServices: [
+      {
+        id: 'web-service-1',
+        category: 'website',
+        title: 'Website Banner Advertising',
+        titleNp: 'वेबसाइट ब्यानर विज्ञापन (Header / In-Article / Sidebar)',
+        format: 'Header Top (७२८×९० / ३२०×१००), In-Article, वा Sidebar ब्यानर',
+        deliverables: 'वेबसाइटमा प्रत्यक्ष क्लिकयोग्य ब्यानर, विज्ञापनदाताको आधिकारिक वेबसाइटमा लिङ्क, पारदर्शी इम्प्रेसन ट्र्याकिङ',
+        duration: 'मासिक वा साप्ताहिक क्याम्पेन',
+        priceType: 'quote',
+        priceCustomText: 'Request a Quote',
+        isAvailable: true,
+        notes: 'ब्यानरको गुणस्तर र लिङ्क व्यवस्थापकद्वारा स्वीकृत हुनुपर्दछ।'
+      },
+      {
+        id: 'web-service-2',
+        category: 'website',
+        title: 'Clearly Labeled Sponsored Content',
+        titleNp: 'स्पष्ट लेबल गरिएको प्रायोजित शैक्षिक लेख / सामग्री',
+        format: 'वेबसाइटमा तथ्यपरक फिचर लेख वा शैक्षिक सामग्री',
+        deliverables: 'शीर्षमा "प्रायोजित सामग्री (Sponsored Promotion)" को स्पष्ट पारदर्शी डिस्क्लेमर सहितको पूर्ण सामग्री',
+        duration: 'वेबसाइटमा स्थायी अभिलेख',
+        priceType: 'quote',
+        priceCustomText: 'Request a Quote',
+        isAvailable: true,
+        notes: 'पत्रकारिता र पाठकको विश्वासलाई असर नपर्ने गरी स्पष्ट लेबल अनिवार्य छ।'
+      },
+      {
+        id: 'web-service-3',
+        category: 'website',
+        title: 'Relevant Business & Campaign Announcements',
+        titleNp: 'प्रासंगिक व्यावसायिक तथा अभियान सूचनाहरू',
+        format: 'सार्वजनिक सूचना कार्ड वा घोषणा ब्यानर',
+        deliverables: 'वेबसाइटको उपयुक्त सूचना खण्डमा प्रदर्शन',
+        duration: 'अभियान अनुसार',
+        priceType: 'quote',
+        priceCustomText: 'Request a Quote',
+        isAvailable: true,
+        notes: 'सार्वजनिक सरोकार र कानुनी मापदण्ड अनुरुप हुनुपर्नेछ।'
+      }
+    ],
+    webTrafficDisclaimer:
+      '⚠️ पारदर्शी सूचना: खबर GPT ले वेबसाइट ट्राफिक, सर्च र्‍याङ्किङ, क्लिक वा बिक्री सम्बन्धी कुनै पनि मनगढन्ते वा अवास्तविक ग्यारेन्टी दिँदैन। वेबसाइटको वास्तविक भिजिटर तथ्याङ्क व्यवस्थापकद्वारा प्रमाणित भए पश्चात मात्र सार्वजनिक गरिन्छ।',
+    editorialDisclaimer:
+      'हामी सबै विज्ञापन तथा प्रवर्द्धन प्रस्तावहरूलाई सम्पादकीय मापदण्ड र सार्वजनिक हितका आधारमा समीक्षा गर्दछौँ। जुवा, सट्टेबाजी, भ्रामक वित्तीय योजना, गैरकानुनी वा अश्लील सामग्रीको प्रवर्द्धन कुनै पनि हालतमा स्वीकार गरिने छैन।',
+    notRegisteredPressNotice:
+      'खबर GPT नेपाल सरकारको सूचना तथा प्रसारण विभाग वा प्रेस काउन्सिलमा दर्ता भएको औपचारिक समाचार संस्था वा प्रेस होइन; यो एक स्वतन्त्र डिजिटल सूचना तथा विश्लेषण पृष्ठ हो।'
+  };
+}
+
 function getInitialArticles(): ContentItem[] {
   // Currently no news articles published on website - all fake/mock data removed
   return [];
@@ -745,6 +993,23 @@ class Database {
                 showAiDisclaimer: false,
                 disclaimerText: '⚠️ नोट: यो सामग्री/चित्रण सांकेतिक हो, प्रत्यक्ष आधिकारिक समाचार तस्बिर होइन।'
               };
+            }
+            if (!parsed.settings.mediaKitStats) {
+              parsed.settings.mediaKitStats = {
+                monthlyReach: '२,५०,०००+',
+                monthlyViews: '१,२०,०००+',
+                activeFollowers: '४५,०००+',
+                nepalPercent: 65,
+                gulfPercent: 20,
+                otherCountriesPercent: 15,
+                topCitiesNp: 'काठमाडौँ उपत्यका, पोखरा, बुटवल, चितवन, विराटनगर, झापा',
+                topDemographicsNp: '१८–३४ वर्षका युवा, विद्यार्थी, उद्यमी, लगानीकर्ता तथा वैदेशिक रोजगारीमा रहेका नेपाली',
+                avgEngagementRate: '८.४%',
+                lastUpdatedDateNp: '२०८२ ताजा तथ्याङ्क'
+              };
+            }
+            if (!parsed.settings.collaborateConfig) {
+              parsed.settings.collaborateConfig = getDefaultCollaborateConfig();
             }
           }
           // Always ensure marketSnapshot is current

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AdItem, MediaItem } from '../types';
+import { AdItem, MediaItem, SiteSettings, MediaKitStatsConfig } from '../types';
 import { api } from '../services/api';
+import { AdminCollaborateManagerPanel } from './AdminCollaborateManagerPanel';
 import {
   DollarSign,
   TrendingUp,
@@ -22,10 +23,27 @@ import {
   Sliders,
   Check,
   X,
-  FolderOpen
+  FolderOpen,
+  Globe,
+  BarChart3,
+  MapPin,
+  Users,
+  Save,
+  Sparkles,
+  Layers,
+  HelpCircle
 } from 'lucide-react';
 
-export const AdminAdsManagerPanel: React.FC = () => {
+interface AdminAdsManagerPanelProps {
+  settings?: SiteSettings;
+  onSettingsUpdate?: (settings: SiteSettings) => void;
+}
+
+export const AdminAdsManagerPanel: React.FC<AdminAdsManagerPanelProps> = ({
+  settings: propSettings,
+  onSettingsUpdate
+}) => {
+  const [activeSubTab, setActiveSubTab] = useState<'campaigns' | 'mediakit' | 'adsense'>('campaigns');
   const [ads, setAds] = useState<AdItem[]>([]);
   const [mediaList, setMediaList] = useState<MediaItem[]>([]);
   const [showMediaPicker, setShowMediaPicker] = useState(false);
@@ -36,7 +54,34 @@ export const AdminAdsManagerPanel: React.FC = () => {
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Form State
+  // Settings State for Media Kit & AdSense
+  const [currentSettings, setCurrentSettings] = useState<SiteSettings | null>(propSettings || null);
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  // Media Kit Form State
+  const [mediaKitForm, setMediaKitForm] = useState<MediaKitStatsConfig>({
+    monthlyReach: propSettings?.mediaKitStats?.monthlyReach || '२,५०,०००+',
+    monthlyViews: propSettings?.mediaKitStats?.monthlyViews || '१,२०,०००+',
+    activeFollowers: propSettings?.mediaKitStats?.activeFollowers || '४५,०००+',
+    nepalPercent: propSettings?.mediaKitStats?.nepalPercent ?? 65,
+    gulfPercent: propSettings?.mediaKitStats?.gulfPercent ?? 20,
+    otherCountriesPercent: propSettings?.mediaKitStats?.otherCountriesPercent ?? 15,
+    topCitiesNp: propSettings?.mediaKitStats?.topCitiesNp || 'काठमाडौँ उपत्यका, पोखरा, बुटवल, चितवन, विराटनगर, झापा',
+    topDemographicsNp:
+      propSettings?.mediaKitStats?.topDemographicsNp ||
+      '१८–३४ वर्षका युवा, विद्यार्थी, उद्यमी, लगानीकर्ता तथा वैदेशिक रोजगारीमा रहेका नेपाली',
+    avgEngagementRate: propSettings?.mediaKitStats?.avgEngagementRate || '८.४%',
+    lastUpdatedDateNp: propSettings?.mediaKitStats?.lastUpdatedDateNp || '२०८२ ताजा तथ्याङ्क'
+  });
+
+  // AdSense Form State
+  const [adsenseForm, setAdsenseForm] = useState({
+    googleAdsenseClientId: propSettings?.googleAdsenseClientId || '',
+    googleAdsenseAutoAdsEnabled: !!propSettings?.googleAdsenseAutoAdsEnabled,
+    monetizationBannerActive: propSettings?.monetizationBannerActive !== false
+  });
+
+  // Ad Form State
   const [formData, setFormData] = useState({
     title: '',
     type: 'photo' as 'photo' | 'video' | 'link' | 'banner' | 'sponsored_card',
@@ -51,15 +96,41 @@ export const AdminAdsManagerPanel: React.FC = () => {
     disclaimerNotice: 'प्रायोजित सामग्री (Sponsored Ad)'
   });
 
+  useEffect(() => {
+    if (propSettings) {
+      setCurrentSettings(propSettings);
+      if (propSettings.mediaKitStats) {
+        setMediaKitForm(propSettings.mediaKitStats);
+      }
+      setAdsenseForm({
+        googleAdsenseClientId: propSettings.googleAdsenseClientId || '',
+        googleAdsenseAutoAdsEnabled: !!propSettings.googleAdsenseAutoAdsEnabled,
+        monetizationBannerActive: propSettings.monetizationBannerActive !== false
+      });
+    }
+  }, [propSettings]);
+
   const loadAdsAndMedia = async () => {
     setLoading(true);
     try {
-      const [adsData, mediaData] = await Promise.all([
+      const [adsData, mediaData, settingsData] = await Promise.all([
         api.getAdminAds(),
-        api.getMedia().catch(() => [])
+        api.getMedia().catch(() => []),
+        !propSettings ? api.getSettings().catch(() => null) : Promise.resolve(null)
       ]);
       setAds(adsData);
       setMediaList(mediaData);
+      if (settingsData) {
+        setCurrentSettings(settingsData);
+        if (settingsData.mediaKitStats) {
+          setMediaKitForm(settingsData.mediaKitStats);
+        }
+        setAdsenseForm({
+          googleAdsenseClientId: settingsData.googleAdsenseClientId || '',
+          googleAdsenseAutoAdsEnabled: !!settingsData.googleAdsenseAutoAdsEnabled,
+          monetizationBannerActive: settingsData.monetizationBannerActive !== false
+        });
+      }
     } catch {
       showNotice('विज्ञापन सूची लोड गर्न सकिएन', 'error');
     } finally {
@@ -74,6 +145,52 @@ export const AdminAdsManagerPanel: React.FC = () => {
   const showNotice = (text: string, type: 'success' | 'error' = 'success') => {
     setNotification({ text, type });
     setTimeout(() => setNotification(null), 3500);
+  };
+
+  const handleSaveMediaKitStats = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSettings(true);
+    try {
+      const totalGeo = (mediaKitForm.nepalPercent || 0) + (mediaKitForm.gulfPercent || 0) + (mediaKitForm.otherCountriesPercent || 0);
+      if (totalGeo !== 100) {
+        showNotice(`भूगोल प्रतिशतहरूको योग १००% हुनुपर्छ (हाल: ${totalGeo}%)`, 'error');
+        setSavingSettings(false);
+        return;
+      }
+
+      const updated = await api.updateSettings({
+        mediaKitStats: {
+          ...mediaKitForm,
+          lastUpdatedDateNp: mediaKitForm.lastUpdatedDateNp || new Date().toLocaleDateString('ne-NP')
+        }
+      });
+      setCurrentSettings(updated);
+      if (onSettingsUpdate) onSettingsUpdate(updated);
+      showNotice('मिडिया किट तथा दर्शक भूगोल तथ्याङ्क सफलतापूर्वक अद्यावधिक गरियो!');
+    } catch (err: unknown) {
+      showNotice(err instanceof Error ? err.message : 'तथ्याङ्क सुरक्षित गर्न सकिएन', 'error');
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
+  const handleSaveAdSenseSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSettings(true);
+    try {
+      const updated = await api.updateSettings({
+        googleAdsenseClientId: adsenseForm.googleAdsenseClientId.trim(),
+        googleAdsenseAutoAdsEnabled: adsenseForm.googleAdsenseAutoAdsEnabled,
+        monetizationBannerActive: adsenseForm.monetizationBannerActive
+      });
+      setCurrentSettings(updated);
+      if (onSettingsUpdate) onSettingsUpdate(updated);
+      showNotice('गुगल एडसेन्स तथा मोनेटाइजेसन सेटिङ सफलतापूर्वक सुरक्षित गरियो!');
+    } catch (err: unknown) {
+      showNotice(err instanceof Error ? err.message : 'सेटिङ सुरक्षित गर्न सकिएन', 'error');
+    } finally {
+      setSavingSettings(false);
+    }
   };
 
   const openCreateModal = () => {
@@ -166,12 +283,10 @@ export const AdminAdsManagerPanel: React.FC = () => {
 
     try {
       if (editingAd) {
-        // Edit existing ad
         const updated = await api.updateAd(editingAd.id, payload);
         setAds(ads.map((a) => (a.id === updated.id ? updated : a)));
         showNotice('विज्ञापन विवरण सफलतापूर्वक अद्यावधिक गरियो!');
       } else {
-        // Create new ad
         const created = await api.createAd(payload);
         setAds([created, ...ads]);
         showNotice('नयाँ विज्ञापन सफलतापूर्वक थपियो!');
@@ -217,17 +332,27 @@ export const AdminAdsManagerPanel: React.FC = () => {
         <div>
           <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 uppercase tracking-wider">
             <DollarSign className="w-4 h-4" />
-            <span>विज्ञापन, इम्प्रेसन & आम्दानी व्यवस्थापन (Ad Manager & Revenue)</span>
+            <span>मोनेटाइजेसन & विज्ञापन व्यवस्थापन (Monetization & Ad Hub)</span>
           </div>
           <h2 className="text-xl font-bold text-slate-900 mt-1">
-            विज्ञापन व्यवस्थापन (Ad Campaign Manager)
+            विज्ञापन, मिडिया किट & आम्दानी व्यवस्थापन
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            फोटो ब्यानर, भिडियो विज्ञापन, वा स्पोन्सर्ड लिङ्क थप्नुहोस्, सम्पादन गर्नुहोस् वा मेटाउनुहोस्।
+            प्रत्यक्ष ब्यानर, भिडियो प्रायोजक, दर्शक भूगोल & भ्युज तथ्याङ्क तथा गुगल एडसेन्स व्यवस्थापन गर्नुहोस्।
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <a
+            href="/collaborate"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+            title="सार्वजनिक मिडिया किट हेर्नुहोस्"
+          >
+            <span>मिडिया किट हेर्नुहोस्</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
           <button
             onClick={loadAdsAndMedia}
             disabled={loading}
@@ -235,13 +360,6 @@ export const AdminAdsManagerPanel: React.FC = () => {
             title="रिफ्रेस गर्नुहोस्"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
-          <button
-            onClick={openCreateModal}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>+ नयाँ विज्ञापन थप्नुहोस्</span>
           </button>
         </div>
       </div>
@@ -263,153 +381,346 @@ export const AdminAdsManagerPanel: React.FC = () => {
         </div>
       )}
 
-      {/* Analytics KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500">
-            <span>कुल दृश्य (Impressions)</span>
-            <Eye className="w-4 h-4 text-blue-500" />
-          </div>
-          <div className="text-2xl font-extrabold text-slate-900 font-mono tabular-nums">
-            {totalImpressions.toLocaleString()}
-          </div>
-          <p className="text-[11px] text-slate-400">पाठकहरूले विज्ञापन देखेको संख्या</p>
-        </div>
+      {/* Subtabs Selector */}
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto">
+        <button
+          type="button"
+          onClick={() => setActiveSubTab('campaigns')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+            activeSubTab === 'campaigns'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+          }`}
+        >
+          <DollarSign className="w-4 h-4" />
+          <span>प्रत्यक्ष विज्ञापन क्याम्पेन ({ads.length})</span>
+        </button>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500">
-            <span>कुल क्लिक (Clicks)</span>
-            <MousePointer className="w-4 h-4 text-emerald-500" />
-          </div>
-          <div className="text-2xl font-extrabold text-slate-900 font-mono tabular-nums">
-            {totalClicks.toLocaleString()}
-          </div>
-          <p className="text-[11px] text-slate-400">लिङ्कमा क्लिक गरी भ्रमण गरेको</p>
-        </div>
+        <button
+          type="button"
+          onClick={() => setActiveSubTab('mediakit')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+            activeSubTab === 'mediakit'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+          }`}
+        >
+          <BarChart3 className="w-4 h-4" />
+          <span>📊 मिडिया किट & दर्शक भूगोल (Reach & Geography)</span>
+        </button>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500">
-            <span>औसत CTR दर</span>
-            <Percent className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="text-2xl font-extrabold text-slate-900 font-mono tabular-nums">
-            {avgCtr}%
-          </div>
-          <p className="text-[11px] text-slate-400">Click-through Rate प्रतिशत</p>
-        </div>
-
-        <div className="bg-gradient-to-br from-emerald-950 to-slate-900 text-white p-4 rounded-2xl border border-emerald-700/60 shadow-2xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-emerald-300">
-            <span>अनुमानित आम्दानी (Est. Revenue)</span>
-            <DollarSign className="w-4 h-4 text-emerald-400" />
-          </div>
-          <div className="text-2xl font-extrabold text-emerald-300 font-mono tabular-nums">
-            रु {estimatedRevenueNPR.toLocaleString()}
-          </div>
-          <p className="text-[10px] text-slate-400 font-sans">नेपाली डिजिटल बजार दरअनुसार (CPM + CPC)</p>
-        </div>
+        <button
+          type="button"
+          onClick={() => setActiveSubTab('adsense')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+            activeSubTab === 'adsense'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+          }`}
+        >
+          <Globe className="w-4 h-4" />
+          <span>🌐 गुगल एडसेन्स (Google AdSense)</span>
+        </button>
       </div>
 
-      {/* Ads List Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="text-sm font-bold text-slate-900">
-            सबै विज्ञापनहरूको सूची ({ads.length})
-          </h3>
-          <span className="text-xs text-slate-500">
-            क्लिक वा भिडियो चलाउँदा प्रत्यक्ष डेटा अद्यावधिक हुन्छ
-          </span>
-        </div>
-
-        {ads.length === 0 ? (
-          <div className="p-12 text-center space-y-2">
-            <DollarSign className="w-8 h-8 text-slate-300 mx-auto" />
-            <p className="text-xs text-slate-500">हाल कुनै विज्ञापन थपिएको छैन। माथिको बटनबाट नयाँ विज्ञापन थप्नुहोस्।</p>
+      {/* ================= SUBTAB 1: DIRECT CAMPAIGNS ================= */}
+      {activeSubTab === 'campaigns' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900">प्रत्यक्ष विज्ञापन अभियानहरू (Direct Sponsors)</h3>
+              <p className="text-xs text-slate-500">वेबसाइटमा देखिने फोटो ब्यानर, भिडियो र लिङ्क विज्ञापनहरू व्यवस्थापन गर्नुहोस्।</p>
+            </div>
+            <button
+              onClick={openCreateModal}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ नयाँ विज्ञापन थप्नुहोस्</span>
+            </button>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600">
-              <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 border-b border-slate-200">
-                <tr>
-                  <th className="p-3.5">विज्ञापन / प्रायोजक</th>
-                  <th className="p-3.5">प्रकार</th>
-                  <th className="p-3.5">स्थान (Placement)</th>
-                  <th className="p-3.5 text-center">दृश्य (Impressions)</th>
-                  <th className="p-3.5 text-center">क्लिक (Clicks)</th>
-                  <th className="p-3.5 text-center">CTR</th>
-                  <th className="p-3.5 text-center">अवस्था</th>
-                  <th className="p-3.5 text-right">कार्यहरू (Actions)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 font-sans">
-                {ads.map((ad) => {
-                  const adCtr = (ad.impressions || 0) > 0 ? (((ad.clicks || 0) / ad.impressions) * 100).toFixed(1) : '0.0';
-                  return (
-                    <tr key={ad.id} className="hover:bg-slate-50/60">
-                      <td className="p-3.5 font-medium text-slate-900 max-w-xs">
-                        <div className="font-bold line-clamp-1">{ad.title}</div>
-                        <div className="text-[11px] text-slate-400 truncate">
-                          {ad.sponsorName || ad.clientName} · {ad.targetUrl}
-                        </div>
-                      </td>
-                      <td className="p-3.5">
-                        <span className="inline-flex items-center gap-1 font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded text-[11px]">
-                          {ad.type === 'video' && <PlayCircle className="w-3 h-3 text-red-500" />}
-                          {(ad.type === 'photo' || ad.type === 'banner') && <ImageIcon className="w-3 h-3 text-blue-500" />}
-                          {ad.type === 'link' && <LinkIcon className="w-3 h-3 text-emerald-500" />}
-                          <span>{ad.type?.toUpperCase()}</span>
-                        </span>
-                      </td>
-                      <td className="p-3.5 font-mono text-[11px]">
-                        {ad.position}
-                      </td>
-                      <td className="p-3.5 text-center font-mono font-bold text-slate-800">
-                        {ad.impressions || 0}
-                      </td>
-                      <td className="p-3.5 text-center font-mono font-bold text-slate-800">
-                        {ad.clicks || 0}
-                      </td>
-                      <td className="p-3.5 text-center font-mono font-bold text-amber-600">
-                        {adCtr}%
-                      </td>
-                      <td className="p-3.5 text-center">
-                        <button
-                          onClick={() => handleToggleActive(ad)}
-                          className={`px-2 py-1 rounded-full text-[10px] font-bold cursor-pointer transition-colors ${
-                            ad.active
-                              ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
-                              : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                          }`}
-                        >
-                          {ad.active ? 'सक्रिय' : 'निष्क्रिय'}
-                        </button>
-                      </td>
-                      <td className="p-3.5 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={() => openEditModal(ad)}
-                            className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg cursor-pointer transition-colors"
-                            title="सम्पादन गर्नुहोस् (Edit Ad)"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteAd(ad.id)}
-                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg cursor-pointer transition-colors"
-                            title="हटाउनुहोस् (Delete Ad)"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
+
+          {/* Analytics KPI Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+              <div className="flex items-center justify-between text-xs text-slate-500">
+                <span>कुल दृश्य (Impressions)</span>
+                <Eye className="w-4 h-4 text-blue-500" />
+              </div>
+              <div className="text-2xl font-extrabold text-slate-900 font-mono tabular-nums">
+                {totalImpressions.toLocaleString()}
+              </div>
+              <p className="text-[11px] text-slate-400">पाठकहरूले विज्ञापन देखेको संख्या</p>
+            </div>
+
+            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+              <div className="flex items-center justify-between text-xs text-slate-500">
+                <span>कुल क्लिक (Clicks)</span>
+                <MousePointer className="w-4 h-4 text-emerald-500" />
+              </div>
+              <div className="text-2xl font-extrabold text-slate-900 font-mono tabular-nums">
+                {totalClicks.toLocaleString()}
+              </div>
+              <p className="text-[11px] text-slate-400">लिङ्कमा क्लिक गरी भ्रमण गरेको</p>
+            </div>
+
+            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+              <div className="flex items-center justify-between text-xs text-slate-500">
+                <span>औसत CTR दर</span>
+                <Percent className="w-4 h-4 text-amber-500" />
+              </div>
+              <div className="text-2xl font-extrabold text-slate-900 font-mono tabular-nums">
+                {avgCtr}%
+              </div>
+              <p className="text-[11px] text-slate-400">Click-through Rate प्रतिशत</p>
+            </div>
+
+            <div className="bg-gradient-to-br from-emerald-950 to-slate-900 text-white p-4 rounded-2xl border border-emerald-700/60 shadow-2xs space-y-1">
+              <div className="flex items-center justify-between text-xs text-emerald-300">
+                <span>अनुमानित आम्दानी (Est. Revenue)</span>
+                <DollarSign className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div className="text-2xl font-extrabold text-emerald-300 font-mono tabular-nums">
+                रु {estimatedRevenueNPR.toLocaleString()}
+              </div>
+              <p className="text-[10px] text-slate-400 font-sans">नेपाली डिजिटल बजार दरअनुसार (CPM + CPC)</p>
+            </div>
+          </div>
+
+          {/* Ads List Table */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-slate-900">
+                सबै विज्ञापनहरूको सूची ({ads.length})
+              </h3>
+              <span className="text-xs text-slate-500">
+                क्लिक वा भिडियो चलाउँदा प्रत्यक्ष डेटा अद्यावधिक हुन्छ
+              </span>
+            </div>
+
+            {ads.length === 0 ? (
+              <div className="p-12 text-center space-y-2">
+                <DollarSign className="w-8 h-8 text-slate-300 mx-auto" />
+                <p className="text-xs text-slate-500">हाल कुनै विज्ञापन थपिएको छैन। माथिको बटनबाट नयाँ विज्ञापन थप्नुहोस्।</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs text-slate-600">
+                  <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 border-b border-slate-200">
+                    <tr>
+                      <th className="p-3.5">विज्ञापन / प्रायोजक</th>
+                      <th className="p-3.5">प्रकार</th>
+                      <th className="p-3.5">स्थान (Placement)</th>
+                      <th className="p-3.5 text-center">दृश्य (Impressions)</th>
+                      <th className="p-3.5 text-center">क्लिक (Clicks)</th>
+                      <th className="p-3.5 text-center">CTR</th>
+                      <th className="p-3.5 text-center">अवस्था</th>
+                      <th className="p-3.5 text-right">कार्यहरू (Actions)</th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-sans">
+                    {ads.map((ad) => {
+                      const adCtr = (ad.impressions || 0) > 0 ? (((ad.clicks || 0) / ad.impressions) * 100).toFixed(1) : '0.0';
+                      return (
+                        <tr key={ad.id} className="hover:bg-slate-50/60">
+                          <td className="p-3.5 font-medium text-slate-900 max-w-xs">
+                            <div className="font-bold line-clamp-1">{ad.title}</div>
+                            <div className="text-[11px] text-slate-400 truncate">
+                              {ad.sponsorName || ad.clientName} · {ad.targetUrl}
+                            </div>
+                          </td>
+                          <td className="p-3.5">
+                            <span className="inline-flex items-center gap-1 font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded text-[11px]">
+                              {ad.type === 'video' && <PlayCircle className="w-3 h-3 text-red-500" />}
+                              {(ad.type === 'photo' || ad.type === 'banner') && <ImageIcon className="w-3 h-3 text-blue-500" />}
+                              {ad.type === 'link' && <LinkIcon className="w-3 h-3 text-emerald-500" />}
+                              <span>{ad.type?.toUpperCase()}</span>
+                            </span>
+                          </td>
+                          <td className="p-3.5 font-mono text-[11px]">
+                            {ad.position}
+                          </td>
+                          <td className="p-3.5 text-center font-mono font-bold text-slate-800">
+                            {ad.impressions || 0}
+                          </td>
+                          <td className="p-3.5 text-center font-mono font-bold text-slate-800">
+                            {ad.clicks || 0}
+                          </td>
+                          <td className="p-3.5 text-center font-mono font-bold text-amber-600">
+                            {adCtr}%
+                          </td>
+                          <td className="p-3.5 text-center">
+                            <button
+                              onClick={() => handleToggleActive(ad)}
+                              className={`px-2 py-1 rounded-full text-[10px] font-bold cursor-pointer transition-colors ${
+                                ad.active
+                                  ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                                  : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                              }`}
+                            >
+                              {ad.active ? 'सक्रिय' : 'निष्क्रिय'}
+                            </button>
+                          </td>
+                          <td className="p-3.5 text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                onClick={() => openEditModal(ad)}
+                                className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg cursor-pointer transition-colors"
+                                title="सम्पादन गर्नुहोस् (Edit Ad)"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteAd(ad.id)}
+                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg cursor-pointer transition-colors"
+                                title="हटाउनुहोस् (Delete Ad)"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* ================= SUBTAB 2: MEDIA KIT & COLLABORATION MANAGER ================= */}
+      {activeSubTab === 'mediakit' && (
+        <AdminCollaborateManagerPanel
+          settings={currentSettings || propSettings}
+          onSettingsUpdate={(newSettings) => {
+            setCurrentSettings(newSettings);
+            if (onSettingsUpdate) onSettingsUpdate(newSettings);
+          }}
+        />
+      )}
+      {/* ================= SUBTAB 3: GOOGLE ADSENSE & AUTO ADS ================= */}
+      {activeSubTab === 'adsense' && (
+        <form onSubmit={handleSaveAdSenseSettings} className="space-y-6">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <Globe className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-base font-bold text-slate-900">
+                  गुगल एडसेन्स & स्वचालित विज्ञापन (Google AdSense Auto-Ads Setup)
+                </h3>
+              </div>
+              <span className="text-xs text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                गुगलबाट सिधै आम्दानी
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              गुगल एडसेन्स (Google AdSense) स्वीकृत भएपछि तपाईंलाई प्राप्त हुने <strong>Publisher Client ID</strong> (उदा: <code>ca-pub-1234567890123456</code>) यहाँ राख्नुहोस्। प्रणालीले वेबसाइटका उपयुक्त स्थानहरूमा स्वतः गुगल विज्ञापन प्रदर्शन गर्नेछ।
+            </p>
+
+            <div className="space-y-4 pt-2">
+              <div>
+                <label className="block text-xs font-bold text-slate-800 mb-1">
+                  Google AdSense Publisher Client ID (उदा: ca-pub-XXXXXXXXXXXXXXXX)
+                </label>
+                <input
+                  type="text"
+                  placeholder="ca-pub-1234567890123456"
+                  value={adsenseForm.googleAdsenseClientId}
+                  onChange={(e) => setAdsenseForm({ ...adsenseForm, googleAdsenseClientId: e.target.value })}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs text-slate-900"
+                />
+                <span className="text-[11px] text-slate-400 mt-1 block">
+                  यदि अहिलेसम्म AdSense खाता छैन भने <a href="https://adsense.google.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">adsense.google.com</a> मा गई नि:शुल्क खाता खोल्नुहोस्।
+                </span>
+              </div>
+
+              <div className="space-y-3 pt-2">
+                <label className="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={adsenseForm.googleAdsenseAutoAdsEnabled}
+                    onChange={(e) => setAdsenseForm({ ...adsenseForm, googleAdsenseAutoAdsEnabled: e.target.checked })}
+                    className="w-4 h-4 mt-0.5 accent-emerald-600 rounded cursor-pointer"
+                  />
+                  <div>
+                    <span className="text-xs font-bold text-slate-900 block">
+                      गुगल अटो-एड्स सक्षम गर्नुहोस् (Enable Google Auto-Ads Script)
+                    </span>
+                    <span className="text-[11px] text-slate-500 block leading-snug">
+                      सक्रिय गर्दा वेबसाइटको हेडरमा <code>pagead2.googlesyndication.com</code> स्क्रिप्ट स्वतः समावेश हुनेछ।
+                    </span>
+                  </div>
+                </label>
+
+                <label className="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={adsenseForm.monetizationBannerActive}
+                    onChange={(e) => setAdsenseForm({ ...adsenseForm, monetizationBannerActive: e.target.checked })}
+                    className="w-4 h-4 mt-0.5 accent-emerald-600 rounded cursor-pointer"
+                  />
+                  <div>
+                    <span className="text-xs font-bold text-slate-900 block">
+                      सार्वजनिक "विज्ञापन तथा स्पोन्सर" पहुँच बटनहरू सक्रिय राख्नुहोस्
+                    </span>
+                    <span className="text-[11px] text-slate-500 block leading-snug">
+                      मेनु, हेडर र फुटरमा विज्ञापनदाताहरूका लागि मिडिया किट र सोधपुछ लिङ्क खुला राख्नेछ।
+                    </span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Practical Guide on Making Money in Nepal */}
+            <div className="bg-slate-900 text-white p-5 rounded-2xl border border-slate-800 space-y-3 text-xs">
+              <div className="flex items-center gap-2 font-bold text-emerald-400">
+                <Sparkles className="w-4 h-4" />
+                <span>नेपालबाट अनलाइन विज्ञापन मार्फत आम्दानी गर्ने ४ प्रमुख उपाय:</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px] text-slate-300 pt-1">
+                <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700 space-y-1">
+                  <span className="font-bold text-white block">१. फेसबुक भिडियो ओभरले & स्पोन्सर पोस्ट</span>
+                  <p className="text-slate-300 leading-relaxed">
+                    नेपाल तथा खाडीका रेमिट्यान्स, बैंक, ट्राभल तथा कन्सल्टेन्सीहरूलाई प्रति भिडियो वा मासिक प्याकेजमा स्पोन्सरशिप बेच्नुहोस्।
+                  </p>
+                </div>
+                <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700 space-y-1">
+                  <span className="font-bold text-white block">२. प्रत्यक्ष वेबसाइट ब्यानर (Tab 1)</span>
+                  <p className="text-slate-300 leading-relaxed">
+                    माथिको "प्रत्यक्ष विज्ञापन क्याम्पेन" बाट ग्राहकको ब्यानर फोटो वा भिडियो सिधै अपलोड गरी महिनाको निश्चित शुल्क लिनुहोस्।
+                  </p>
+                </div>
+                <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700 space-y-1">
+                  <span className="font-bold text-white block">३. Google AdSense पेमेन्ट</span>
+                  <p className="text-slate-300 leading-relaxed">
+                    AdSense ले $१०० पुगेपछि नेपालका जुनसुकै वाणिज्य बैंक (Nabil, Global IME, NIC Asia आदि) मा SWIFT वायर ट्रान्सफर मार्फत सिधै रकम पठाउँछ।
+                  </p>
+                </div>
+                <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700 space-y-1">
+                  <span className="font-bold text-white block">४. कस्टम डोमेन (khabargpt.com)</span>
+                  <p className="text-slate-300 leading-relaxed">
+                    गुगल खोजमा सधैँ पहिलो स्थान र एडसेन्समा छिटो स्वीकृतिका लागि आफ्नै कस्टम डोमेन जोड्न सिफारिस गरिन्छ।
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-end">
+              <button
+                type="submit"
+                disabled={savingSettings}
+                className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" />
+                <span>{savingSettings ? 'सुरक्षित हुँदैछ...' : 'एडसेन्स सेटिङ सुरक्षित गर्नुहोस्'}</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      )}
 
       {/* Modal: Add / Edit Ad */}
       {isModalOpen && (

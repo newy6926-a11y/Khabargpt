@@ -91,6 +91,18 @@ export default function App() {
       showWatermark: true,
       showAiDisclaimer: false,
       disclaimerText: '⚠️ नोट: यो सामग्री/चित्रण सांकेतिक हो, प्रत्यक्ष आधिकारिक समाचार तस्बिर होइन।'
+    },
+    mediaKitStats: {
+      monthlyReach: '२,५०,०००+',
+      monthlyViews: '१,२०,०००+',
+      activeFollowers: '४५,०००+',
+      nepalPercent: 65,
+      gulfPercent: 20,
+      otherCountriesPercent: 15,
+      topCitiesNp: 'काठमाडौँ उपत्यका, पोखरा, बुटवल, चितवन, विराटनगर, झापा',
+      topDemographicsNp: '१८–३४ वर्षका युवा, विद्यार्थी, उद्यमी, लगानीकर्ता तथा वैदेशिक रोजगारीमा रहेका नेपाली',
+      avgEngagementRate: '८.४%',
+      lastUpdatedDateNp: '२०८२ ताजा तथ्याङ्क'
     }
   });
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -215,6 +227,23 @@ export default function App() {
   useEffect(() => {
     updateDocumentSEO(settings, currentArticle, currentPath);
   }, [settings, currentArticle, currentPath]);
+
+  // Dynamic Google AdSense auto-ads script injection
+  useEffect(() => {
+    if (settings.googleAdsenseClientId && settings.googleAdsenseAutoAdsEnabled) {
+      const existing = document.getElementById('google-adsense-script');
+      if (!existing) {
+        const script = document.createElement('script');
+        script.id = 'google-adsense-script';
+        script.async = true;
+        script.crossOrigin = 'anonymous';
+        script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(
+          settings.googleAdsenseClientId
+        )}`;
+        document.head.appendChild(script);
+      }
+    }
+  }, [settings.googleAdsenseClientId, settings.googleAdsenseAutoAdsEnabled]);
 
   // Check if current route is the secret admin safe link
   const secretSlug = (settings.adminSecretSlug || 'kg-admin-secure').replace(/^\//, '');

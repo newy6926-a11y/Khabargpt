@@ -58,6 +58,182 @@
       "showWatermark": true,
       "showAiDisclaimer": false,
       "disclaimerText": "⚠️ नोट: यो सामग्री/चित्रण सांकेतिक हो, प्रत्यक्ष आधिकारिक समाचार तस्बिर होइन।"
+    },
+    "mediaKitStats": {
+      "monthlyReach": "२,५०,०००+",
+      "monthlyViews": "१,२०,०००+",
+      "activeFollowers": "४५,०००+",
+      "nepalPercent": 65,
+      "gulfPercent": 20,
+      "otherCountriesPercent": 15,
+      "topCitiesNp": "काठमाडौँ उपत्यका, पोखरा, बुटवल, चितवन, विराटनगर, झापा",
+      "topDemographicsNp": "१८–३४ वर्षका युवा, विद्यार्थी, उद्यमी, लगानीकर्ता तथा वैदेशिक रोजगारीमा रहेका नेपाली",
+      "avgEngagementRate": "८.४%",
+      "lastUpdatedDateNp": "२०८२ ताजा तथ्याङ्क"
+    },
+    "collaborateConfig": {
+      "fbSectionTitle": "Promote Your Business with Khabar GPT",
+      "fbSectionDesc": "हाम्रो प्रमुख प्रकाशन तथा पाठक पहुँच मुख्य रूपमा आधिकारिक फेसबुक पेजमा केन्द्रित छ। नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण र उपयोगी जानकारी खोज्ने पाठकहरूमाझ आफ्नो व्यवसाय, उत्पादन तथा सेवा पुर्‍याउन हामीसँग सोधपुछ गर्नुहोस्।",
+      "fbServices": [
+        {
+          "id": "fb-service-1",
+          "category": "facebook",
+          "title": "Sponsored Facebook Image Posts",
+          "titleNp": "प्रायोजित फेसबुक तस्बिर तथा इन्फोग्राफिक पोस्ट",
+          "format": "1:1 वा 4:5 उच्च-गुणस्तर डिजिटल पोस्टर / ग्राफिक्स",
+          "deliverables": "आधिकारिक खबर GPT फेसबुक पेजमा १ पटक स्थायी पोस्ट, लिङ्क, ट्याग तथा आधिकारिक क्याप्सन",
+          "duration": "स्थायी पोस्ट (Permanent Post)",
+          "priceType": "quote",
+          "priceCustomText": "Request a Quote",
+          "isAvailable": true,
+          "notes": "सामग्रीको आधिकारिकता र तथ्य जाँच पश्चात मात्र प्रकाशन गरिनेछ।"
+        },
+        {
+          "id": "fb-service-2",
+          "category": "facebook",
+          "title": "Sponsored Reels & Short Videos",
+          "titleNp": "प्रायोजित रिल्स तथा छोटो भिडियो प्रवर्द्धन",
+          "format": "9:16 ठाडो भिडियो (Vertical Reel, ३०-६० सेकेन्ड)",
+          "deliverables": "फेसबुक रिल्स र भिडियो फिडमा प्रसारण, भ्वाइसओभर तथा ब्रान्ड ओभरले",
+          "duration": "स्थायी रिल्स पोस्ट",
+          "priceType": "quote",
+          "priceCustomText": "Request a Quote",
+          "isAvailable": true,
+          "notes": "रिल्स तथा भिडियो सामग्री व्यवस्थापकको पूर्वस्वीकृतिमा मात्र प्रकाशन हुन्छ।"
+        },
+        {
+          "id": "fb-service-3",
+          "category": "facebook",
+          "title": "Product & Service Awareness Campaigns",
+          "titleNp": "उत्पादन तथा सेवा सचेतना अभियान",
+          "format": "सिलसिलेवार जानकारीमूलक २-३ वटा पोस्ट/ग्राफिक्स",
+          "deliverables": "पाठकहरूका लागि उपयोगिता, समाधान र प्राविधिक पक्ष बुझाउने शृङ्खलाबद्ध प्रस्तुति",
+          "duration": "१ देखि २ हप्ताको निर्धारित अभियान",
+          "priceType": "quote",
+          "priceCustomText": "Request a Quote",
+          "isAvailable": true,
+          "notes": "उपभोक्तालाई झुक्याउने वा असत्य दाबी गरिएका उत्पादन स्वीकार गरिने छैन।"
+        },
+        {
+          "id": "fb-service-4",
+          "category": "facebook",
+          "title": "Festival Offers & Seasonal Promotions",
+          "titleNp": "चाडपर्व अफर तथा मौसमी प्रवर्द्धन",
+          "format": "चाडपर्व शुभकामना सहितको विशेष ब्रान्डेड पोस्टर",
+          "deliverables": "दसैँ, तिहार, नयाँ वर्ष वा विशेष अवसरमा केन्द्रित प्रचार पोस्ट",
+          "duration": "चाडपर्व अवधिभर विशेष प्रसारण",
+          "priceType": "quote",
+          "priceCustomText": "Request a Quote",
+          "isAvailable": true,
+          "notes": "सिजनल अफरहरूको स्पष्ट सर्त खुलाइएको हुनुपर्दछ।"
+        },
+        {
+          "id": "fb-service-5",
+          "category": "facebook",
+          "title": "Business Announcements & Campaign Content",
+          "titleNp": "व्यावसायिक घोषणा तथा विशेष अभियान सामग्री",
+          "format": "आधिकारिक प्रेस नोट / नयाँ शाखा / नयाँ सेवा सार्वजनिक पोस्टर",
+          "deliverables": "पारदर्शी व्यावसायिक सूचना पोस्ट र पाठकका लागि आधिकारिक सोधपुछ लिङ्क",
+          "duration": "स्थायी अभिलेख",
+          "priceType": "quote",
+          "priceCustomText": "Request a Quote",
+          "isAvailable": true,
+          "notes": "विज्ञापनदाता संस्थाको आधिकारिकता आवश्यक पर्दछ।"
+        }
+      ],
+      "verifiedMetrics": [
+        {
+          "id": "metric-followers",
+          "metricName": "Current Facebook Followers",
+          "metricNameNp": "फेसबुक पेज फलोअर्स संख्या",
+          "value": "",
+          "dateRange": "ताजा अद्यावधिक",
+          "source": "Khabar GPT Official Facebook Page",
+          "lastUpdatedDate": "२०८२",
+          "isVerified": false,
+          "notes": "आधिकारिक तथ्याङ्क व्यवस्थापकद्वारा प्रमाणीकरण पश्चात मात्र यहाँ देखाइनेछ।"
+        },
+        {
+          "id": "metric-reach",
+          "metricName": "28-Day Page Reach",
+          "metricNameNp": "२८-दिने जैविक पहुँच (Organic Reach)",
+          "value": "",
+          "dateRange": "२८ दिने रिपोर्टिङ अवधि",
+          "source": "Meta Business Suite Insights",
+          "lastUpdatedDate": "२०८२",
+          "isVerified": false,
+          "notes": "कुनै पनि अनुमानित वा नक्कली संख्या राखिएको छैन।"
+        },
+        {
+          "id": "metric-views",
+          "metricName": "Video & Content Plays",
+          "metricNameNp": "भिडियो तथा सामग्री भ्युज",
+          "value": "",
+          "dateRange": "२८ दिने रिपोर्टिङ अवधि",
+          "source": "Meta Business Suite Insights",
+          "lastUpdatedDate": "२०८२",
+          "isVerified": false,
+          "notes": "आधिकारिक एनालिटिक्स आउनासाथ अपडेट हुनेछ।"
+        },
+        {
+          "id": "metric-engagement",
+          "metricName": "Interactions & Engagement",
+          "metricNameNp": "इन्गेजमेन्ट तथा पाठक अन्तरक्रिया",
+          "value": "",
+          "dateRange": "२८ दिने रिपोर्टिङ अवधि",
+          "source": "Meta Business Suite Insights",
+          "lastUpdatedDate": "२०८२",
+          "isVerified": false,
+          "notes": "जैविक अन्तरक्रिया तथ्याङ्क।"
+        }
+      ],
+      "analyticsScreenshots": [],
+      "webSectionTitle": "Promote Your Brand on the Khabar GPT Website",
+      "webSectionDesc": "हाम्रो वेबसाइटमा कार्यान्वयन भएका र तत्काल उपलब्ध विज्ञापन सेवाहरू निम्न अनुसार छन्। वेबसाइट विज्ञापन सहायक सेवाका रूपमा उपलब्ध छ:",
+      "webServices": [
+        {
+          "id": "web-service-1",
+          "category": "website",
+          "title": "Website Banner Advertising",
+          "titleNp": "वेबसाइट ब्यानर विज्ञापन (Header / In-Article / Sidebar)",
+          "format": "Header Top (७२८×९० / ३२०×१००), In-Article, वा Sidebar ब्यानर",
+          "deliverables": "वेबसाइटमा प्रत्यक्ष क्लिकयोग्य ब्यानर, विज्ञापनदाताको आधिकारिक वेबसाइटमा लिङ्क, पारदर्शी इम्प्रेसन ट्र्याकिङ",
+          "duration": "मासिक वा साप्ताहिक क्याम्पेन",
+          "priceType": "quote",
+          "priceCustomText": "Request a Quote",
+          "isAvailable": true,
+          "notes": "ब्यानरको गुणस्तर र लिङ्क व्यवस्थापकद्वारा स्वीकृत हुनुपर्दछ।"
+        },
+        {
+          "id": "web-service-2",
+          "category": "website",
+          "title": "Clearly Labeled Sponsored Content",
+          "titleNp": "स्पष्ट लेबल गरिएको प्रायोजित शैक्षिक लेख / सामग्री",
+          "format": "वेबसाइटमा तथ्यपरक फिचर लेख वा शैक्षिक सामग्री",
+          "deliverables": "शीर्षमा \"प्रायोजित सामग्री (Sponsored Promotion)\" को स्पष्ट पारदर्शी डिस्क्लेमर सहितको पूर्ण सामग्री",
+          "duration": "वेबसाइटमा स्थायी अभिलेख",
+          "priceType": "quote",
+          "priceCustomText": "Request a Quote",
+          "isAvailable": true,
+          "notes": "पत्रकारिता र पाठकको विश्वासलाई असर नपर्ने गरी स्पष्ट लेबल अनिवार्य छ।"
+        },
+        {
+          "id": "web-service-3",
+          "category": "website",
+          "title": "Relevant Business & Campaign Announcements",
+          "titleNp": "प्रासंगिक व्यावसायिक तथा अभियान सूचनाहरू",
+          "format": "सार्वजनिक सूचना कार्ड वा घोषणा ब्यानर",
+          "deliverables": "वेबसाइटको उपयुक्त सूचना खण्डमा प्रदर्शन",
+          "duration": "अभियान अनुसार",
+          "priceType": "quote",
+          "priceCustomText": "Request a Quote",
+          "isAvailable": true,
+          "notes": "सार्वजनिक सरोकार र कानुनी मापदण्ड अनुरुप हुनुपर्नेछ।"
+        }
+      ],
+      "webTrafficDisclaimer": "⚠️ पारदर्शी सूचना: खबर GPT ले वेबसाइट ट्राफिक, सर्च र्‍याङ्किङ, क्लिक वा बिक्री सम्बन्धी कुनै पनि मनगढन्ते वा अवास्तविक ग्यारेन्टी दिँदैन। वेबसाइटको वास्तविक भिजिटर तथ्याङ्क व्यवस्थापकद्वारा प्रमाणित भए पश्चात मात्र सार्वजनिक गरिन्छ।",
+      "editorialDisclaimer": "हामी सबै विज्ञापन तथा प्रवर्द्धन प्रस्तावहरूलाई सम्पादकीय मापदण्ड र सार्वजनिक हितका आधारमा समीक्षा गर्दछौँ। जुवा, सट्टेबाजी, भ्रामक वित्तीय योजना, गैरकानुनी वा अश्लील सामग्रीको प्रवर्द्धन कुनै पनि हालतमा स्वीकार गरिने छैन।",
+      "notRegisteredPressNotice": "खबर GPT नेपाल सरकारको सूचना तथा प्रसारण विभाग वा प्रेस काउन्सिलमा दर्ता भएको औपचारिक समाचार संस्था वा प्रेस होइन; यो एक स्वतन्त्र डिजिटल सूचना तथा विश्लेषण पृष्ठ हो।"
     }
   },
   "users": [
@@ -125,7 +301,18 @@
   ],
   "content": [],
   "corrections": [],
-  "messages": [],
+  "messages": [
+    {
+      "name": "Test Business Owner",
+      "email": "owner@business.com",
+      "subject": "व्यापार प्रवर्द्धन सहकार्य",
+      "type": "general",
+      "message": "हाम्रो नयाँ उत्पादनको फेसबुक प्रवर्द्धन गर्न चाहन्छौँ।",
+      "id": "msg-1793093304433",
+      "createdAt": "2026-10-27T09:28:24.433Z",
+      "read": false
+    }
+  ],
   "media": [],
   "sessions": {
     "b1d44105cfc7c0c03933a97cde5a65688d346190df420ee46a2d2bfee78264b2": {
@@ -172,39 +359,39 @@
     }
   ],
   "marketSnapshot": {
-    "updatedDate": "२०२६ अक्टोबर २७, मङ्गलबार (१२:५३ अपराह्न NPT - प्रत्यक्ष अद्यावधिक)",
+    "updatedDate": "२०२६ अक्टोबर २७, मङ्गलबार (०३:१२ अपराह्न NPT - प्रत्यक्ष अद्यावधिक)",
     "nepse": {
-      "index": 2637.34,
-      "change": 18.75,
-      "percentChange": 0.71,
-      "turnoverCrores": 605.3,
+      "index": 2654.71,
+      "change": 18.11,
+      "percentChange": 0.68,
+      "turnoverCrores": 603.29,
       "points": [
         {
           "time": "11:00 AM",
-          "value": 2621.34
+          "value": 2638.71
         },
         {
           "time": "12:00 PM",
-          "value": 2628.84
+          "value": 2646.21
         },
         {
           "time": "01:00 PM",
-          "value": 2635.24
+          "value": 2652.61
         },
         {
           "time": "02:00 PM",
-          "value": 2641.64
+          "value": 2659.01
         },
         {
           "time": "03:00 PM",
-          "value": 2637.34
+          "value": 2654.71
         }
       ]
     },
     "goldSilver": {
-      "fineGoldTola": 291836,
-      "fineGold10g": 250207,
-      "tejabiGoldTola": 290336,
+      "fineGoldTola": 292622,
+      "fineGold10g": 250881,
+      "tejabiGoldTola": 291122,
       "silverTola": 3006,
       "changeGold": 1200,
       "source": "नेपाल सुनचाँदी व्यवसायी महासंघ (FENEGOSIDA - स्वचालित ताजा दर)"
@@ -218,24 +405,24 @@
     },
     "forex": {
       "usd": {
-        "buy": 136.23,
-        "sell": 136.83
+        "buy": 136.43,
+        "sell": 137.03
       },
       "eur": {
-        "buy": 148.61,
-        "sell": 149.31
+        "buy": 148.71,
+        "sell": 149.41
       },
       "gbp": {
-        "buy": 176.62,
-        "sell": 177.42
+        "buy": 176.97,
+        "sell": 177.77
       },
       "aed": {
-        "buy": 37.05,
-        "sell": 37.21
+        "buy": 37.13,
+        "sell": 37.29
       },
       "qar": {
-        "buy": 37.44,
-        "sell": 37.6
+        "buy": 37.46,
+        "sell": 37.62
       },
       "source": "नेपाल राष्ट्र बैंक (NRB - प्रत्यक्ष विनिमय दर)"
     },
@@ -243,59 +430,59 @@
     "trends": [
       {
         "date": "अक्टोबर २१",
-        "nepse": 2616.32,
-        "goldFine": 288485,
+        "nepse": 2633.69,
+        "goldFine": 289271,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 135.73
+        "usdToNpr": 135.93
       },
       {
         "date": "अक्टोबर २२",
-        "nepse": 2613.51,
-        "goldFine": 288569,
+        "nepse": 2630.88,
+        "goldFine": 289355,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 135.82
+        "usdToNpr": 136.02
       },
       {
         "date": "अक्टोबर २३",
-        "nepse": 2607.22,
-        "goldFine": 288385,
+        "nepse": 2624.59,
+        "goldFine": 289171,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 135.91
+        "usdToNpr": 136.11
       },
       {
         "date": "अक्टोबर २४",
-        "nepse": 2615.17,
-        "goldFine": 289301,
+        "nepse": 2632.54,
+        "goldFine": 290087,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136
+        "usdToNpr": 136.2
       },
       {
         "date": "अक्टोबर २५",
-        "nepse": 2634.21,
-        "goldFine": 291074,
+        "nepse": 2651.58,
+        "goldFine": 291860,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.09
+        "usdToNpr": 136.29
       },
       {
         "date": "अक्टोबर २६",
-        "nepse": 2644.94,
-        "goldFine": 292205,
+        "nepse": 2662.31,
+        "goldFine": 292991,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.18
+        "usdToNpr": 136.38
       },
       {
         "date": "आज (Today)",
-        "nepse": 2637.34,
-        "goldFine": 291836,
+        "nepse": 2654.71,
+        "goldFine": 292622,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.23
+        "usdToNpr": 136.43
       }
     ]
   }
