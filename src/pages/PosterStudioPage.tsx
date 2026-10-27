@@ -149,7 +149,7 @@ const TEMPLATES: PosterTemplate[] = [
     headline: 'समसामयिक विषय र तथ्यपरक जानकारीका लागि फेसबुकमा जोडिनुहोस्',
     subheadline: 'छिटो, स्पष्ट र विश्वसनीय भिडियो तथा विश्लेषण अब सोझै तपाईंको फेसबुक फिडमा।',
     eventTitle: 'आधिकारिक डिजिटल पृष्ठ',
-    greetingPhrase: '👉 Facebook.com/khabargpt मा जानुहोस् वा Follow गर्नुहोस्',
+    greetingPhrase: '👉 फेसबुकमा KhabarGpt खोज्नुहोस् वा Follow गर्नुहोस्',
     senderName: 'Khabar GPT Editorial Desk',
     recipientName: 'नेपाली डिजिटल समुदायका लागि',
     date: 'दैनिक ताजा अपडेट',
@@ -326,6 +326,29 @@ export const PosterStudioPage: React.FC<PosterStudioPageProps> = ({ settings, on
     canvas.width = width;
     canvas.height = height;
 
+    // Load Admin Poster Studio Configuration
+    const studioConfig = settings?.posterStudioSettings;
+    const logoSrc = studioConfig?.customLogoUrl || settings?.customLogoUrl || '/logo.png';
+    const topLogoPos = studioConfig?.topLogoPosition || 'top-left';
+    const topLogoSz = studioConfig?.topLogoSize || 'medium';
+    const bottomLogoStyle = studioConfig?.bottomLogoStyle || 'circle-white';
+    const facebookHandle = studioConfig?.facebookHandle || 'KhabarGpt';
+    const showFacebookBadge = studioConfig?.showFacebookBadge ?? true;
+    const brandTitle = studioConfig?.brandTitle || 'खबर GPT (Khabar GPT)';
+    const websiteDisplay = studioConfig?.websiteDisplay || 'khabargpt.onrender.com';
+    const footerTagline = studioConfig?.footerTagline || 'डिजिटल पोस्टर स्टुडियो · आधिकारिक पोर्टल';
+    const showWatermark = studioConfig?.showWatermark ?? true;
+
+    // Pre-load Khabar GPT Logo Image
+    const logoImg = new Image();
+    logoImg.crossOrigin = 'anonymous';
+    const logoPromise = new Promise<void>((resolve) => {
+      logoImg.onload = () => resolve();
+      logoImg.onerror = () => resolve();
+      logoImg.src = logoSrc;
+    });
+    await logoPromise;
+
     // Theme Palettes
     let bgGradStart = '#0f172a';
     let bgGradEnd = '#020617';
@@ -398,8 +421,50 @@ export const PosterStudioPage: React.FC<PosterStudioPageProps> = ({ settings, on
       fontFamily = '"Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
     }
 
-    // 2. Header Area
+    // 2. Header Area & Official Top Khabar GPT Logo
     let currentY = 85;
+
+    // Render Top Khabar GPT Logo if enabled
+    if (topLogoPos !== 'none') {
+      const pxSize = topLogoSz === 'small' ? Math.round(width * 0.055) : topLogoSz === 'large' ? Math.round(width * 0.09) : Math.round(width * 0.07);
+      let topLogoX = width * 0.055 + 10;
+      const topLogoY = 40;
+
+      if (topLogoPos === 'top-center') {
+        topLogoX = (width - pxSize) / 2;
+        currentY = topLogoY + pxSize + 30;
+      } else if (topLogoPos === 'top-right') {
+        topLogoX = width - (width * 0.055) - pxSize - 10;
+      }
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(topLogoX + pxSize / 2, topLogoY + pxSize / 2, pxSize / 2, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.clip();
+      if (logoImg.complete && logoImg.naturalWidth > 0) {
+        ctx.drawImage(logoImg, topLogoX + 2, topLogoY + 2, pxSize - 4, pxSize - 4);
+      } else {
+        ctx.fillStyle = '#dc2626';
+        ctx.fillRect(topLogoX, topLogoY, pxSize, pxSize);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `bold ${Math.round(pxSize * 0.45)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('KG', topLogoX + pxSize / 2, topLogoY + pxSize / 2);
+      }
+      ctx.restore();
+
+      // Top logo brand name label if top-left
+      if (topLogoPos === 'top-left') {
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `bold ${Math.round(width * 0.022)}px ${fontFamily}`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('खबर GPT', topLogoX + pxSize + 14, topLogoY + pxSize / 2);
+      }
+    }
 
     // Category / Event Title Tag
     ctx.fillStyle = primaryAccent;
@@ -546,23 +611,35 @@ export const PosterStudioPage: React.FC<PosterStudioPageProps> = ({ settings, on
     ctx.font = `normal ${Math.round(width * 0.022)}px ${fontFamily}`;
     ctx.fillText(date.trim(), cardMarginX + cardWidth - 35, bottomInfoY);
 
-    // 5. REQUIRED KHABAR GPT LOGO, FACEBOOK HANDLE & CORRECT ONRENDER LINK
-    // Pre-load Khabar GPT Logo Image
-    const logoImg = new Image();
-    logoImg.crossOrigin = 'anonymous';
-    const logoPromise = new Promise<void>((resolve) => {
-      logoImg.onload = () => resolve();
-      logoImg.onerror = () => resolve();
-      logoImg.src = settings?.customLogoUrl || '/logo.png';
-    });
-    await logoPromise;
+    // Watermark Stamp inside card
+    if (showWatermark) {
+      const stampW = Math.round(width * 0.24);
+      const stampH = Math.round(height * 0.028);
+      const stampX = width / 2 - stampW / 2;
+      const stampY = bottomInfoY - stampH - 12;
 
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(stampX, stampY, stampW, stampH, stampH / 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = `bold ${Math.round(width * 0.016)}px ${fontFamily}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('✓ आधिकारिक खबर GPT कार्ड', width / 2, stampY + stampH / 2);
+    }
+
+    // 5. REQUIRED KHABAR GPT LOGO, FACEBOOK BADGE & CORRECT WEBSITE LINK
     // AI Visual Disclaimer if enabled (rendered right above the brand band)
     if (isAiDisclaimer) {
       ctx.textAlign = 'center';
       ctx.fillStyle = '#f59e0b';
       ctx.font = `italic ${Math.round(width * 0.015)}px ${fontFamily}`;
-      ctx.fillText('⚠️ नोट: यो सामग्री/चित्रण सांकेतिक हो, प्रत्यक्ष आधिकारिक समाचार तस्बिर होइन।', width / 2, brandBandY - 8);
+      ctx.fillText(studioConfig?.disclaimerText || '⚠️ नोट: यो सामग्री/चित्रण सांकेतिक हो, प्रत्यक्ष आधिकारिक समाचार तस्बिर होइन।', width / 2, brandBandY - 8);
     }
 
     // Rounded Capsule for Required Brand Band
@@ -581,35 +658,50 @@ export const PosterStudioPage: React.FC<PosterStudioPageProps> = ({ settings, on
     ctx.lineTo(bandMargin, brandBandY + bRadius);
     ctx.quadraticCurveTo(bandMargin, brandBandY, bandMargin + bRadius, brandBandY);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
     ctx.fill();
     ctx.strokeStyle = cardBorder;
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // Draw Circular White Badge with Official Khabar GPT Logo
-    const logoSize = Math.round(brandBandHeight * 0.72);
+    // Draw Official Khabar GPT Logo in Brand Band
+    const logoSize = Math.round(brandBandHeight * 0.74);
     const logoX = bandMargin + 16;
     const logoY = brandBandY + (brandBandHeight - logoSize) / 2;
 
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffffff';
-    ctx.fill();
-    ctx.clip();
-    if (logoImg.complete && logoImg.naturalWidth > 0) {
-      ctx.drawImage(logoImg, logoX + 3, logoY + 3, logoSize - 6, logoSize - 6);
-    } else {
-      ctx.fillStyle = '#dc2626';
-      ctx.fillRect(logoX, logoY, logoSize, logoSize);
+    if (bottomLogoStyle === 'circle-white') {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
       ctx.fillStyle = '#ffffff';
-      ctx.font = `bold ${Math.round(logoSize * 0.42)}px sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('KG', logoX + logoSize / 2, logoY + logoSize / 2);
+      ctx.fill();
+      ctx.clip();
+      if (logoImg.complete && logoImg.naturalWidth > 0) {
+        ctx.drawImage(logoImg, logoX + 3, logoY + 3, logoSize - 6, logoSize - 6);
+      } else {
+        ctx.fillStyle = '#dc2626';
+        ctx.fillRect(logoX, logoY, logoSize, logoSize);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `bold ${Math.round(logoSize * 0.42)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('KG', logoX + logoSize / 2, logoY + logoSize / 2);
+      }
+      ctx.restore();
+    } else if (bottomLogoStyle === 'glow') {
+      ctx.save();
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 15;
+      if (logoImg.complete && logoImg.naturalWidth > 0) {
+        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+      }
+      ctx.restore();
+    } else {
+      // transparent seamless PNG
+      if (logoImg.complete && logoImg.naturalWidth > 0) {
+        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+      }
     }
-    ctx.restore();
 
     // Text Information on Brand Band
     const textLeft = logoX + logoSize + 16;
@@ -621,22 +713,47 @@ export const PosterStudioPage: React.FC<PosterStudioPageProps> = ({ settings, on
     // 1. Official Brand Name
     ctx.fillStyle = '#ffffff';
     ctx.font = `bold ${Math.round(width * 0.026)}px ${fontFamily}`;
-    ctx.fillText('खबर GPT (Khabar GPT)', textLeft, bandCenterY - 6);
+    ctx.fillText(brandTitle, textLeft, bandCenterY - 6);
 
-    // 2. REQUIRED Facebook Name
-    ctx.fillStyle = '#38bdf8';
-    ctx.font = `600 ${Math.round(width * 0.020)}px ${fontFamily}`;
-    ctx.fillText('Facebook: facebook.com/khabargpt', textLeft, bandCenterY + 22);
+    // 2. Official Facebook Badge: Facebook logo and KhabarGpt only
+    if (showFacebookBadge) {
+      const fbIconRadius = Math.round(width * 0.0125);
+      const fbIconCenterX = textLeft + fbIconRadius;
+      const fbIconCenterY = bandCenterY + 18;
 
-    // 3. REQUIRED Official OnRender Website Link (Right Side)
+      // Facebook Blue Circle
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(fbIconCenterX, fbIconCenterY, fbIconRadius, 0, Math.PI * 2);
+      ctx.fillStyle = '#1877F2';
+      ctx.fill();
+
+      // White 'f' inside
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = `bold ${Math.round(fbIconRadius * 1.45)}px "Helvetica Neue", Arial, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('f', fbIconCenterX + 0.8, fbIconCenterY + 0.8);
+      ctx.restore();
+
+      // Facebook handle (Facebook logo and KhabarGpt only)
+      ctx.fillStyle = '#e0f2fe';
+      ctx.font = `bold ${Math.round(width * 0.020)}px ${fontFamily}`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(facebookHandle, fbIconCenterX + fbIconRadius + 8, fbIconCenterY);
+    }
+
+    // 3. Official Website Link (Right Side)
     ctx.textAlign = 'right';
+    ctx.textBaseline = 'alphabetic';
     ctx.fillStyle = '#f87171';
     ctx.font = `bold ${Math.round(width * 0.021)}px ${fontFamily}`;
-    ctx.fillText('https://khabargpt.onrender.com', bandMargin + bandWidth - 20, bandCenterY - 4);
+    ctx.fillText(websiteDisplay, bandMargin + bandWidth - 20, bandCenterY - 4);
 
     ctx.fillStyle = '#94a3b8';
     ctx.font = `normal ${Math.round(width * 0.016)}px ${fontFamily}`;
-    ctx.fillText('डिजिटल पोस्टर स्टुडियो · आधिकारिक पोर्टल', bandMargin + bandWidth - 20, bandCenterY + 20);
+    ctx.fillText(footerTagline, bandMargin + bandWidth - 20, bandCenterY + 20);
   };
 
   // Download high-resolution PNG
@@ -669,9 +786,10 @@ export const PosterStudioPage: React.FC<PosterStudioPageProps> = ({ settings, on
           if (!blob) return;
           const file = new File([blob], 'poster.png', { type: 'image/png' });
           if (navigator.canShare({ files: [file] })) {
+            const fbName = settings?.posterStudioSettings?.facebookHandle || 'KhabarGpt';
             await navigator.share({
               title: headline,
-              text: `${headline}\n${greetingPhrase}\n\n📢 फेसबुक: facebook.com/khabargpt\n🌐 आधिकारिक पोर्टल: https://khabargpt.onrender.com/poster-studio`,
+              text: `${headline}\n${greetingPhrase}\n\n📢 फेसबुक: ${fbName}\n🌐 आधिकारिक पोर्टल: https://khabargpt.onrender.com/poster-studio`,
               files: [file]
             });
             setShareSuccess(true);
@@ -691,7 +809,8 @@ export const PosterStudioPage: React.FC<PosterStudioPageProps> = ({ settings, on
   };
 
   const fallbackShareText = () => {
-    const textToCopy = `${headline}\n${greetingPhrase}\n${subheadline}\nप्रेषक: ${senderName}\n\n📢 आधिकारिक फेसबुक पेज: facebook.com/khabargpt\n🌐 डिजिटल पोस्टर स्टुडियो: https://khabargpt.onrender.com/poster-studio`;
+    const fbName = settings?.posterStudioSettings?.facebookHandle || 'KhabarGpt';
+    const textToCopy = `${headline}\n${greetingPhrase}\n${subheadline}\nप्रेषक: ${senderName}\n\n📢 आधिकारिक फेसबुक: ${fbName}\n🌐 डिजिटल पोस्टर स्टुडियो: https://khabargpt.onrender.com/poster-studio`;
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 4000);
@@ -1011,17 +1130,17 @@ export const PosterStudioPage: React.FC<PosterStudioPageProps> = ({ settings, on
                   </span>
                 </div>
                 <p className="text-xs text-slate-700 leading-relaxed">
-                  सबै पोस्टरहरूमा आधिकारिक <strong>खबर GPT लोगो</strong>, फेसबुक नाम <strong>(facebook.com/khabargpt)</strong> र वेबसाइट लिङ्क <strong>https://khabargpt.onrender.com</strong> अनिवार्य रूपमा समावेश गरिएको छ।
+                  सबै पोस्टरहरूमा आधिकारिक <strong>खबर GPT लोगो</strong>, फेसबुक ब्याज <strong>(फेसबुक लोगो + {settings?.posterStudioSettings?.facebookHandle || 'KhabarGpt'})</strong> र वेबसाइट लिङ्क <strong>{settings?.posterStudioSettings?.websiteDisplay || 'khabargpt.onrender.com'}</strong> समावेश गरिएको छ।
                 </p>
                 <div className="pt-1 flex flex-wrap items-center gap-2 text-[11px] font-mono text-slate-600">
                   <span className="bg-white px-2 py-1 rounded-md border border-slate-200 font-bold text-slate-800">
                     लोगो: Khabar GPT Original
                   </span>
                   <span className="bg-white px-2 py-1 rounded-md border border-slate-200 text-blue-700 font-semibold">
-                    फेसबुक: facebook.com/khabargpt
+                    फेसबुक: {settings?.posterStudioSettings?.facebookHandle || 'KhabarGpt'}
                   </span>
                   <span className="bg-white px-2 py-1 rounded-md border border-slate-200 text-red-700 font-semibold">
-                    लिङ्क: https://khabargpt.onrender.com
+                    लिङ्क: {settings?.posterStudioSettings?.websiteDisplay || 'khabargpt.onrender.com'}
                   </span>
                 </div>
               </div>
@@ -1115,7 +1234,7 @@ export const PosterStudioPage: React.FC<PosterStudioPageProps> = ({ settings, on
                 <span>आधिकारिक ब्रान्डिङ तथा फेसबुक प्रमाणीकरण</span>
               </div>
               <p>
-                प्रत्येक पोस्टरमा खबर GPT को आधिकारिक लोगो, फेसबुक <strong>(facebook.com/khabargpt)</strong> र वेबसाइट <strong>https://khabargpt.onrender.com</strong> स्थायी रूपमा अंकित हुन्छ।
+                प्रत्येक पोस्टरमा खबर GPT को आधिकारिक लोगो, फेसबुक <strong>(फेसबुक: {settings?.posterStudioSettings?.facebookHandle || 'KhabarGpt'})</strong> र वेबसाइट <strong>{settings?.posterStudioSettings?.websiteDisplay || 'khabargpt.onrender.com'}</strong> स्थायी रूपमा अंकित हुन्छ।
               </p>
             </div>
           </div>

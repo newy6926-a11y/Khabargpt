@@ -1,7 +1,20 @@
 import React from 'react';
-import { ShieldCheck, AlertCircle } from 'lucide-react';
+import { ShieldCheck, AlertCircle, Send, ArrowRight } from 'lucide-react';
+import { SiteSettings } from '../types';
 
-export const TermsCopyrightPage: React.FC = () => {
+interface TermsCopyrightPageProps {
+  settings?: SiteSettings;
+  onNavigate?: (path: string) => void;
+}
+
+export const TermsCopyrightPage: React.FC<TermsCopyrightPageProps> = ({
+  settings,
+  onNavigate
+}) => {
+  const displayEmail = settings?.contactEmail && !settings.contactEmail.toLowerCase().includes('khabargpt@gmail.com')
+    ? settings.contactEmail
+    : null;
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 pb-20">
       <div className="border-b border-slate-200 pb-6 space-y-2">
@@ -21,7 +34,7 @@ export const TermsCopyrightPage: React.FC = () => {
             खबर GPT (Khabar GPT) द्वारा उत्पादित मूल व्याख्यात्मक लेखहरू, संरचना, ब्रान्ड लोगो, र भिडियो विश्लेषणहरूको बौद्धिक सम्पत्ति तथा प्रतिलिपि अधिकार खबर GPT र यसका आधिकारिक सञ्चालकमा निहित छ।
           </p>
           <p className="text-xs text-slate-500">
-            * नेपालको प्रतिलिपि अधिकार ऐन, २०५९ बमोजिम अनधिकृत रूपमा सम्पूर्ण सामग्री साभार गर्न वा व्यावसायिक प्रयोजनमा प्रयोग गर्न निषेध गरिएको छ।
+            * नेपालको प्रतिलिपि अधिकार ऐन, २०५९ बमोजिम अनधिकृत रूपमा सम्पूर्ण सामग्री साभार गर्न वा व्यावसायिक प्रयोजानमा प्रयोग गर्न निषेध गरिएको छ।
           </p>
         </section>
 
@@ -37,18 +50,37 @@ export const TermsCopyrightPage: React.FC = () => {
         </section>
 
         {/* 3. Takedown & Copyright Notice */}
-        <section className="bg-white border border-slate-200 rounded-xl p-5 space-y-2">
+        <section className="bg-white border border-slate-200 rounded-xl p-5 space-y-3">
           <h2 className="text-base font-bold text-slate-900">३. प्रतिलिपि अधिकार दाबी प्रक्रिया (Notice and Takedown)</h2>
           <p>
-            यदि तपाईंलाई लाग्छ कि हाम्रो वेबसाइटमा प्रस्तुत कुनै सामग्रीले तपाईंको प्रतिलिपि अधिकार वा बौद्धिक सम्पत्तिको उल्लङ्घन गरेको छ भने, कृपया प्रमाण र विवरणसहित हाम्रो सम्पर्क फाराम वा <strong>contact@khabargpt.com</strong> मा सन्देश पठाउनुहोस्। हामी तथ्य जाँच गरी २४ देखि ४८ घण्टाभित्र आवश्यक कानुनी कदम चाल्नेछौँ।
+            यदि तपाईंलाई लाग्छ कि हाम्रो वेबसाइटमा प्रस्तुत कुनै सामग्रीले तपाईंको प्रतिलिपि अधिकार वा बौद्धिक सम्पत्तिको उल्लङ्घन गरेको छ भने, कृपया प्रमाण र विवरणसहित हाम्रो आधिकारिक सम्पर्क फाराम
+            {displayEmail ? ` वा आधिकारिक इमेल (${displayEmail})` : ''} मार्फत सन्देश पठाउनुहोस्। हामी तथ्य जाँच गरी २४ देखि ४८ घण्टाभित्र आवश्यक छानबिन तथा कानुनी कदम चाल्नेछौँ।
           </p>
+          {onNavigate && (
+            <div className="pt-1 flex flex-wrap gap-2">
+              <button
+                onClick={() => onNavigate('/contact')}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>सम्पर्क तथा उजुरी फाराम खोल्नुहोस्</span>
+              </button>
+              <button
+                onClick={() => onNavigate('/copyright-and-corrections')}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+              >
+                <span>सच्याइ नीति हेर्नुहोस्</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </section>
 
         {/* 4. Poster Studio & User Responsibilities */}
         <section className="bg-white border border-slate-200 rounded-xl p-5 space-y-2">
           <h2 className="text-base font-bold text-slate-900">४. पोस्टर स्टुडियो प्रयोगका सर्तहरू (Poster Studio Acceptable Use)</h2>
           <p>
-            हाम्रो ‘पोस्टर स्टुडियो’ मा उपलब्ध टेम्प्लेटहरू व्यक्तिगत, शैक्षिक र व्यावसायिक शुभकामना सिर्जनाका लागि निःशुल्क प्रयोग गर्न सकिन्छ।
+            हाम्रो ‘पोस्टर स्टुडियो’ मा उपलब्ध टेम्प्लेटहरू व्यक्तिगत, शैक्षिक र व्यावसायिक शुभकामना सिर्जनाका लागि निःशुल्क प्रयोग गर्न सकिन्छ। सबै पोस्टरहरूमा आधिकारिक खबर GPT लोगो तथा आधिकारिक फेसबुक ब्याज (KhabarGpt) अंकित हुन्छ।
           </p>
           <ul className="list-disc pl-5 space-y-1 text-xs text-slate-600">
             <li>प्रयोगकर्ताले सिर्जना गरेका पोस्टरहरू खबर GPT को आधिकारिक वक्तव्य वा औपचारिक प्रेस विज्ञप्ति होइनन्।</li>

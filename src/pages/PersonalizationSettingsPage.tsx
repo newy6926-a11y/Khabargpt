@@ -249,7 +249,7 @@ export const PersonalizationSettingsPage: React.FC<PersonalizationSettingsPagePr
                 </span>
               </div>
               <p className="text-xs text-slate-600 max-w-xl leading-relaxed">
-                पोस्टर स्टुडियोका सम्पूर्ण डिजाइनहरूमा खबर GPT को आधिकारिक लोगो, फेसबुक नाम (<span className="font-semibold text-blue-600">facebook.com/khabargpt</span>), तथा आधिकारिक वेबसाइट लिङ्क (<span className="font-semibold text-red-600">https://khabargpt.onrender.com</span>) अनिवार्य रूपमा समावेश गरिन्छ। यसले सामग्रीको आधिकारिकता र पहिचान सुनिश्चित गर्दछ।
+                पोस्टर स्टुडियोका सम्पूर्ण डिजाइनहरूमा खबर GPT को आधिकारिक लोगो, फेसबुक ब्याज (<span className="font-semibold text-blue-600">Facebook Logo + KhabarGpt</span>), तथा आधिकारिक वेबसाइट लिङ्क (<span className="font-semibold text-red-600">khabargpt.onrender.com</span>) समावेश गरिन्छ। यसले सामग्रीको आधिकारिकता र पहिचान सुनिश्चित गर्दछ।
               </p>
             </div>
             <div className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold">

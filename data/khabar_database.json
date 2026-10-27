@@ -42,7 +42,23 @@
     "entryPopupMessage": "",
     "entryPopupImageUrl": "/official-notice.svg",
     "entryPopupButtonText": "फेसबुक पेजमा जोडिनुहोस्",
-    "entryPopupButtonLink": "https://facebook.com/khabargpt"
+    "entryPopupButtonLink": "https://facebook.com/khabargpt",
+    "posterStudioSettings": {
+      "customLogoUrl": "/logo.png",
+      "topLogoPosition": "top-left",
+      "topLogoSize": "medium",
+      "bottomLogoStyle": "circle-white",
+      "facebookHandle": "KhabarGpt",
+      "showFacebookBadge": true,
+      "brandTitle": "खबर GPT (Khabar GPT)",
+      "websiteDisplay": "khabargpt.onrender.com",
+      "footerTagline": "डिजिटल पोस्टर स्टुडियो · आधिकारिक पोर्टल",
+      "defaultTheme": "khabar-classic",
+      "defaultAspectRatio": "1:1",
+      "showWatermark": true,
+      "showAiDisclaimer": false,
+      "disclaimerText": "⚠️ नोट: यो सामग्री/चित्रण सांकेतिक हो, प्रत्यक्ष आधिकारिक समाचार तस्बिर होइन।"
+    }
   },
   "users": [
     {
@@ -156,40 +172,40 @@
     }
   ],
   "marketSnapshot": {
-    "updatedDate": "२०२६ अक्टोबर २६, सोमबार (०९:१३ अपराह्न NPT - प्रत्यक्ष अद्यावधिक)",
+    "updatedDate": "२०२६ अक्टोबर २७, मङ्गलबार (१२:५३ अपराह्न NPT - प्रत्यक्ष अद्यावधिक)",
     "nepse": {
-      "index": 2640.38,
-      "change": 11.04,
-      "percentChange": 0.42,
-      "turnoverCrores": 617.72,
+      "index": 2637.34,
+      "change": 18.75,
+      "percentChange": 0.71,
+      "turnoverCrores": 605.3,
       "points": [
         {
           "time": "11:00 AM",
-          "value": 2624.38
+          "value": 2621.34
         },
         {
           "time": "12:00 PM",
-          "value": 2631.88
+          "value": 2628.84
         },
         {
           "time": "01:00 PM",
-          "value": 2638.28
+          "value": 2635.24
         },
         {
           "time": "02:00 PM",
-          "value": 2644.68
+          "value": 2641.64
         },
         {
           "time": "03:00 PM",
-          "value": 2640.38
+          "value": 2637.34
         }
       ]
     },
     "goldSilver": {
-      "fineGoldTola": 292619,
-      "fineGold10g": 250878,
-      "tejabiGoldTola": 291119,
-      "silverTola": 2981,
+      "fineGoldTola": 291836,
+      "fineGold10g": 250207,
+      "tejabiGoldTola": 290336,
+      "silverTola": 3006,
       "changeGold": 1200,
       "source": "नेपाल सुनचाँदी व्यवसायी महासंघ (FENEGOSIDA - स्वचालित ताजा दर)"
     },
@@ -202,84 +218,84 @@
     },
     "forex": {
       "usd": {
-        "buy": 136.47,
-        "sell": 137.07
+        "buy": 136.23,
+        "sell": 136.83
       },
       "eur": {
-        "buy": 148.59,
-        "sell": 149.29
+        "buy": 148.61,
+        "sell": 149.31
       },
       "gbp": {
-        "buy": 176.96,
-        "sell": 177.76
+        "buy": 176.62,
+        "sell": 177.42
       },
       "aed": {
-        "buy": 37.08,
-        "sell": 37.24
+        "buy": 37.05,
+        "sell": 37.21
       },
       "qar": {
-        "buy": 37.47,
-        "sell": 37.63
+        "buy": 37.44,
+        "sell": 37.6
       },
       "source": "नेपाल राष्ट्र बैंक (NRB - प्रत्यक्ष विनिमय दर)"
     },
     "disclaimer": "⚠️ प्रत्यक्ष बजार दर डिस्क्लेमर: सेयर बजार, सुनचाँदी, विदेशी विनिमय तथा इन्धनका मूल्य निरन्तर परिवर्तनशील हुन्छन्। यी दरहरू आधिकारिक निकायहरूको सार्वजनिक खुला तथ्यांक अनुसार हालको समयसँग स्वचालित रूपमा अद्यावधिक हुन्छन्।",
     "trends": [
       {
-        "date": "अक्टोबर २०",
-        "nepse": 2619.36,
-        "goldFine": 289268,
-        "petrol": 172.5,
-        "diesel": 158.5,
-        "usdToNpr": 135.97
-      },
-      {
         "date": "अक्टोबर २१",
-        "nepse": 2616.55,
-        "goldFine": 289352,
+        "nepse": 2616.32,
+        "goldFine": 288485,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.06
+        "usdToNpr": 135.73
       },
       {
         "date": "अक्टोबर २२",
-        "nepse": 2610.26,
-        "goldFine": 289168,
+        "nepse": 2613.51,
+        "goldFine": 288569,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.15
+        "usdToNpr": 135.82
       },
       {
         "date": "अक्टोबर २३",
-        "nepse": 2618.21,
-        "goldFine": 290084,
+        "nepse": 2607.22,
+        "goldFine": 288385,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.24
+        "usdToNpr": 135.91
       },
       {
         "date": "अक्टोबर २४",
-        "nepse": 2637.25,
-        "goldFine": 291857,
+        "nepse": 2615.17,
+        "goldFine": 289301,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.33
+        "usdToNpr": 136
       },
       {
         "date": "अक्टोबर २५",
-        "nepse": 2647.98,
-        "goldFine": 292988,
+        "nepse": 2634.21,
+        "goldFine": 291074,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.42
+        "usdToNpr": 136.09
+      },
+      {
+        "date": "अक्टोबर २६",
+        "nepse": 2644.94,
+        "goldFine": 292205,
+        "petrol": 172.5,
+        "diesel": 158.5,
+        "usdToNpr": 136.18
       },
       {
         "date": "आज (Today)",
-        "nepse": 2640.38,
-        "goldFine": 292619,
+        "nepse": 2637.34,
+        "goldFine": 291836,
         "petrol": 172.5,
         "diesel": 158.5,
-        "usdToNpr": 136.47
+        "usdToNpr": 136.23
       }
     ]
   }

@@ -273,6 +273,26 @@ export interface SiteSettings {
   adminNotificationEmail?: string;
   inquiryWebhookUrl?: string;
   autoReplyEnabled?: boolean;
+
+  // Photo & Poster Studio Customization (एड्मिनबाट पोस्टर तथा फोटो स्टुडियो नियन्त्रण)
+  posterStudioSettings?: PosterStudioConfig;
+}
+
+export interface PosterStudioConfig {
+  customLogoUrl?: string;
+  topLogoPosition?: 'none' | 'top-left' | 'top-center' | 'top-right';
+  topLogoSize?: 'small' | 'medium' | 'large';
+  bottomLogoStyle?: 'circle-white' | 'transparent' | 'glow';
+  facebookHandle?: string; // Default: 'KhabarGpt'
+  showFacebookBadge?: boolean; // Default: true
+  brandTitle?: string; // Default: 'खबर GPT (Khabar GPT)'
+  websiteDisplay?: string; // Default: 'khabargpt.onrender.com'
+  footerTagline?: string; // Default: 'डिजिटल पोस्टर स्टुडियो · आधिकारिक पोर्टल'
+  defaultTheme?: string; // Default: 'khabar-classic'
+  defaultAspectRatio?: '1:1' | '4:5' | '16:9';
+  showWatermark?: boolean; // Default: true
+  showAiDisclaimer?: boolean; // Default: false
+  disclaimerText?: string;
 }
 
 export interface NewsletterSubscriber {

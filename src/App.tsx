@@ -75,7 +75,23 @@ export default function App() {
     entryPopupMessage: '',
     entryPopupImageUrl: '/official-notice.svg',
     entryPopupButtonText: 'फेसबुक पेजमा जोडिनुहोस्',
-    entryPopupButtonLink: 'https://facebook.com/khabargpt'
+    entryPopupButtonLink: 'https://facebook.com/khabargpt',
+    posterStudioSettings: {
+      customLogoUrl: '/logo.png',
+      topLogoPosition: 'top-left',
+      topLogoSize: 'medium',
+      bottomLogoStyle: 'circle-white',
+      facebookHandle: 'KhabarGpt',
+      showFacebookBadge: true,
+      brandTitle: 'खबर GPT (Khabar GPT)',
+      websiteDisplay: 'khabargpt.onrender.com',
+      footerTagline: 'डिजिटल पोस्टर स्टुडियो · आधिकारिक पोर्टल',
+      defaultTheme: 'khabar-classic',
+      defaultAspectRatio: '1:1',
+      showWatermark: true,
+      showAiDisclaimer: false,
+      disclaimerText: '⚠️ नोट: यो सामग्री/चित्रण सांकेतिक हो, प्रत्यक्ष आधिकारिक समाचार तस्बिर होइन।'
+    }
   });
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -378,9 +394,9 @@ export default function App() {
         ) : currentPath === '/contact' ? (
           <ContactPage settings={settings} />
         ) : currentPath === '/privacy' ? (
-          <PrivacyPolicyPage />
+          <PrivacyPolicyPage settings={settings} onNavigate={navigate} />
         ) : currentPath === '/terms' ? (
-          <TermsCopyrightPage />
+          <TermsCopyrightPage settings={settings} onNavigate={navigate} />
         ) : currentPath === '/poster-studio' ? (
           <PosterStudioPage settings={settings} onNavigate={navigate} />
         ) : currentPath === '/quiz' ? (

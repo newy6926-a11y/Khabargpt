@@ -1,7 +1,13 @@
 import React from 'react';
 import { Shield } from 'lucide-react';
+import { SiteSettings } from '../types';
 
-export const PrivacyPolicyPage: React.FC = () => {
+interface PrivacyPolicyPageProps {
+  settings?: SiteSettings;
+  onNavigate?: (path: string) => void;
+}
+
+export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ settings, onNavigate }) => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 pb-20">
       <div className="border-b border-slate-200 pb-6 space-y-2">
@@ -55,7 +61,7 @@ export const PrivacyPolicyPage: React.FC = () => {
         <section className="bg-white border border-slate-200 rounded-xl p-5 space-y-2">
           <h2 className="text-base font-bold text-slate-900">५. सम्पर्क र गुनासो</h2>
           <p>
-            गोपनीयता सम्बन्धी कुनै पनि जिज्ञासा वा आफ्नो विवरण हटाउन अनुरोध गर्न चाहनुहुन्छ भने हाम्रो सम्पर्क पृष्ठ वा आधिकारिक इमेल <strong>contact@khabargpt.com</strong> मा सम्पर्क गर्न सक्नुहुन्छ।
+            गोपनीयता सम्बन्धी कुनै पनि जिज्ञासा वा आफ्नो विवरण हटाउन अनुरोध गर्न चाहनुहुन्छ भने हाम्रो आधिकारिक सम्पर्क फाराम (Contact Form) मार्फत सम्पर्क गर्न सक्नुहुन्छ।
           </p>
         </section>
       </div>

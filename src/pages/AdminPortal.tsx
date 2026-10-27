@@ -71,6 +71,7 @@ import { AdminAiAssistantPanel } from '../components/AdminAiAssistantPanel';
 import { AdminNewsletterPanel } from '../components/AdminNewsletterPanel';
 import { AdminMarketRatesPanel } from '../components/AdminMarketRatesPanel';
 import { AdminNoticeManagerPanel } from '../components/AdminNoticeManagerPanel';
+import { AdminPosterStudioPanel } from '../components/AdminPosterStudioPanel';
 
 interface AdminPortalProps {
   user: AuthUser | null;
@@ -83,6 +84,7 @@ interface AdminPortalProps {
 type AdminTab =
   | 'overview'
   | 'content'
+  | 'poster_studio'
   | 'notice'
   | 'live_events'
   | 'market_rates'
@@ -1019,6 +1021,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             { id: 'live_events', label: '🔴 प्रत्यक्ष कभरेज' },
             { id: 'categories', label: `📂 श्रेणीहरू (${categoriesList.length})` },
             { id: 'media', label: `🖼️ मिडिया ग्यालरी (${mediaList.length})` },
+            { id: 'poster_studio', label: '🎨 फोटो & पोस्टर स्टुडियो' },
             { id: 'market_rates', label: '📈 बजार दरहरू' },
             { id: 'newsletter', label: '✉️ जीमेल & न्यूजलेटर' },
             { id: 'notice', label: '📢 प्रारम्भिक सूचना' },
@@ -2184,6 +2187,22 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               </p>
             </div>
 
+            {/* Direct Link Banner to Poster Studio Settings */}
+            <div className="bg-linear-to-r from-red-600 to-rose-700 rounded-2xl p-4 text-white shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="space-y-0.5 text-center sm:text-left">
+                <span className="text-[10px] uppercase font-bold tracking-wider bg-white/20 px-2 py-0.5 rounded-full inline-block">नयाँ व्यवस्थापन</span>
+                <h4 className="font-bold text-sm">पोस्टर तथा फोटो स्टुडियो पूर्ण अनुकूलन (Poster Studio Settings)</h4>
+                <p className="text-xs text-red-100">पोस्टरमा खबर GPT लोगो, फेसबुक ब्याज (KhabarGpt), वाटरमार्क, र डिजाइन व्यवस्थापन गर्नुहोस्।</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab('poster_studio')}
+                className="px-4 py-2 bg-white text-red-700 hover:bg-red-50 rounded-xl text-xs font-bold cursor-pointer shrink-0 transition-colors shadow-xs"
+              >
+                पोस्टर स्टुडियो व्यवस्थापन खोल्नुहोस् →
+              </button>
+            </div>
+
             {/* SECTION 1: BRAND LOGO STUDIO */}
             <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-5">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -2940,30 +2959,30 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               <div className="bg-blue-50/80 border border-blue-200 rounded-xl p-4 text-xs text-blue-950 space-y-2">
                 <div className="flex items-center gap-2 font-bold text-blue-900">
                   <Mail className="w-4 h-4 text-blue-700" />
-                  <span>आधिकारिक Gmail व्यवस्थापन तथा अद्यावधिक सूचना</span>
+                  <span>आधिकारिक इमेल व्यवस्थापन तथा अद्यावधिक सूचना</span>
                 </div>
                 <p className="leading-relaxed">
-                  यदि तपाईंले अहिलेसम्म खबर GPT को लागि छुट्टै आधिकारिक Gmail बनाउनुभएको छैन भने, अहिले यो फिल्डमा आफ्नो व्यक्तिगत इमेल राख्न सक्नुहुन्छ वा खाली पनि छोड्न सक्नुहुन्छ।
+                  यदि तपाईंले अहिलेसम्म खबर GPT को लागि छुट्टै आधिकारिक इमेल बनाउनुभएको छैन भने, अहिले यो फिल्डमा आफ्नो व्यक्तिगत इमेल राख्न सक्नुहुन्छ वा खाली पनि छोड्न सक्नुहुन्छ।
                 </p>
                 <p className="leading-relaxed text-blue-800 font-medium">
-                  पछि जब नयाँ Gmail (जस्तै: <code>khabargpt@gmail.com</code> वा <code>contact@khabargpt.com</code>) सिर्जना गर्नुहुन्छ, यहाँ नयाँ इमेल टाइप गरी तल <strong>'सबै सेटिङहरू सुरक्षित गर्नुहोस्'</strong> बटन थिच्दा वेबसाइटभरि (सम्पर्क पृष्ठ, फुटर) तुरुन्तै अपडेट हुनेछ!
+                  पछि जब नयाँ आधिकारिक इमेल (जस्तै: <code>contact@khabargpt.com</code> वा <code>info@khabargpt.com</code>) सिर्जना गर्नुहुन्छ, यहाँ नयाँ इमेल टाइप गरी तल <strong>'सबै सेटिङहरू सुरक्षित गर्नुहोस्'</strong> बटन थिच्दा वेबसाइटभरि (सम्पर्क पृष्ठ, फुटर) तुरुन्तै अपडेट हुनेछ!
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">
-                    सम्पर्क इमेल / Gmail ठेगाना (Contact / Official Gmail)
+                    सम्पर्क इमेल ठेगाना (Official Contact Email)
                   </label>
                   <input
                     type="email"
                     value={settingsForm.contactEmail || ''}
                     onChange={(e) => setSettingsForm({ ...settingsForm, contactEmail: e.target.value })}
-                    placeholder="उदा: khabargpt@gmail.com वा आफ्नो इमेल"
+                    placeholder="उदा: contact@khabargpt.com वा आफ्नो इमेल"
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium"
                   />
                   <span className="text-[10px] text-slate-500 mt-1 block">
-                    नयाँ Gmail बनाएपछि यहाँ परिवर्तन गर्नुहोस्
+                    नयाँ इमेल बनाएपछि यहाँ परिवर्तन गर्नुहोस्
                   </span>
                 </div>
 
@@ -3439,6 +3458,19 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               </div>
             </div>
           </div>
+        )}
+
+        {/* ================= TAB: POSTER & PHOTO STUDIO ================= */}
+        {activeTab === 'poster_studio' && (
+          <AdminPosterStudioPanel
+            settings={settingsForm}
+            onSettingsUpdate={(updated) => {
+              setSettingsForm(updated);
+              onSettingsUpdate(updated);
+            }}
+            showNotification={(msg, type) => showNotification(msg, type)}
+            onNavigateToStudio={() => onNavigateHome()}
+          />
         )}
 
         {/* ================= TAB: ENTRY NOTICE / WELCOME POPUP ================= */}

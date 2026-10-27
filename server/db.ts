@@ -279,6 +279,26 @@ export interface SiteSettings {
   maintenanceModeActive?: boolean;
   maintenanceModeMessage?: string;
   maintenanceEstimatedTime?: string;
+
+  // Photo & Poster Studio Configuration
+  posterStudioSettings?: PosterStudioConfig;
+}
+
+export interface PosterStudioConfig {
+  customLogoUrl?: string;
+  topLogoPosition?: 'none' | 'top-left' | 'top-center' | 'top-right';
+  topLogoSize?: 'small' | 'medium' | 'large';
+  bottomLogoStyle?: 'circle-white' | 'transparent' | 'glow';
+  facebookHandle?: string; // Default: 'KhabarGpt'
+  showFacebookBadge?: boolean; // Default: true
+  brandTitle?: string; // Default: 'खबर GPT (Khabar GPT)'
+  websiteDisplay?: string; // Default: 'khabargpt.onrender.com'
+  footerTagline?: string; // Default: 'डिजिटल पोस्टर स्टुडियो · आधिकारिक पोर्टल'
+  defaultTheme?: string;
+  defaultAspectRatio?: '1:1' | '4:5' | '16:9';
+  showWatermark?: boolean;
+  showAiDisclaimer?: boolean;
+  disclaimerText?: string;
 }
 
 export interface NewsletterSubscriber {
@@ -576,7 +596,25 @@ function generateInitialDatabase(): DatabaseSchema {
 
       // Real-Time Zero-Loss Notification & Auto-Reply Defaults
       adminNotificationEmail: process.env.ADMIN_NOTIFICATION_EMAIL || '',
-      autoReplyEnabled: true
+      autoReplyEnabled: true,
+
+      // Default Poster & Photo Studio Settings
+      posterStudioSettings: {
+        customLogoUrl: '/logo.png',
+        topLogoPosition: 'top-left',
+        topLogoSize: 'medium',
+        bottomLogoStyle: 'circle-white',
+        facebookHandle: 'KhabarGpt',
+        showFacebookBadge: true,
+        brandTitle: 'खबर GPT (Khabar GPT)',
+        websiteDisplay: 'khabargpt.onrender.com',
+        footerTagline: 'डिजिटल पोस्टर स्टुडियो · आधिकारिक पोर्टल',
+        defaultTheme: 'khabar-classic',
+        defaultAspectRatio: '1:1',
+        showWatermark: true,
+        showAiDisclaimer: false,
+        disclaimerText: '⚠️ नोट: यो सामग्री/चित्रण सांकेतिक हो, प्रत्यक्ष आधिकारिक समाचार तस्बिर होइन।'
+      }
     },
     users: [
       {
@@ -689,6 +727,24 @@ class Database {
             }
             if (!parsed.settings.entryPopupButtonLink) {
               parsed.settings.entryPopupButtonLink = 'https://facebook.com/khabargpt';
+            }
+            if (!parsed.settings.posterStudioSettings) {
+              parsed.settings.posterStudioSettings = {
+                customLogoUrl: '/logo.png',
+                topLogoPosition: 'top-left',
+                topLogoSize: 'medium',
+                bottomLogoStyle: 'circle-white',
+                facebookHandle: 'KhabarGpt',
+                showFacebookBadge: true,
+                brandTitle: 'खबर GPT (Khabar GPT)',
+                websiteDisplay: 'khabargpt.onrender.com',
+                footerTagline: 'डिजिटल पोस्टर स्टुडियो · आधिकारिक पोर्टल',
+                defaultTheme: 'khabar-classic',
+                defaultAspectRatio: '1:1',
+                showWatermark: true,
+                showAiDisclaimer: false,
+                disclaimerText: '⚠️ नोट: यो सामग्री/चित्रण सांकेतिक हो, प्रत्यक्ष आधिकारिक समाचार तस्बिर होइन।'
+              };
             }
           }
           // Always ensure marketSnapshot is current
