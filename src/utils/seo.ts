@@ -122,21 +122,54 @@ export function updateDocumentSEO(
     document.head.appendChild(ldJsonScript);
   }
 
+  const brandAliases = [
+    'KhabarGPT',
+    'Khabar Gpt',
+    'Khabar gpt',
+    'khabar gpt',
+    'खबर GPT',
+    'खबरGPT',
+    'Khabar GPT Nepal',
+    'KhabarGPT Nepal',
+    'Khabar GPT Official'
+  ];
+
   const structuredData = {
     '@context': 'https://schema.org',
     '@graph': [
       {
+        '@type': 'WebSite',
+        '@id': `${origin}/#website`,
+        url: origin,
+        name: 'Khabar GPT',
+        alternateName: brandAliases,
+        publisher: {
+          '@id': `${origin}/#organization`
+        },
+        inLanguage: 'ne-NP',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: `${origin}/news?q={search_term_string}`,
+          'query-input': 'required name=search_term_string'
+        }
+      },
+      {
         '@type': 'NewsMediaOrganization',
         '@id': `${origin}/#organization`,
-        name: settings.siteTitle || 'Khabar GPT',
-        alternateName: ['खबर GPT', 'Khabar GPT Nepal'],
+        name: 'Khabar GPT',
+        alternateName: brandAliases,
         url: origin,
         logo: {
           '@type': 'ImageObject',
-          url: ogImage || `${origin}/logo.svg`,
+          '@id': `${origin}/#logo`,
+          url: `${origin}/logo.png`,
+          contentUrl: `${origin}/logo.png`,
+          caption: 'Khabar GPT Logo',
+          inLanguage: 'ne-NP',
           width: 512,
           height: 512
         },
+        image: `${origin}/logo.png`,
         description: description,
         sameAs: socialLinks,
         publishingPrinciples: `${origin}/editorial-standards`,
@@ -146,21 +179,6 @@ export function updateDocumentSEO(
           contactType: 'editorial inquiries',
           email: settings.contactEmail || undefined,
           telephone: settings.contactPhone || undefined
-        }
-      },
-      {
-        '@type': 'WebSite',
-        '@id': `${origin}/#website`,
-        url: origin,
-        name: settings.siteTitle || 'Khabar GPT',
-        alternateName: 'खबर GPT',
-        publisher: {
-          '@id': `${origin}/#organization`
-        },
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: `${origin}/news?q={search_term_string}`,
-          'query-input': 'required name=search_term_string'
         }
       }
     ]

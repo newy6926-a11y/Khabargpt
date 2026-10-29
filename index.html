@@ -22,19 +22,29 @@
     <meta name="application-name" content="Khabar GPT" />
     <meta name="apple-mobile-web-app-title" content="Khabar GPT" />
     <link rel="canonical" href="https://khabargpt.onrender.com/" />
-    <meta property="og:image" content="/logo.png" />
+    <!-- Social & Search Engine Discovery Images (Absolute URLs required by Googlebot & Search Console) -->
+    <meta property="og:image" content="https://khabargpt.onrender.com/logo.png" />
+    <meta property="og:image:secure_url" content="https://khabargpt.onrender.com/logo.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="Khabar GPT Logo" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Khabar GPT (खबर GPT) – Nepal Current Affairs & Explainers" />
     <meta
       name="twitter:description"
       content="नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण, भिडियो रिपोर्ट, सुनचाँदी, नेप्से तथा बजार सूचकांकको विश्वसनीय डिजिटल सूचना पोर्टल। खबर GPT आधिकारिक पेज।"
     />
-    <meta name="twitter:image" content="/logo.png" />
-    <!-- Google Search & Browser Favicons (Google Search Central Standards) -->
+    <meta name="twitter:image" content="https://khabargpt.onrender.com/logo.png" />
+    <meta name="twitter:image:alt" content="Khabar GPT Logo" />
+    <link rel="image_src" href="https://khabargpt.onrender.com/logo.png" />
+
+    <!-- Google Search & Browser Favicons (Google Search Central 48px Multiple Standards) -->
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
     <link rel="icon" type="image/png" sizes="144x144" href="/favicon-144x144.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/logo.png" />
     <link rel="icon" href="/favicon.ico" sizes="48x48 32x32 16x16" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -55,60 +65,68 @@
         });
       }
     </script>
-    <!-- Google Search Official Site Name Specification -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Khabar GPT",
-      "alternateName": [
-        "KhabarGPT",
-        "Khabar Gpt",
-        "Khabar gpt",
-        "khabar gpt",
-        "KhabarGpt",
-        "खबर GPT",
-        "खबरGPT",
-        "Khabar GPT Nepal",
-        "KhabarGPT Nepal",
-        "Khabar GPT Official"
-      ],
-      "url": "https://khabargpt.onrender.com/"
-    }
-    </script>
+
+    <!-- Google Search Official Site Name & Logo Structured Data Specification (Schema.org) -->
     <script type="application/ld+json" id="khabar-ld-json">
     {
       "@context": "https://schema.org",
-      "@type": "NewsMediaOrganization",
-      "name": "Khabar GPT",
-      "alternateName": [
-        "Khabar Gpt",
-        "Khabar gpt",
-        "khabar gpt",
-        "KhabarGpt",
-        "KhabarGPT",
-        "खबर GPT",
-        "खबरGPT",
-        "Khabar GPT Nepal"
-      ],
-      "url": "https://khabargpt.onrender.com/",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://khabargpt.onrender.com/logo.png",
-        "contentUrl": "https://khabargpt.onrender.com/logo.png",
-        "caption": "Khabar GPT Logo",
-        "inLanguage": "ne-NP",
-        "width": 512,
-        "height": 512
-      },
-      "image": "https://khabargpt.onrender.com/logo.png",
-      "sameAs": [
-        "https://facebook.com/khabargpt",
-        "https://instagram.com/khabargpt"
-      ],
-      "description": "नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण, भिडियो रिपोर्ट, सुनचाँदी, नेप्से तथा बजार सूचकांकको विश्वसनीय डिजिटल सूचना पोर्टल।",
-      "publishingPrinciples": "https://khabargpt.onrender.com/editorial-standards",
-      "correctionsPolicy": "https://khabargpt.onrender.com/corrections"
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://khabargpt.onrender.com/#website",
+          "url": "https://khabargpt.onrender.com/",
+          "name": "Khabar GPT",
+          "alternateName": [
+            "KhabarGPT",
+            "Khabar Gpt",
+            "Khabar gpt",
+            "khabar gpt",
+            "खबर GPT",
+            "खबरGPT",
+            "Khabar GPT Nepal",
+            "KhabarGPT Nepal",
+            "Khabar GPT Official"
+          ],
+          "publisher": {
+            "@id": "https://khabargpt.onrender.com/#organization"
+          },
+          "inLanguage": "ne-NP"
+        },
+        {
+          "@type": "NewsMediaOrganization",
+          "@id": "https://khabargpt.onrender.com/#organization",
+          "name": "Khabar GPT",
+          "alternateName": [
+            "Khabar Gpt",
+            "Khabar gpt",
+            "khabar gpt",
+            "KhabarGpt",
+            "KhabarGPT",
+            "खबर GPT",
+            "खबरGPT",
+            "Khabar GPT Nepal"
+          ],
+          "url": "https://khabargpt.onrender.com/",
+          "logo": {
+            "@type": "ImageObject",
+            "@id": "https://khabargpt.onrender.com/#logo",
+            "url": "https://khabargpt.onrender.com/logo.png",
+            "contentUrl": "https://khabargpt.onrender.com/logo.png",
+            "caption": "Khabar GPT Logo",
+            "inLanguage": "ne-NP",
+            "width": 512,
+            "height": 512
+          },
+          "image": "https://khabargpt.onrender.com/logo.png",
+          "sameAs": [
+            "https://facebook.com/khabargpt",
+            "https://instagram.com/khabargpt"
+          ],
+          "description": "नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण, भिडियो रिपोर्ट, सुनचाँदी, नेप्से तथा बजार सूचकांकको विश्वसनीय डिजिटल सूचना पोर्टल।",
+          "publishingPrinciples": "https://khabargpt.onrender.com/editorial-standards",
+          "correctionsPolicy": "https://khabargpt.onrender.com/corrections"
+        }
+      ]
     }
     </script>
   </head>
