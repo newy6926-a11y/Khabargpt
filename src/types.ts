@@ -351,6 +351,9 @@ export interface ContactMessage {
   replyMessage?: string;
   repliedAt?: string;
   repliedBy?: string;
+  emailDispatched?: boolean;
+  emailProvider?: string;
+  emailErrorNotice?: string;
 }
 
 export type UserRole = 'owner' | 'editor' | 'reporter' | 'moderator' | 'editor_in_chief' | 'sub_editor';
@@ -405,6 +408,16 @@ export interface SystemStatus {
   status: string;
   backend: string;
   port: number;
+  environment?: string;
+  server?: {
+    nodeVersion: string;
+    platform: string;
+    arch: string;
+    pid: number;
+    environment: string;
+    startedAt: string;
+    formattedUptime: string;
+  };
   database: {
     type: string;
     path: string;
@@ -420,11 +433,40 @@ export interface SystemStatus {
     auditLogsCount: number;
     activeSessions: number;
     teamCount: number;
+    subscribersCount?: number;
+  };
+  storage?: {
+    dbFilePath: string;
+    dbFileSizeKb: number;
+    dbLastModified: string;
+    uploadsPath: string;
+    uploadsCount: number;
+    uploadsSizeMb: number;
+  };
+  emailDispatcher?: {
+    gmailConfigured: boolean;
+    gmailUser?: string;
+    resendConfigured: boolean;
+    autoReplyEnabled: boolean;
+    adminNotificationRecipient: string;
+    activeProviders: string[];
+  };
+  network?: {
+    publicEndpoints: Array<{ name: string; path: string; status: string }>;
+    hostHeader: string;
+    protocol: string;
+  };
+  security?: {
+    helmetStrictHeaders: boolean;
+    adminSlugConfigured: boolean;
+    rateLimiterActive: boolean;
   };
   performance: {
     uptimeMinutes: number;
     memoryRssMb: number;
     memoryHeapUsedMb: number;
+    memoryHeapTotalMb?: number;
+    memoryExternalMb?: number;
   };
   freeBudgetNotice: string;
 }

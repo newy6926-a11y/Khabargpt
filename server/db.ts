@@ -154,6 +154,9 @@ export interface ContactMessage {
   replyMessage?: string;
   repliedAt?: string;
   repliedBy?: string;
+  emailDispatched?: boolean;
+  emailProvider?: string;
+  emailErrorNotice?: string;
 }
 
 export interface SocialAccountLink {
@@ -800,7 +803,7 @@ function generateInitialDatabase(): DatabaseSchema {
     settings: {
       siteTitle: 'Khabar GPT (खबर GPT)',
       siteSubtitle: 'नेपालका समसामयिक विषय र सार्वजनिक सरोकारका जानकारी',
-      introTextNp: 'खबर GPT नेपालका समसामयिक विषय, सार्वजनिक सरोकारका जानकारी र जटिल विषयलाई सरल भाषामा बुझाउने सूचना पृष्ठ हो। हाम्रो उद्देश्य तथ्यमा आधारित, उपयोगी र जिम्मेवार जानकारी प्रस्तुत गर्नु हो।',
+      introTextNp: 'खबर GPT नेपालका समसामयिक विषय, सार्वजनिक सरोकारका जानकारी र जटिल विषयलाई सरल भाषामा प्रस्तुत गर्ने स्वतन्त्र सूचना पृष्ठ हो। हाम्रो उद्देश्य तथ्यमा आधारित, उपयोगी र जिम्मेवार जानकारी प्रदान गर्नु हो।',
       facebookUrl: 'https://facebook.com/khabargpt',
       contactEmail: '',
       contactPhone: '',
@@ -822,10 +825,10 @@ function generateInitialDatabase(): DatabaseSchema {
       whatsappUrl: '',
       aboutMissionNp: 'खबर GPT को मूल उद्देश्य नेपाली इन्टरनेट प्रयोगकर्ताहरूलाई विश्वसनीय, सरल र तथ्यपरक डिजिटल सूचना तथा एक्सप्लेनर प्रदान गर्नु हो। सामाजिक सञ्जालमा फैलिने भ्रामक सूचना र हल्लाबाट बचाउँदै नागरिकलाई सचेत बनाउन हामी सक्रिय छौँ।',
       metaTitle: 'Khabar GPT (खबर GPT) – Nepal Current Affairs & Explainers',
-      metaDescription: 'नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण, भिडियो रिपोर्ट, सुनचाँदी, नेप्से तथा बजार सूचकांकको विश्वसनीय डिजिटल सूचना पोर्टल। खबर GPT आधिकारिक पेज।',
+      metaDescription: 'खबर GPT नेपालका समसामयिक विषय, सार्वजनिक सरोकारका जानकारी र जटिल विषयलाई सरल भाषामा प्रस्तुत गर्ने स्वतन्त्र सूचना पृष्ठ हो। हाम्रो उद्देश्य तथ्यमा आधारित, उपयोगी र जिम्मेवार जानकारी प्रदान गर्नु हो।',
       ogTitle: 'Khabar GPT (खबर GPT) – Nepal Current Affairs & Explainers',
-      ogDescription: 'नेपालका समसामयिक विषय, तथ्यपरक विश्लेषण, भिडियो रिपोर्ट, सुनचाँदी, नेप्से तथा बजार सूचकांकको विश्वसनीय डिजिटल सूचना पोर्टल। खबर GPT आधिकारिक पेज।',
-      ogImageUrl: '/logo.png',
+      ogDescription: 'खबर GPT नेपालका समसामयिक विषय, सार्वजनिक सरोकारका जानकारी र जटिल विषयलाई सरल भाषामा प्रस्तुत गर्ने स्वतन्त्र सूचना पृष्ठ हो। हाम्रो उद्देश्य तथ्यमा आधारित, उपयोगी र जिम्मेवार जानकारी प्रदान गर्नु हो।',
+      ogImageUrl: '/og-image.png',
       ogType: 'website',
       twitterCard: 'summary_large_image',
       canonicalUrl: 'https://khabargpt.onrender.com',
@@ -1689,7 +1692,10 @@ class Database {
     id: string,
     replySubject: string,
     replyMessage: string,
-    repliedBy: string
+    repliedBy: string,
+    emailDispatched?: boolean,
+    emailProvider?: string,
+    emailErrorNotice?: string
   ): ContactMessage | null {
     const msg = this.data.messages.find((m) => m.id === id);
     if (!msg) return null;
@@ -1699,6 +1705,9 @@ class Database {
     msg.replyMessage = replyMessage;
     msg.repliedAt = new Date().toISOString();
     msg.repliedBy = repliedBy;
+    msg.emailDispatched = !!emailDispatched;
+    if (emailProvider) msg.emailProvider = emailProvider;
+    if (emailErrorNotice) msg.emailErrorNotice = emailErrorNotice;
     this.save();
     return msg;
   }

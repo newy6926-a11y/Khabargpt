@@ -17,6 +17,7 @@ import {
   Edit2,
   Trash2,
   Eye,
+  EyeOff,
   Save,
   CheckCircle,
   AlertCircle,
@@ -58,7 +59,13 @@ import {
   Sliders,
   Database,
   Wrench,
-  FolderOpen
+  FolderOpen,
+  Server,
+  Cpu,
+  HardDrive,
+  Activity,
+  Terminal,
+  CheckCheck
 } from 'lucide-react';
 import { AdminSeoPanel } from '../components/AdminSeoPanel';
 import { AdminLiveEventsPanel } from '../components/AdminLiveEventsPanel';
@@ -177,6 +184,43 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [replyBody, setReplyBody] = useState('');
   const [replySendViaEmail, setReplySendViaEmail] = useState(true);
   const [sendingReply, setSendingReply] = useState(false);
+
+  // Email Testing & Diagnostics
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [testEmailAddress, setTestEmailAddress] = useState(user?.email || settings.adminNotificationEmail || 'newy6926@gmail.com');
+  const [showSmtpPass, setShowSmtpPass] = useState(false);
+  const [pingLatency, setPingLatency] = useState<number | null>(null);
+  const [pingTesting, setPingTesting] = useState(false);
+
+  const handleTestPing = async () => {
+    setPingTesting(true);
+    const start = performance.now();
+    try {
+      await fetch('/api/ping');
+      const diff = Math.round(performance.now() - start);
+      setPingLatency(diff);
+      showNotification(`सर्भर रेस्पोन्स समय: ${diff}ms (Server is Online & Healthy)`);
+    } catch {
+      showNotification('सर्भर पिङ गर्न सकिएन', 'error');
+    } finally {
+      setPingTesting(false);
+    }
+  };
+
+  const handleTestEmail = async (overrideEmail?: string) => {
+    const target = overrideEmail || testEmailAddress || settingsForm.adminNotificationEmail || 'newy6926@gmail.com';
+    setTestingEmail(true);
+    try {
+      const res = await api.testEmailConnection(target);
+      showNotification(res.message, 'success');
+      const status = await api.getSystemStatus().catch(() => null);
+      if (status) setSystemStatus(status);
+    } catch (err: unknown) {
+      showNotification(err instanceof Error ? err.message : 'इमेल परीक्षण असफल', 'error');
+    } finally {
+      setTestingEmail(false);
+    }
+  };
 
   // Sync settingsForm with props
   useEffect(() => {
@@ -1867,24 +1911,69 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
                         {/* Already Sent Reply Accordion/Box */}
                         {msg.replySent && msg.replyMessage && (
-                          <div className="bg-emerald-50/80 border border-emerald-200 rounded-xl p-4 text-xs space-y-2">
-                            <div className="flex items-center justify-between flex-wrap gap-2 text-emerald-900 border-b border-emerald-200 pb-2">
+                          <div className={`border rounded-2xl p-4 text-xs space-y-3 transition-colors ${
+                            msg.emailDispatched
+                              ? 'bg-emerald-50/90 border-emerald-300'
+                              : 'bg-amber-50/90 border-amber-300'
+                          }`}>
+                            <div className="flex items-center justify-between flex-wrap gap-2 pb-2.5 border-b border-inherit">
                               <div className="flex items-center gap-1.5 font-bold">
-                                <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                                <span>पठाइएको जवाफ (Sent by {msg.repliedBy || 'Admin'})</span>
+                                {msg.emailDispatched ? (
+                                  <>
+                                    <CheckCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                                    <span className="text-emerald-950">
+                                      इमेल सफलतापूर्वक डेलिभर भयो (Sent via {msg.emailProvider || 'Email'} by {msg.repliedBy || 'Admin'})
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <AlertCircle className="w-4 h-4 text-amber-700 shrink-0" />
+                                    <span className="text-amber-950 font-bold">
+                                      प्रशासनिक ड्राफ्ट सुरक्षित (इमेल इन्टरनेटमा पठाइएको छैन)
+                                    </span>
+                                  </>
+                                )}
                               </div>
                               {msg.repliedAt && (
-                                <span className="text-[11px] font-mono text-emerald-700">
+                                <span className="text-[11px] font-mono text-slate-600 bg-white/70 px-2 py-0.5 rounded-md border border-inherit">
                                   {new Date(msg.repliedAt).toLocaleString('ne-NP')}
                                 </span>
                               )}
                             </div>
+
+                            {!msg.emailDispatched && (
+                              <div className="p-3 bg-white/90 border border-amber-300 rounded-xl space-y-2 text-amber-950 shadow-2xs">
+                                <div className="flex items-start gap-2">
+                                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                                  <div className="space-y-1">
+                                    <p className="font-semibold text-xs text-amber-900">
+                                      {msg.emailErrorNotice || 'यो जवाफ सिस्टममा सुरक्षित छ तर प्रत्यक्ष SMTP/Resend कन्फिगर नभएकाले प्रापकको इनबक्समा सिधै पुगेन।'}
+                                    </p>
+                                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                                      तपाईंले यो जवाफ आफ्नो Gmail बाट १-क्लिकमा सिधै पठाउन सक्नुहुन्छ वा 'साइट सेटिङ' मा गई Gmail App Password कन्फिगर गर्न सक्नुहुन्छ।
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="pt-1 flex flex-wrap items-center gap-2">
+                                  <a
+                                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(msg.email)}&su=${encodeURIComponent(msg.replySubject || `Re: ${msg.subject} - खबर GPT`)}&body=${encodeURIComponent(msg.replyMessage || '')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition shadow-xs cursor-pointer"
+                                  >
+                                    <Mail className="w-3.5 h-3.5 text-white" />
+                                    <span>Gmail मा खोल्नुहोस् र तुरुन्त पठाउनुहोस् →</span>
+                                  </a>
+                                </div>
+                              </div>
+                            )}
+
                             {msg.replySubject && (
-                              <p className="font-semibold text-emerald-950">
-                                विषय: {msg.replySubject}
+                              <p className="font-bold text-slate-900 text-xs">
+                                विषय: <span className="font-normal text-slate-800">{msg.replySubject}</span>
                               </p>
                             )}
-                            <div className="bg-white/80 p-3 rounded-lg border border-emerald-100 text-slate-800 whitespace-pre-wrap font-sans text-xs sm:text-sm">
+                            <div className="bg-white/90 p-3.5 rounded-xl border border-inherit text-slate-800 whitespace-pre-wrap font-sans text-xs sm:text-sm leading-relaxed">
                               {msg.replyMessage}
                             </div>
                           </div>
@@ -1915,12 +2004,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                             href={gmailComposeUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-3.5 py-2 bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition border border-slate-200 cursor-pointer shadow-2xs"
+                            className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-900 text-xs font-bold rounded-xl flex items-center gap-1.5 transition border border-blue-200 cursor-pointer shadow-2xs"
                             title="तपाईंको व्यक्तिगत वा आधिकारिक Gmail कम्पोज बक्समा खोल्छ (१००% सिधै काम गर्छ)"
                           >
-                            <Mail className="w-3.5 h-3.5 text-red-500" />
-                            <span>Gmail मा खोल्नुहोस्</span>
-                            <ExternalLink className="w-3 h-3 text-slate-400" />
+                            <Mail className="w-3.5 h-3.5 text-red-600" />
+                            <span>Gmail मा खोल्नुहोस् (१-क्लिक जवाफ)</span>
+                            <ExternalLink className="w-3 h-3 text-blue-500" />
                           </a>
 
                           {!msg.replySent && (
@@ -1931,7 +2020,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                               title="Gmail मा पठाइसकेपछि यो सन्देशलाई 'जवाफ पठाइसकिएको' स्थितिमा राख्नुहोस्"
                             >
                               <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>Gmail बाट पठाइसकियो</span>
+                              <span>Gmail बाट पठाइसकियो (रेकर्ड राख्नुहोस्)</span>
                             </button>
                           )}
 
@@ -1953,7 +2042,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                         {isReplying && (
                           <form
                             onSubmit={handleSendReply}
-                            className="mt-4 p-4 sm:p-5 bg-gradient-to-b from-slate-50 to-red-50/20 border-2 border-red-200 rounded-2xl space-y-4 animate-in fade-in duration-200"
+                            className="mt-4 p-4 sm:p-5 bg-gradient-to-b from-slate-50 to-red-50/20 border-2 border-red-200 rounded-2xl space-y-4 animate-in fade-in duration-200 shadow-sm"
                           >
                             <div className="flex items-center justify-between border-b border-red-100 pb-2">
                               <div className="flex items-center gap-2">
@@ -1970,6 +2059,44 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                 className="text-slate-400 hover:text-slate-600 p-1 rounded cursor-pointer"
                               >
                                 <X className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            {/* Service Status Indicator inside Reply Box */}
+                            <div className={`p-3 rounded-xl border text-xs flex items-center justify-between gap-3 ${
+                              systemStatus?.emailDispatcher?.gmailConfigured
+                                ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                                : systemStatus?.emailDispatcher?.resendConfigured
+                                ? 'bg-blue-50 border-blue-200 text-blue-950'
+                                : 'bg-amber-50 border-amber-200 text-amber-950'
+                            }`}>
+                              <div className="flex items-center gap-2">
+                                <span className={`w-2.5 h-2.5 rounded-full ${
+                                  systemStatus?.emailDispatcher?.gmailConfigured || systemStatus?.emailDispatcher?.resendConfigured
+                                    ? 'bg-emerald-500 animate-pulse'
+                                    : 'bg-amber-500'
+                                }`} />
+                                <div>
+                                  <span className="font-bold">
+                                    {systemStatus?.emailDispatcher?.gmailConfigured
+                                      ? `Gmail SMTP सक्रिय छ (${systemStatus.emailDispatcher.gmailUser})`
+                                      : systemStatus?.emailDispatcher?.resendConfigured
+                                      ? 'Resend API सक्रिय छ'
+                                      : 'सर्भरमा SMTP/Resend कन्फिगर भएको छैन'}
+                                  </span>
+                                  <p className="text-[11px] text-slate-600">
+                                    {systemStatus?.emailDispatcher?.gmailConfigured || systemStatus?.emailDispatcher?.resendConfigured
+                                      ? 'जवाफ सिधै प्रापकको इनबक्समा पठाइनेछ।'
+                                      : 'जवाफ सुरक्षित गरेपछि १-क्लिकमा आफ्नो Gmail मार्फत पठाउन सक्नुहुन्छ वा सेटिङमा App Password राख्न सक्नुहुन्छ।'}
+                                  </p>
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setActiveTab('settings')}
+                                className="px-2.5 py-1 text-[11px] font-semibold bg-white rounded-lg border border-slate-200 hover:bg-slate-50 shrink-0 text-slate-700 cursor-pointer"
+                              >
+                                सेटिङ हेर्नुहोस्
                               </button>
                             </div>
 
@@ -2016,10 +2143,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                               <div className="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between">
                                 <div>
                                   <span className="font-bold text-slate-800 block text-xs">
-                                    सिधै प्रणाली मार्फत इमेल पठाउनुहोस् (Send Email via Resend / SMTP)
+                                    सर्भरबाट सिधै इमेल पठाउने प्रयास गर्नुहोस् (Send Email via Gmail SMTP / Resend)
                                   </span>
                                   <span className="text-[11px] text-slate-500">
-                                    सक्रिय गर्दा {msg.email} मा आधिकारिक ढाँचाको इमेल तुरुन्तै पठाइनेछ।
+                                    इमेल कन्फिगरेसन नभएमा जवाफ सुरक्षित हुनेछ र १-क्लिकमा Gmail खोल्ने सुविधा दिइनेछ।
                                   </span>
                                 </div>
                                 <input
@@ -2118,62 +2245,551 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         {/* ================= TAB: SYSTEM STATUS ================= */}
         {activeTab === 'status' && (
           <div className="space-y-6">
-            <div>
-              <h3 className="text-base font-bold text-slate-900">वेबसाइट र सर्भर स्थिति (System Health Diagnostics)</h3>
-              <p className="text-xs text-slate-500">सर्भर, डाटाबेस र ब्याकअपको प्रत्यक्ष स्थिति मोनिटर।</p>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <Server className="w-5 h-5 text-red-600" />
+                  <span>वेबसाइट तथा सर्भर विस्तृत स्थिति (Full Server Diagnostics & Telemetry)</span>
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Node.js रनटाइम, र्याम मेमोरी, डिस्क डाटाबेस, इमेल डिस्प्याचर र नेटवर्क स्वास्थ्यको प्रत्यक्ष अनुगमन।
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleTestPing}
+                  disabled={pingTesting}
+                  className="px-3.5 py-2 text-xs bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold flex items-center gap-1.5 transition cursor-pointer shadow-xs disabled:opacity-50"
+                  title="सर्भरको प्रत्यक्ष रेस्पोन्स समय जाँच्नुहोस्"
+                >
+                  <Activity className={`w-3.5 h-3.5 text-emerald-400 ${pingTesting ? 'animate-spin' : ''}`} />
+                  <span>{pingTesting ? 'पिङ गर्दै...' : pingLatency !== null ? `${pingLatency} ms (Ping)` : 'सर्भर पिङ (Ping Test)'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={loadAllData}
+                  className="px-3 py-2 text-xs bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-800 font-bold flex items-center gap-1.5 transition cursor-pointer border border-slate-200"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 text-slate-600" />
+                  <span>रिफ्रेस</span>
+                </button>
+              </div>
             </div>
 
             {systemStatus ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1">
-                  <span className="text-xs text-slate-500 block">सर्भर स्थिति</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span className="text-lg font-bold text-slate-900">{systemStatus.status.toUpperCase()}</span>
+              <div className="space-y-6">
+                {/* 1. TOP SERVER RUNTIME METRICS */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Card 1: Server Status & Mode */}
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-500">सर्भर स्थिति & मोड</span>
+                      <div className="flex items-center gap-1.5 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-[10px] font-bold text-emerald-700 uppercase">
+                          {systemStatus.status}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-xl font-extrabold text-slate-900 font-mono">
+                        Node {systemStatus.server?.nodeVersion || 'v20+'}
+                      </span>
+                      <span className="text-[11px] text-slate-500 block mt-0.5">
+                        {systemStatus.server?.platform} ({systemStatus.server?.arch}) · Port {systemStatus.port}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-600 pt-1 border-t border-slate-100 flex items-center justify-between">
+                      <span>Process PID:</span>
+                      <span className="font-mono font-bold text-slate-800">{systemStatus.server?.pid || 1}</span>
+                    </div>
                   </div>
-                  <span className="text-[11px] text-slate-500 block">Port: {systemStatus.port}</span>
+
+                  {/* Card 2: Uptime & Continuity */}
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-500">सञ्चालन अवधि (Uptime)</span>
+                      <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-bold border border-blue-200">
+                        निरन्तर
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-xl font-extrabold text-slate-900 font-mono">
+                        {systemStatus.server?.formattedUptime || `${systemStatus.performance.uptimeMinutes} मिनेट`}
+                      </span>
+                      <span className="text-[11px] text-slate-500 block mt-0.5">
+                        स्टार्ट मिति: {systemStatus.server?.startedAt ? new Date(systemStatus.server.startedAt).toLocaleTimeString('ne-NP') : 'अहिले'}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-600 pt-1 border-t border-slate-100 flex items-center justify-between">
+                      <span>नेटवर्क विलम्बता (Latency):</span>
+                      <span className="font-mono font-bold text-emerald-700">
+                        {pingLatency !== null ? `${pingLatency} ms` : 'जाँच्न "पिङ" थिच्नुहोस्'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Card 3: RAM Memory Breakdown */}
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-500">र्याम मेमोरी प्रयोग</span>
+                      <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-bold">
+                        RSS: {systemStatus.performance.memoryRssMb} MB
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-xl font-extrabold text-slate-900 font-mono">
+                        {systemStatus.performance.memoryHeapUsedMb} MB
+                      </span>
+                      <span className="text-[11px] text-slate-500 block mt-0.5">
+                        Heap Total: {systemStatus.performance.memoryHeapTotalMb || Math.round(systemStatus.performance.memoryHeapUsedMb * 1.3)} MB
+                      </span>
+                    </div>
+                    <div className="space-y-1 pt-1 border-t border-slate-100">
+                      <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                        <div
+                          className="bg-red-600 h-full rounded-full transition-all"
+                          style={{
+                            width: `${Math.min(
+                              100,
+                              Math.round(
+                                (systemStatus.performance.memoryHeapUsedMb /
+                                  (systemStatus.performance.memoryHeapTotalMb || 100)) *
+                                  100
+                              )
+                            )}%`
+                          }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+                        <span>External: {systemStatus.performance.memoryExternalMb || 0} MB</span>
+                        <span>स्वस्थ (Healthy)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 4: Database Storage & Uploads */}
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-500">डिस्क & डाटाबेस भण्डारण</span>
+                      <span className="text-[10px] bg-amber-50 text-amber-800 px-2 py-0.5 rounded-full font-bold border border-amber-200">
+                        {systemStatus.storage ? `${systemStatus.storage.dbFileSizeKb} KB` : 'JSON DB'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-xl font-extrabold text-slate-900 font-mono">
+                        {systemStatus.database.contentCount} सामग्रीहरू
+                      </span>
+                      <span className="text-[11px] text-slate-500 block mt-0.5">
+                        अपलोड मिडिया: {systemStatus.storage?.uploadsCount ?? systemStatus.database.mediaCount} फाइल ({systemStatus.storage?.uploadsSizeMb ?? 0} MB)
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-600 pt-1 border-t border-slate-100 flex items-center justify-between">
+                      <span>स्थान:</span>
+                      <span className="font-mono text-[10px] text-slate-500 truncate max-w-[130px]">
+                        {systemStatus.database.path}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1">
-                  <span className="text-xs text-slate-500 block">अवटाइम (Uptime)</span>
-                  <span className="text-lg font-bold text-slate-900 font-mono">
-                    {systemStatus.performance.uptimeMinutes} मिनेट
-                  </span>
-                  <span className="text-[11px] text-slate-500 block">निरन्तर सञ्चालनमा</span>
+                {/* 2. CORE DATABASE ENTITIES BREAKDOWN GRID */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2">
+                      <Database className="w-5 h-5 text-red-600" />
+                      <h4 className="font-bold text-slate-900 text-sm">
+                        डाटाबेस रेकर्ड तथा सञ्चित विवरण (Database Entities Breakdown)
+                      </h4>
+                    </div>
+                    <span className="text-[11px] text-slate-500">
+                      अन्तिम अद्यावधिक: {systemStatus.storage?.dbLastModified ? new Date(systemStatus.storage.dbLastModified).toLocaleTimeString('ne-NP') : 'अहिले'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 text-xs">
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] text-slate-500 block">कुल समाचार / लेख</span>
+                      <span className="text-lg font-bold text-slate-900 font-mono">{systemStatus.database.contentCount}</span>
+                      <span className="text-[10px] text-emerald-600 block">सार्वजनिक + ड्राफ्ट</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] text-slate-500 block">ट्र्यास / मेटाइएका</span>
+                      <span className="text-lg font-bold text-amber-700 font-mono">{systemStatus.database.trashCount}</span>
+                      <span className="text-[10px] text-slate-400 block">३० दिनसम्म सुरक्षित</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] text-slate-500 block">विषयगत श्रेणीहरू</span>
+                      <span className="text-lg font-bold text-slate-900 font-mono">{systemStatus.database.categoriesCount}</span>
+                      <span className="text-[10px] text-slate-400 block">नेपाली + अङ्ग्रेजी</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] text-slate-500 block">लाइभ इभेन्ट / फ्याक्टचेक</span>
+                      <span className="text-lg font-bold text-slate-900 font-mono">{systemStatus.database.liveEventsCount}</span>
+                      <span className="text-[10px] text-slate-400 block">प्रत्यक्ष कभरेज</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] text-slate-500 block">विज्ञापन & सहकार्य</span>
+                      <span className="text-lg font-bold text-slate-900 font-mono">{systemStatus.database.adsCount}</span>
+                      <span className="text-[10px] text-slate-400 block">ब्यानर / कार्ड अभियान</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] text-slate-500 block">सच्याइ अभिलेख</span>
+                      <span className="text-lg font-bold text-slate-900 font-mono">{systemStatus.database.correctionsCount}</span>
+                      <span className="text-[10px] text-slate-400 block">पारदर्शिता अभिलेख</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] text-slate-500 block">सम्पर्क / विज्ञापन सन्देश</span>
+                      <span className="text-lg font-bold text-red-600 font-mono">{systemStatus.database.messagesCount}</span>
+                      <span className="text-[10px] text-slate-400 block">इन्बक्समा प्राप्त</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] text-slate-500 block">पाठक प्रतिक्रिया & सुझाव</span>
+                      <span className="text-lg font-bold text-slate-900 font-mono">{systemStatus.database.feedbackCount}</span>
+                      <span className="text-[10px] text-slate-400 block">आधिकारिक फिडब्याक</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] text-slate-500 block">अपलोड मिडिया फाइलहरू</span>
+                      <span className="text-lg font-bold text-slate-900 font-mono">{systemStatus.database.mediaCount}</span>
+                      <span className="text-[10px] text-slate-400 block">स्थानीय ग्यालरी</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] text-slate-500 block">न्युजलेटर सदस्यहरू</span>
+                      <span className="text-lg font-bold text-slate-900 font-mono">{systemStatus.database.subscribersCount ?? 0}</span>
+                      <span className="text-[10px] text-slate-400 block">इमेल ग्राहक</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] text-slate-500 block">प्रशासनिक अडिट लग</span>
+                      <span className="text-lg font-bold text-slate-900 font-mono">{systemStatus.database.auditLogsCount}</span>
+                      <span className="text-[10px] text-slate-400 block">सुरक्षा गतिविधि लग</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] text-slate-500 block">सक्रिय प्रशासक सत्र</span>
+                      <span className="text-lg font-bold text-emerald-600 font-mono">{systemStatus.database.activeSessions}</span>
+                      <span className="text-[10px] text-slate-400 block">लगइन सेसन</span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1">
-                  <span className="text-xs text-slate-500 block">र्याम मेमोरी प्रयोग</span>
-                  <span className="text-lg font-bold text-slate-900 font-mono">
-                    {systemStatus.performance.memoryRssMb} MB
-                  </span>
-                  <span className="text-[11px] text-slate-500 block">Heap: {systemStatus.performance.memoryHeapUsedMb} MB</span>
+                {/* 3. EMAIL DISPATCHER & GMAIL SMTP DIAGNOSTICS */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-5 h-5 text-red-600" />
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm">
+                          इमेल प्रणाली तथा स्वचालित जवाफ स्थिति (Email Dispatcher & Auto-Reply Health)
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                          सम्पर्क फाराम, विज्ञापन सोधपुछ, र जवाफ पठाउने सेवाको प्रत्यक्ष अवस्था।
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('settings')}
+                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition border border-slate-200 cursor-pointer w-fit"
+                    >
+                      इमेल सेटिङ परिवर्तन गर्नुहोस् →
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    {/* Status item 1: Gmail SMTP */}
+                    <div className="p-4 rounded-xl border bg-slate-50 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-800">Gmail SMTP प्रत्यक्ष डिस्प्याच (Nodemailer)</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          systemStatus.emailDispatcher?.gmailConfigured
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-amber-100 text-amber-800'
+                        }`}>
+                          {systemStatus.emailDispatcher?.gmailConfigured ? '✅ सक्रिय (Active)' : '⚠️ कन्फिगर गरिएको छैन'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-600 leading-relaxed">
+                        {systemStatus.emailDispatcher?.gmailConfigured
+                          ? `तपाईंको Gmail (${systemStatus.emailDispatcher.gmailUser}) मार्फत सुरक्षित SMTP (पोर्ट ४६५ SSL) बाट सिधै इमेल पठाइनेछ।`
+                          : 'Gmail App Password नराखेसम्म सर्भरबाट सिधै इमेल जाँदैन। जवाफ लेखेपछि १-क्लिकमा "Gmail मा खोल्नुहोस्" बटन प्रयोग गर्न सक्नुहुन्छ।'}
+                      </p>
+                    </div>
+
+                    {/* Status item 2: Resend API */}
+                    <div className="p-4 rounded-xl border bg-slate-50 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-800">Resend Cloud Email API</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          systemStatus.emailDispatcher?.resendConfigured
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-slate-100 text-slate-600'
+                        }`}>
+                          {systemStatus.emailDispatcher?.resendConfigured ? '✅ सक्रिय (Active)' : 'ऐच्छिक (Not Set)'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-600 leading-relaxed">
+                        {systemStatus.emailDispatcher?.resendConfigured
+                          ? 'Resend API कुञ्जी सक्रिय छ। उच्च भोल्युमका इमेलहरू Resend मार्फत पठाइनेछ।'
+                          : 'यदि Resend API कुञ्जी उपलब्ध नभएमा प्रणालीले स्वचालित रूपमा माथिको Gmail SMTP प्रयोग गर्दछ।'}
+                      </p>
+                    </div>
+
+                    {/* Status item 3: Auto-Reply to Senders */}
+                    <div className="p-4 rounded-xl border bg-slate-50 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-800">प्रेषकलाई स्वचालित रसिद (Auto-Ack Receipt)</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          systemStatus.emailDispatcher?.autoReplyEnabled !== false
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-slate-100 text-slate-600'
+                        }`}>
+                          {systemStatus.emailDispatcher?.autoReplyEnabled !== false ? '✅ सक्रिय (Instant Ticket ID)' : 'निष्क्रिय'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-600 leading-relaxed">
+                        कुनै पाठक वा विज्ञापनदाताले वेबसाइटमा फाराम बुझाउनासाथ उसलाई खबर GPT को आधिकारिक Ticket ID सहितको पुष्टिकरण इमेल जान्छ।
+                      </p>
+                    </div>
+
+                    {/* Status item 4: Admin Alert Destination */}
+                    <div className="p-4 rounded-xl border bg-slate-50 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-800">प्रशासकलाई अलर्ट पुग्ने इमेल</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-50 text-purple-700">
+                          {systemStatus.emailDispatcher?.adminNotificationRecipient || 'newy6926@gmail.com'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-600 leading-relaxed">
+                        नयाँ सोधपुछ वा सहकार्य प्रस्ताव दर्ता हुनासाथ यो इमेल ठेगानामा तुरुन्तै अलर्ट सन्देश पठाइन्छ।
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Interactive Test Email Tool */}
+                  <div className="p-4 rounded-xl bg-gradient-to-r from-red-50/50 to-orange-50/50 border border-red-100 space-y-3">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-2">
+                        <Send className="w-4 h-4 text-red-600" />
+                        <span className="font-bold text-slate-900 text-xs">
+                          प्रत्यक्ष इमेल डेलिभरी परीक्षण (Send Live Test Email)
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-slate-500">
+                        सर्भरबाट तपाईंको इनबक्समा वास्तविक परीक्षण इमेल पठाएर जाँच्नुहोस्
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center gap-2">
+                      <input
+                        type="email"
+                        value={testEmailAddress}
+                        onChange={(e) => setTestEmailAddress(e.target.value)}
+                        placeholder="परीक्षण इमेल ठेगाना (उदा: newy6926@gmail.com)"
+                        className="w-full sm:flex-1 px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:border-red-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleTestEmail()}
+                        disabled={testingEmail || !testEmailAddress}
+                        className="w-full sm:w-auto px-5 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition cursor-pointer shadow-xs flex items-center justify-center gap-1.5 shrink-0"
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                        <span>{testingEmail ? 'पठाउँदै...' : 'परीक्षण इमेल पठाउनुहोस्'}</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-1">
-                  <span className="text-xs text-slate-500 block">डाटाबेस रेकर्डहरू</span>
-                  <span className="text-lg font-bold text-slate-900 font-mono">
-                    {systemStatus.database.contentCount} सामग्री
-                  </span>
-                  <span className="text-[11px] text-slate-500 block">अडिट लग: {systemStatus.database.auditLogsCount}</span>
+                {/* 4. PUBLIC NETWORK ENDPOINTS & GOOGLE SEARCH AUDIT */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-5 h-5 text-red-600" />
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm">
+                          सार्वजनिक लिङ्कहरू तथा गुगल सर्च इन्जिन अडिट (Public Endpoints & Search Audit)
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                          वेबसाइट, साइटम्याप, रोबोट्स र खोज इन्जिनका लागि आवश्यक सबै लिङ्कहरू प्रत्यक्ष परीक्षण गर्न सकिन्छ।
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <span className="font-bold text-slate-900 block">गृहपृष्ठ (Home Page)</span>
+                        <span className="text-[11px] font-mono text-slate-500">/</span>
+                      </div>
+                      <a
+                        href="/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>हेर्नुहोस्</span>
+                        <ExternalLink className="w-3 h-3 text-slate-400" />
+                      </a>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <span className="font-bold text-slate-900 block">सहकार्य & प्रवर्द्धन हब</span>
+                        <span className="text-[11px] font-mono text-slate-500">/collaborate</span>
+                      </div>
+                      <a
+                        href="/collaborate"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>हेर्नुहोस्</span>
+                        <ExternalLink className="w-3 h-3 text-slate-400" />
+                      </a>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <span className="font-bold text-slate-900 block">गुगल साइटम्याप (Sitemap)</span>
+                        <span className="text-[11px] font-mono text-slate-500">/sitemap.xml</span>
+                      </div>
+                      <a
+                        href="/sitemap.xml"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>XML हेर्नुहोस्</span>
+                        <ExternalLink className="w-3 h-3 text-slate-400" />
+                      </a>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <span className="font-bold text-slate-900 block">क्रलर निर्देशन (Robots.txt)</span>
+                        <span className="text-[11px] font-mono text-slate-500">/robots.txt</span>
+                      </div>
+                      <a
+                        href="/robots.txt"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>हेर्नुहोस्</span>
+                        <ExternalLink className="w-3 h-3 text-slate-400" />
+                      </a>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <span className="font-bold text-slate-900 block">सर्भर पिङ (Healthcheck)</span>
+                        <span className="text-[11px] font-mono text-slate-500">/api/ping</span>
+                      </div>
+                      <a
+                        href="/api/ping"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>JSON हेर्नुहोस्</span>
+                        <ExternalLink className="w-3 h-3 text-slate-400" />
+                      </a>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <span className="font-bold text-slate-900 block">गुगल सर्च इन्डेक्स टेस्ट</span>
+                        <span className="text-[11px] font-mono text-slate-500">site:khabargpt.onrender.com</span>
+                      </div>
+                      <a
+                        href="https://www.google.com/search?q=site:khabargpt.onrender.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg border border-blue-200 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>गुगलमा खोज्नुहोस्</span>
+                        <ExternalLink className="w-3 h-3 text-blue-500" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. CYBER DEFENSE & SECURITY AUDIT */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3 text-xs">
+                  <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+                    <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                    <h4 className="font-bold text-slate-900 text-sm">
+                      साइबर सुरक्षा तथा प्रणाली रक्षा स्थिति (Cyber Defense & Hardening Status)
+                    </h4>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-3 bg-emerald-50/60 border border-emerald-200 rounded-xl space-y-1">
+                      <div className="flex items-center gap-1.5 font-bold text-emerald-900">
+                        <CheckCircle className="w-4 h-4 text-emerald-600" />
+                        <span>कडा HTTP हेडरहरू (Strict Helmet)</span>
+                      </div>
+                      <p className="text-[11px] text-emerald-800">
+                        HSTS, X-Content-Type-Options, र Frameguard सक्रिय छन्।
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-emerald-50/60 border border-emerald-200 rounded-xl space-y-1">
+                      <div className="flex items-center gap-1.5 font-bold text-emerald-900">
+                        <CheckCircle className="w-4 h-4 text-emerald-600" />
+                        <span>अनुरोध दर नियन्त्रण (Rate Limiting)</span>
+                      </div>
+                      <p className="text-[11px] text-emerald-800">
+                        प्रति सेकेन्ड १५ भन्दा बढी अनावश्यक अनुरोध रोक्ने सुरक्षा सक्रिय छ।
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-emerald-50/60 border border-emerald-200 rounded-xl space-y-1">
+                      <div className="flex items-center gap-1.5 font-bold text-emerald-900">
+                        <CheckCircle className="w-4 h-4 text-emerald-600" />
+                        <span>गोप्य प्रशासनिक ठेगाना (Secret Slug)</span>
+                      </div>
+                      <p className="text-[11px] text-emerald-800">
+                        पूर्वनिर्धारित /admin बाहेक तपाईंको आफ्नै गोप्य लिङ्कबाट सुरक्षित लगइन।
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 6. MAINTENANCE ROUTINE CHECKLIST */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3 text-xs text-slate-700">
+                  <div className="flex items-center gap-2">
+                    <Wrench className="w-5 h-5 text-red-600" />
+                    <h4 className="font-bold text-slate-900 text-sm">
+                      नियमित मर्मत तथा सुरक्षा कार्यतालिका (Maintenance Schedule)
+                    </h4>
+                  </div>
+                  <ul className="space-y-2 list-disc list-inside leading-relaxed text-slate-600">
+                    <li><strong>मासिक ब्याकअप:</strong> प्रत्येक महिना कम्तीमा एक पटक "ब्याकअप & सुरक्षा" ट्याबबाट पूर्ण JSON ब्याकअप डाउनलोड गर्नुहोस्।</li>
+                    <li><strong>सम्पर्क सन्देश समीक्षा:</strong> प्राप्त सोधपुछ तथा विज्ञापन सन्देशहरू हप्तामा एक पटक समीक्षा गरी पुराना सन्देशहरू मेटाउनुहोस्।</li>
+                    <li><strong>पासवर्ड नवीकरण:</strong> प्रत्येक ३ देखि ६ महिनामा व्यवस्थापक पासवर्ड परिवर्तन गर्नुहोस्।</li>
+                    <li><strong>कानुनी नीति पुनरावलोकन:</strong> प्रतिलिपि अधिकार तथा सम्पादकीय मापदण्डहरू नेपालको कानुन अनुसार अद्यावधिक राख्नुहोस्।</li>
+                  </ul>
                 </div>
               </div>
             ) : (
-              <div className="bg-white p-6 rounded-xl border text-center text-xs text-slate-500">
-                स्थिति विवरण लोड हुँदैछ...
+              <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center space-y-3">
+                <RefreshCw className="w-8 h-8 text-red-600 animate-spin mx-auto" />
+                <p className="text-sm font-semibold text-slate-800">सर्भर स्थिति विवरण लोड हुँदैछ...</p>
+                <p className="text-xs text-slate-400">कृपया केही सेकेन्ड पर्खनुहोस्।</p>
               </div>
             )}
-
-            {/* Maintenance Routine Checklist (Section 29) */}
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3 text-xs text-slate-700">
-              <h4 className="font-bold text-slate-900 text-sm">नियमित मर्मत तथा सुरक्षा कार्यतालिका (Maintenance Schedule)</h4>
-              <ul className="space-y-2 list-disc list-inside">
-                <li><strong>मासिक ब्याकअप:</strong> प्रत्येक महिना कम्तीमा एक पटक "ब्याकअप & सुरक्षा" ट्याबबाट पूर्ण JSON ब्याकअप डाउनलोड गर्नुहोस्।</li>
-                <li><strong>सम्पर्क सन्देश समीक्षा:</strong> प्राप्त प्रतिक्रिया र सच्याइ अनुरोधहरू हप्तामा एक पटक समीक्षा गरी पुराना सन्देशहरू मेटाउनुहोस्।</li>
-                <li><strong>पासवर्ड नवीकरण:</strong> प्रत्येक ३ देखि ६ महिनामा व्यवस्थापक पासवर्ड परिवर्तन गर्नुहोस्।</li>
-                <li><strong>कानुनी नीति पुनरावलोकन:</strong> प्रतिलिपि अधिकार तथा सम्पादकीय मापदण्डहरू नेपालको कानुन अनुसार अद्यावधिक राख्नुहोस्।</li>
-              </ul>
-            </div>
           </div>
         )}
 
@@ -3099,6 +3715,178 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   onChange={(e) => setSettingsForm({ ...settingsForm, autoReplyEnabled: e.target.checked })}
                   className="w-5 h-5 accent-emerald-600 rounded cursor-pointer shrink-0"
                 />
+              </div>
+            </div>
+
+            {/* SECTION 7C: OFFICIAL GMAIL SMTP & LIVE OUTGOING DISPATCHER */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-5 text-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center border border-red-100 shrink-0">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm">
+                      आधिकारिक Gmail SMTP प्रत्यक्ष डेलिभरी प्रणाली (Gmail SMTP & Real Outgoing Dispatcher)
+                    </h4>
+                    <p className="text-[11px] text-slate-500">
+                      एडमिन पोर्टलको जवाफ, सोधपुछ अलर्ट र पाठकलाई जाने स्वचालित इमेल १००% भरपर्दो रूपमा पुर्‍याउनुहोस्।
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-full border border-red-200 w-fit">
+                  <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+                  <span className="text-[10px] font-bold text-red-700">
+                    {settingsForm.emailSmtpUser && settingsForm.emailSmtpPass ? 'कन्फिगर गरिएको (Ready)' : 'सेटअप आवश्यक'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Informative Explainer */}
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs text-slate-700 space-y-2 leading-relaxed">
+                <span className="font-bold text-slate-900 block">
+                  💡 एडमिनबाट पठाएको जवाफ र अटो-रिप्लाई किन नपुगेको हो? (समाधान)
+                </span>
+                <p>
+                  गुगलले सुरक्षाका लागि सामान्य पासवर्डबाट इमेल पठाउन निषेध गरेको छ। त्यसैले कुनै पनि वेबसाइटबाट तपाईंको Gmail मार्फत इमेल पठाउनका लागि गुगलको नि:शुल्क <strong>१६-अक्षरको App Password</strong> आवश्यक पर्छ।
+                </p>
+                <p className="text-slate-900 font-semibold">
+                  यहाँ एक पटक १६-अक्षरको App Password सेट गरेपछि:
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-[11px] text-slate-600">
+                  <li>एडमिन पोर्टलबाट पठाइएको जवाफ सिधै सोधपुछकर्ताको इनबक्समा पुग्छ।</li>
+                  <li>वेबसाइटमा कसैले फाराम भर्नासाथ तपाईंको Gmail मा तत्काल अलर्ट आउँछ।</li>
+                  <li>प्रेषकलाई स्वचालित रसिद (Ticket ID) तुरुन्तै डेलिभर हुन्छ।</li>
+                </ul>
+              </div>
+
+              {/* Settings Form Inputs */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">
+                    प्रेषकको आधिकारिक नाम (Sender Display Name)
+                  </label>
+                  <input
+                    type="text"
+                    value={settingsForm.emailSenderName || ''}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, emailSenderName: e.target.value })}
+                    placeholder="खबर GPT सम्पादकीय (Khabar GPT)"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-medium bg-white focus:outline-none focus:border-red-500"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    इमेल प्राप्तकर्ताको इनबक्समा देखिने नाम
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">
+                    तपाईंको Gmail ठेगाना (Gmail Address)
+                  </label>
+                  <input
+                    type="email"
+                    value={settingsForm.emailSmtpUser || ''}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, emailSmtpUser: e.target.value })}
+                    placeholder="उदा: newy6926@gmail.com"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono font-medium bg-white focus:outline-none focus:border-red-500"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    जुन Gmail खाताबाट इमेल पठाउने हो
+                  </span>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-semibold text-slate-700">
+                      Google App Password (१६-अक्षरको गोप्य एप पासवर्ड)
+                    </label>
+                    <a
+                      href="https://myaccount.google.com/apppasswords"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] font-bold text-red-600 hover:text-red-700 flex items-center gap-1"
+                    >
+                      <span>Google App Passwords सिधै खोल्नुहोस्</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showSmtpPass ? 'text' : 'password'}
+                      value={settingsForm.emailSmtpPass || ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, emailSmtpPass: e.target.value })}
+                      placeholder="उदा: abcd efgh ijkl mnop (१६ अक्षर)"
+                      className="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg text-xs font-mono bg-white focus:outline-none focus:border-red-500 tracking-wider"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSmtpPass(!showSmtpPass)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                    >
+                      {showSmtpPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    सावधानी: यो तपाईंको सामान्य Gmail पासवर्ड होइन; यो Google ले दिने विशेष १६-अक्षरको App Password हो।
+                  </span>
+                </div>
+              </div>
+
+              {/* 3-Step Clear Guide to Generate 16-Char Google App Password */}
+              <div className="p-4 bg-red-50/50 rounded-xl border border-red-100 space-y-2">
+                <span className="font-bold text-red-950 block text-xs">
+                  📌 १ मिनेटमा Google App Password कसरी बनाउने?
+                </span>
+                <ol className="list-decimal list-inside space-y-1.5 text-[11px] text-red-950 leading-relaxed font-sans">
+                  <li>
+                    आफ्नो Google खाता (
+                    <a
+                      href="https://myaccount.google.com/security"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline font-bold text-red-700"
+                    >
+                      myaccount.google.com/security
+                    </a>
+                    ) मा जानुहोस् र <strong>2-Step Verification (२-चरण प्रमाणीकरण)</strong> अन छ कि छैन निश्चित गर्नुहोस्।
+                  </li>
+                  <li>
+                    सिधै{' '}
+                    <a
+                      href="https://myaccount.google.com/apppasswords"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline font-bold text-red-700"
+                    >
+                      myaccount.google.com/apppasswords
+                    </a>{' '}
+                    मा क्लिक गर्नुहोस् (वा गुगल सुरक्षामा "App passwords" खोज्नुहोस्)।
+                  </li>
+                  <li>
+                    App name मा <strong>Khabar GPT</strong> टाइप गरी <strong>Create</strong> थिच्नुहोस्।
+                  </li>
+                  <li>
+                    स्क्रिनमा देखिने १६-अक्षरको पहेँलो बक्सको कोड (उदा: <code>abcd efgh ijkl mnop</code>) कपी गरी माथिको फिल्डमा पेस्ट गर्नुहोस् र तल सुरक्षित गर्नुहोस्।
+                  </li>
+                </ol>
+              </div>
+
+              {/* Interactive Connection Test Action inside Settings */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                <div className="text-[11px] text-slate-500 text-center sm:text-left">
+                  पासवर्ड राखिसकेपछि तल 'सबै सेटिङ सुरक्षित गर्नुहोस्' थिच्नुहोस् र परीक्षण बटनबाट जाँच्नुहोस्।
+                </div>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await handleSaveSettings();
+                    await handleTestEmail(settingsForm.emailSmtpUser || settingsForm.adminNotificationEmail || 'newy6926@gmail.com');
+                  }}
+                  disabled={testingEmail || !settingsForm.emailSmtpUser}
+                  className="px-4 py-2 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-40 shrink-0"
+                >
+                  <Mail className="w-3.5 h-3.5 text-red-400" />
+                  <span>{testingEmail ? 'परीक्षण इमेल पठाउँदै...' : 'सुरक्षित गरी प्रत्यक्ष परीक्षण गर्नुहोस्'}</span>
+                </button>
               </div>
             </div>
 

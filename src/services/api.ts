@@ -559,10 +559,17 @@ export const api = {
     replySubject?: string;
     replyMessage: string;
     sendViaEmail?: boolean;
-  }): Promise<{ success: boolean; emailDispatched: boolean; emailNotice?: string; message: string; updatedMessage: ContactMessage }> {
+  }): Promise<{ success: boolean; emailDispatched: boolean; emailProvider?: string; emailNotice?: string; message: string; updatedMessage: ContactMessage }> {
     return this.fetchWithAuth(`/api/contact/messages/${id}/reply`, {
       method: 'POST',
       body: JSON.stringify(data)
+    });
+  },
+
+  async testEmailConnection(targetEmail?: string): Promise<{ success: boolean; message: string; provider?: string }> {
+    return this.fetchWithAuth('/api/admin/email/test', {
+      method: 'POST',
+      body: JSON.stringify({ targetEmail })
     });
   },
 

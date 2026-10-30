@@ -88,6 +88,7 @@ async function startServer() {
   app.get('/android-chrome-512x512.png', serveFaviconAsset(path.resolve(publicDir, 'android-chrome-512x512.png'), 'image/png'));
   app.get('/apple-touch-icon.png', serveFaviconAsset(path.resolve(publicDir, 'apple-touch-icon.png'), 'image/png'));
   app.get('/logo.png', serveFaviconAsset(path.resolve(publicDir, 'logo.png'), 'image/png'));
+  app.get('/og-image.png', serveFaviconAsset(path.resolve(publicDir, 'og-image.png'), 'image/png'));
   app.get('/khabar-logo.png', serveFaviconAsset(path.resolve(publicDir, 'khabar-logo.png'), 'image/png'));
   app.get('/logo.svg', serveFaviconAsset(path.resolve(publicDir, 'logo.svg'), 'image/svg+xml'));
 
@@ -120,6 +121,7 @@ async function startServer() {
 Allow: /
 Allow: /favicon*
 Allow: /logo*
+Allow: /og-image*
 Allow: /android-chrome*
 Allow: /apple-touch-icon*
 Allow: /uploads/

@@ -116,6 +116,17 @@ export const HomePage: React.FC<HomePageProps> = ({
         if (ads.length > 0) setInFeedAd(ads[0]);
       })
       .catch(() => {});
+
+    // Support Google SearchAction ?q= query parameter
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const q = urlParams.get('q') || urlParams.get('search');
+      if (q) {
+        setSearchQuery(q);
+      }
+    } catch {
+      // ignore
+    }
   }, []);
 
   // Voice recognition toggle

@@ -37,7 +37,7 @@ export function updateDocumentSEO(
   const ogDescription = activeItem?.summary || settings.ogDescription || description;
 
   // Determine OG Image
-  let ogImage = settings.ogImageUrl || settings.customLogoUrl || '/logo.svg';
+  let ogImage = settings.ogImageUrl || '/og-image.png';
   if (activeItem?.featuredImage) {
     ogImage = activeItem.featuredImage;
   }
@@ -70,7 +70,7 @@ export function updateDocumentSEO(
   setMeta('name', 'description', description);
   setMeta('name', 'keywords', keywords);
   setMeta('name', 'robots', robotsContent);
-  setMeta('name', 'author', settings.authorName || 'Khabar GPT');
+  setMeta('name', 'author', settings.authorName || 'Khabar GPT Editorial Desk');
 
   // Google Site Verification
   if (settings.googleSiteVerification && settings.googleSiteVerification.trim()) {
@@ -82,9 +82,14 @@ export function updateDocumentSEO(
   setMeta('property', 'og:description', ogDescription);
   setMeta('property', 'og:type', activeItem ? 'article' : (settings.ogType || 'website'));
   setMeta('property', 'og:url', canonicalUrl);
-  setMeta('property', 'og:site_name', settings.facebookPageName || settings.siteTitle || 'Khabar GPT');
+  setMeta('property', 'og:site_name', 'Khabar GPT');
   if (ogImage) {
     setMeta('property', 'og:image', ogImage);
+    setMeta('property', 'og:image:secure_url', ogImage);
+    if (!activeItem?.featuredImage) {
+      setMeta('property', 'og:image:width', '1200');
+      setMeta('property', 'og:image:height', '630');
+    }
   }
 
   // Twitter / X Card
@@ -108,9 +113,6 @@ export function updateDocumentSEO(
   const socialLinks: string[] = [];
   if (settings.facebookUrl) socialLinks.push(settings.facebookUrl);
   if (settings.youtubeUrl) socialLinks.push(settings.youtubeUrl);
-  if (settings.tiktokUrl) socialLinks.push(settings.tiktokUrl);
-  if (settings.instagramUrl) socialLinks.push(settings.instagramUrl);
-  if (settings.twitterUrl) socialLinks.push(settings.twitterUrl);
   if (settings.whatsappUrl) socialLinks.push(settings.whatsappUrl);
 
   // Schema.org JSON-LD Structured Data
@@ -123,15 +125,10 @@ export function updateDocumentSEO(
   }
 
   const brandAliases = [
+    'खबर GPT',
     'KhabarGPT',
     'Khabar Gpt',
-    'Khabar gpt',
-    'khabar gpt',
-    'खबर GPT',
-    'खबरGPT',
-    'Khabar GPT Nepal',
-    'KhabarGPT Nepal',
-    'Khabar GPT Official'
+    'खबरGPT'
   ];
 
   const structuredData = {
@@ -140,7 +137,7 @@ export function updateDocumentSEO(
       {
         '@type': 'WebSite',
         '@id': `${origin}/#website`,
-        url: origin,
+        url: `${origin}/`,
         name: 'Khabar GPT',
         alternateName: brandAliases,
         publisher: {
@@ -149,37 +146,34 @@ export function updateDocumentSEO(
         inLanguage: 'ne-NP',
         potentialAction: {
           '@type': 'SearchAction',
-          target: `${origin}/news?q={search_term_string}`,
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${origin}/?q={search_term_string}`
+          },
           'query-input': 'required name=search_term_string'
         }
       },
       {
-        '@type': 'NewsMediaOrganization',
+        '@type': 'Organization',
         '@id': `${origin}/#organization`,
         name: 'Khabar GPT',
         alternateName: brandAliases,
-        url: origin,
+        url: `${origin}/`,
         logo: {
           '@type': 'ImageObject',
           '@id': `${origin}/#logo`,
           url: `${origin}/logo.png`,
           contentUrl: `${origin}/logo.png`,
-          caption: 'Khabar GPT Logo',
+          caption: 'Khabar GPT Official Logo',
           inLanguage: 'ne-NP',
           width: 512,
           height: 512
         },
-        image: `${origin}/logo.png`,
+        image: `${origin}/og-image.png`,
         description: description,
         sameAs: socialLinks,
         publishingPrinciples: `${origin}/editorial-standards`,
-        correctionsPolicy: `${origin}/corrections`,
-        contactPoint: {
-          '@type': 'ContactPoint',
-          contactType: 'editorial inquiries',
-          email: settings.contactEmail || undefined,
-          telephone: settings.contactPhone || undefined
-        }
+        correctionsPolicy: `${origin}/corrections`
       }
     ]
   };

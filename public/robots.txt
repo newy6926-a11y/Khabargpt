@@ -2,6 +2,7 @@ User-agent: Googlebot-Image
 Allow: /
 Allow: /favicon*
 Allow: /logo*
+Allow: /og-image*
 Allow: /android-chrome*
 Allow: /apple-touch-icon*
 Allow: /uploads/

@@ -2,10 +2,135 @@ import { Router, Request, Response, NextFunction } from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import nodemailer from 'nodemailer';
 import { db, AdminUser, UserRole } from './db.js';
 import { GoogleGenAI } from '@google/genai';
 
 export const apiRouter = Router();
+
+export interface SendEmailOptions {
+  to: string | string[];
+  subject: string;
+  html: string;
+  text: string;
+  replyTo?: string;
+}
+
+export async function sendSystemEmail(options: SendEmailOptions): Promise<{
+  success: boolean;
+  provider: 'gmail_smtp' | 'resend_api' | 'none';
+  messageId?: string;
+  error?: string;
+}> {
+  const settings = db.getSettings();
+  const senderName = settings.siteTitle || 'खबर GPT Editorial Desk';
+
+  // 1. Check Gmail / Custom SMTP (via Nodemailer)
+  const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER || settings.emailSmtpUser;
+  const smtpPass = process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS || settings.emailSmtpPass;
+  const isGmail = smtpUser?.toLowerCase().includes('@gmail.com');
+  const smtpHost = settings.emailSmtpHost || (isGmail ? 'smtp.gmail.com' : undefined);
+  const smtpPort = settings.emailSmtpPort || (smtpHost === 'smtp.gmail.com' ? 465 : 587);
+
+  if (smtpUser && smtpPass && smtpHost) {
+    try {
+      const isPort465 = Number(smtpPort) === 465;
+      const cleanPass = smtpPass.trim().replace(/\s+/g, '');
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: Number(smtpPort),
+        secure: isPort465,
+        auth: {
+          user: smtpUser.trim(),
+          pass: cleanPass
+        },
+        tls: {
+          rejectUnauthorized: false
+        }
+      });
+
+      const fromAddress = `"${senderName}" <${smtpUser.trim()}>`;
+      const info = await transporter.sendMail({
+        from: fromAddress,
+        to: options.to,
+        subject: options.subject,
+        text: options.text,
+        html: options.html,
+        replyTo: options.replyTo || smtpUser.trim()
+      });
+
+      return {
+        success: true,
+        provider: 'gmail_smtp',
+        messageId: info.messageId
+      };
+    } catch (smtpErr: any) {
+      console.warn('Gmail SMTP Email dispatch error:', smtpErr);
+      const resendApiKey = process.env.RESEND_API_KEY || settings.resendApiKey;
+      if (!resendApiKey) {
+        return {
+          success: false,
+          provider: 'gmail_smtp',
+          error: smtpErr.message || 'Gmail SMTP Error'
+        };
+      }
+    }
+  }
+
+  // 2. Check Resend Email API
+  const resendApiKey = process.env.RESEND_API_KEY || settings.resendApiKey;
+  if (resendApiKey) {
+    try {
+      const fromEmail = settings.resendSenderEmail || 'onboarding@resend.dev';
+      const formattedFrom = `${senderName} <${fromEmail}>`;
+
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey.trim()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: formattedFrom,
+          to: Array.isArray(options.to) ? options.to : [options.to],
+          subject: options.subject,
+          html: options.html,
+          text: options.text,
+          reply_to: options.replyTo
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json().catch(() => ({}));
+        return {
+          success: true,
+          provider: 'resend_api',
+          messageId: data.id
+        };
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        return {
+          success: false,
+          provider: 'resend_api',
+          error: errorData.message || 'Resend API dispatch error'
+        };
+      }
+    } catch (resendErr: any) {
+      return {
+        success: false,
+        provider: 'resend_api',
+        error: resendErr.message || 'Resend network error'
+      };
+    }
+  }
+
+  // 3. No active provider configured
+  return {
+    success: false,
+    provider: 'none',
+    error: 'कुनै पनि स्वचालित इमेल सेवा (Gmail SMTP वा Resend) सक्रिय छैन।'
+  };
+}
 
 export interface AuthenticatedRequest extends Request {
   user?: AdminUser;
@@ -1322,26 +1447,25 @@ apiRouter.post('/contact', async (req: Request, res: Response) => {
   });
 
   const settings = db.getSettings();
-  const adminEmail = settings.adminNotificationEmail || process.env.ADMIN_NOTIFICATION_EMAIL || settings.contactEmail || '';
-  const resendApiKey = process.env.RESEND_API_KEY || settings.resendApiKey;
-  const fromEmail = settings.resendSenderEmail || 'onboarding@resend.dev';
+  const adminEmail = settings.adminNotificationEmail || process.env.ADMIN_NOTIFICATION_EMAIL || settings.contactEmail || 'newy6926@gmail.com';
   const senderName = settings.siteTitle || 'खबर GPT Editorial Desk';
   const ticketId = `KG-${saved.id.slice(-6).toUpperCase()}`;
 
   let adminNotified = false;
   let senderNotified = false;
+  let dispatchProvider = 'none';
 
-  // 1. Dispatch Instant Forwarding to Admin Email (No matter if Render redeploys, owner already has it in Gmail!)
-  if (resendApiKey && adminEmail) {
+  const typeLabels: Record<string, string> = {
+    general: 'सामान्य सोधपुछ (General Inquiry)',
+    correction: 'तथ्य सच्याउने अनुरोध (Correction Request)',
+    copyright: 'प्रतिलिपि अधिकार (Copyright Claim)',
+    privacy: 'गोपनीयता सम्बन्धी गुनासो (Privacy Concern)',
+    sponsorship: 'सहकार्य तथा प्रायोजन (Business & Sponsorship)'
+  };
+
+  // 1. Dispatch Instant Forwarding to Admin Email
+  if (adminEmail) {
     try {
-      const typeLabels: Record<string, string> = {
-        general: 'सामान्य सोधपुछ (General Inquiry)',
-        correction: 'तथ्य सच्याउने अनुरोध (Correction Request)',
-        copyright: 'प्रतिलिपि अधिकार (Copyright Claim)',
-        privacy: 'गोपनीयता सम्बन्धी गुनासो (Privacy Concern)',
-        sponsorship: 'सहकार्य तथा प्रायोजन (Business & Sponsorship)'
-      };
-
       const adminEmailHtml = `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
           <div style="border-bottom: 2px solid #dc2626; padding-bottom: 12px; margin-bottom: 16px;">
@@ -1359,7 +1483,7 @@ apiRouter.post('/contact', async (req: Request, res: Response) => {
 
           <div style="margin-bottom: 20px;">
             <h3 style="font-size: 13px; color: #475569; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">सन्देश व्यहोरा:</h3>
-            <div style="white-space: pre-wrap; font-size: 14px; background: #ffffff; border-left: 4px solid #dc2626; padding: 12px 14px; color: #334155; line-height: 1.7; border-radius: 0 8px 8px 0; border-top: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9;">
+            <div style="white-space: pre-wrap; font-size: 14px; background: #ffffff; border-left: 4px solid #dc2626; padding: 12px 14px; color: #334155; line-height: 1.7; border-radius: 0 8px 8px 0; border: 1px solid #e2e8f0;">
               ${cleanMessage}
             </div>
           </div>
@@ -1371,27 +1495,31 @@ apiRouter.post('/contact', async (req: Request, res: Response) => {
           </div>
 
           <div style="font-size: 11px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 12px;">
-            यो सूचना खबर GPT वेबसाइट मार्फत तुरुन्त प्रेषित गरिएको हो। Render रिस्टार्ट भए पनि यो इमेल सुरक्षित रहन्छ।
+            यो सूचना खबर GPT वेबसाइट मार्फत प्रेषित गरिएको हो।
           </div>
         </div>
       `;
 
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey.trim()}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: `${senderName} <${fromEmail}>`,
-          to: [adminEmail],
-          subject: `🚨 [नयाँ ${cleanType === 'sponsorship' ? 'सहकार्य प्रस्ताव' : cleanType === 'correction' ? 'सच्याइ अनुरोध' : 'सन्देश'}] ${cleanSubject} (${cleanName})`,
-          html: adminEmailHtml,
-          text: `नाम: ${cleanName}\nइमेल: ${cleanEmail}\nफोन: ${cleanPhone || 'N/A'}\nविषय: ${cleanSubject}\nसन्देश:\n${cleanMessage}`
-        })
-      }).then(r => { if (r.ok) adminNotified = true; }).catch(e => console.warn('Admin forward failed:', e));
+      const adminAlertRes = await sendSystemEmail({
+        to: adminEmail,
+        subject: `🚨 [नयाँ ${cleanType === 'sponsorship' ? 'सहकार्य प्रस्ताव' : cleanType === 'correction' ? 'सच्याइ अनुरोध' : 'सन्देश'}] ${cleanSubject} (${cleanName})`,
+        html: adminEmailHtml,
+        text: `नाम: ${cleanName}\nइमेल: ${cleanEmail}\nफोन: ${cleanPhone || 'N/A'}\nविषय: ${cleanSubject}\nसन्देश:\n${cleanMessage}`,
+        replyTo: cleanEmail
+      });
 
-      // 2. Dispatch Auto-Acknowledgement Receipt to Sender
+      if (adminAlertRes.success) {
+        adminNotified = true;
+        dispatchProvider = adminAlertRes.provider;
+      }
+    } catch (dispatchErr) {
+      console.warn('Admin forward error:', dispatchErr);
+    }
+  }
+
+  // 2. Dispatch Auto-Acknowledgement Receipt to Sender (if enabled)
+  if (settings.autoReplyEnabled !== false && cleanEmail) {
+    try {
       const userReceiptHtml = `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
           <div style="border-bottom: 2px solid #dc2626; padding-bottom: 12px; margin-bottom: 16px;">
@@ -1408,7 +1536,7 @@ apiRouter.post('/contact', async (req: Request, res: Response) => {
             <p style="margin: 0;"><strong>प्रकार:</strong> ${typeLabels[cleanType] || cleanType}</p>
           </div>
           <p style="font-size: 13px; color: #475569;">
-            हाम्रो सम्पादकीय टोलीले तपाईंको व्यहोरा अध्ययन गरिरहेको छ र २४ देखि ४८ घण्टाभित्र सम्पर्क गर्नेछ। तत्काल कुरा गर्न चाहनुहुन्छ भने हाम्रो आधिकारिक फेसबुक पेजमा पनि सिधै सन्देश पठाउन सक्नुहुन्छ:
+            हाम्रो सम्पादकीय टोलीले तपाईंको व्यहोरा अध्ययन गरिरहेको छ र यथाशीघ्र सम्पर्क गर्नेछ। तत्काल कुरा गर्न चाहनुहुन्छ भने हाम्रो आधिकारिक फेसबुक पेजमा पनि सिधै सन्देश पठाउन सक्नुहुन्छ:
           </p>
           <div style="text-align: center; margin: 20px 0;">
             <a href="${settings.facebookUrl || 'https://facebook.com/khabargpt'}" style="background: #1877f2; color: #ffffff; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; display: inline-block;">
@@ -1421,23 +1549,18 @@ apiRouter.post('/contact', async (req: Request, res: Response) => {
         </div>
       `;
 
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey.trim()}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: `${senderName} <${fromEmail}>`,
-          to: [cleanEmail],
-          subject: `सन्देश प्राप्त भयो [Ticket #${ticketId}]: ${cleanSubject} - खबर GPT`,
-          html: userReceiptHtml,
-          text: `नमस्ते ${cleanName},\nखबर GPT मा तपाईंको सन्देश प्राप्त भएको छ। Ticket #${ticketId}। हाम्रो टोलीले चाँडै सम्पर्क गर्नेछ।`
-        })
-      }).then(r => { if (r.ok) senderNotified = true; }).catch(e => console.warn('Sender confirmation failed:', e));
+      const userAckRes = await sendSystemEmail({
+        to: cleanEmail,
+        subject: `सन्देश प्राप्त भयो [Ticket #${ticketId}]: ${cleanSubject} - खबर GPT`,
+        html: userReceiptHtml,
+        text: `नमस्ते ${cleanName},\nखबर GPT मा तपाईंको सन्देश प्राप्त भएको छ। Ticket #${ticketId}। हाम्रो टोलीले चाँडै सम्पर्क गर्नेछ।`
+      });
 
-    } catch (dispatchErr) {
-      console.warn('Email notification dispatch error:', dispatchErr);
+      if (userAckRes.success) {
+        senderNotified = true;
+      }
+    } catch (ackErr) {
+      console.warn('Sender ack email error:', ackErr);
     }
   }
 
@@ -1461,7 +1584,8 @@ apiRouter.post('/contact', async (req: Request, res: Response) => {
     id: saved.id,
     ticketId,
     adminNotified,
-    senderNotified
+    senderNotified,
+    dispatchProvider
   });
 });
 
@@ -1489,16 +1613,13 @@ apiRouter.post('/contact/messages/:id/reply', requireAuth, requireRole(['owner',
   }
 
   const settings = db.getSettings();
-  const resendApiKey = process.env.RESEND_API_KEY || settings.resendApiKey;
   let emailDispatched = false;
+  let emailProvider = 'none';
   let emailErrorNotice = '';
 
-  if (sendViaEmail && resendApiKey && targetMsg.email) {
+  if (sendViaEmail && targetMsg.email) {
     try {
-      const fromEmail = settings.resendSenderEmail || 'onboarding@resend.dev';
-      const senderName = settings.siteTitle || 'खबर GPT Editorial Desk';
       const subject = replySubject || `Re: ${targetMsg.subject} - खबर GPT`;
-
       const htmlBody = `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
           <div style="border-bottom: 2px solid #dc2626; padding-bottom: 12px; margin-bottom: 16px;">
@@ -1517,26 +1638,18 @@ apiRouter.post('/contact/messages/:id/reply', requireAuth, requireRole(['owner',
         </div>
       `;
 
-      const resp = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey.trim()}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: `${senderName} <${fromEmail}>`,
-          to: [targetMsg.email],
-          subject,
-          html: htmlBody,
-          text: replyMessage
-        })
+      const dispatchRes = await sendSystemEmail({
+        to: targetMsg.email,
+        subject,
+        html: htmlBody,
+        text: replyMessage
       });
 
-      if (resp.ok) {
+      if (dispatchRes.success) {
         emailDispatched = true;
+        emailProvider = dispatchRes.provider;
       } else {
-        const errJson = await resp.json().catch(() => ({}));
-        emailErrorNotice = errJson.message || 'इमेल डेलिभरीमा समस्या आयो';
+        emailErrorNotice = dispatchRes.error || 'इमेल डेलिभरीमा समस्या आयो';
       }
     } catch (mailErr: unknown) {
       console.warn('Reply email dispatch failed:', mailErr);
@@ -1548,26 +1661,70 @@ apiRouter.post('/contact/messages/:id/reply', requireAuth, requireRole(['owner',
     id,
     replySubject || `Re: ${targetMsg.subject}`,
     String(replyMessage).trim(),
-    req.user?.fullName || req.user?.username || 'Admin'
+    req.user?.fullName || req.user?.username || 'Admin',
+    emailDispatched,
+    emailProvider,
+    emailErrorNotice
   );
 
   db.addAuditLog({
     action: 'team_update',
     targetType: 'settings',
     targetTitle: `जवाफ पठाइयो: ${targetMsg.name}`,
-    details: `Replied to inquiry "${targetMsg.subject}" (${targetMsg.email})${emailDispatched ? ' via Resend email' : ''}`,
+    details: `Replied to inquiry "${targetMsg.subject}" (${targetMsg.email})${emailDispatched ? ` via ${emailProvider}` : ' (saved locally)'}`,
     userId: req.user?.id || 'admin'
   });
 
   return res.json({
     success: true,
     emailDispatched,
+    emailProvider,
     emailNotice: emailErrorNotice,
     message: emailDispatched
-      ? 'जवाफ सफलतापूर्वक इमेल मार्फत पठाइयो र अभिलेख सुरक्षित भयो।'
-      : 'जवाफ सफलतापूर्वक सुरक्षित गरियो।',
+      ? `जवाफ सफलतापूर्वक ${emailProvider === 'gmail_smtp' ? 'Gmail SMTP' : 'Resend API'} मार्फत ${targetMsg.email} मा पठाइयो!`
+      : (sendViaEmail
+          ? 'जवाफ स्थानीय डाटाबेसमा सुरक्षित गरियो। तर वास्तविक इमेल डेलिभर हुन सकेन (Gmail SMTP वा Resend कन्फिगर छैन)। १-क्लिकमा आफ्नै Gmail बाट पठाउन सक्नुहुन्छ।'
+          : 'जवाफ सफलतापूर्वक सुरक्षित गरियो।'),
     updatedMessage: updatedMsg
   });
+});
+
+apiRouter.post('/admin/email/test', requireAuth, requireRole(['owner', 'editor_in_chief']), async (req: AuthenticatedRequest, res: Response) => {
+  const settings = db.getSettings();
+  const { targetEmail } = req.body;
+  const recipient = targetEmail || settings.adminNotificationEmail || process.env.ADMIN_NOTIFICATION_EMAIL || settings.contactEmail || 'newy6926@gmail.com';
+
+  const testResult = await sendSystemEmail({
+    to: recipient,
+    subject: `[Khabar GPT] सर्भर इमेल परीक्षण (Email Diagnostic Test) - ${new Date().toLocaleTimeString('ne-NP')}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; max-width: 550px; margin: 0 auto; background: #ffffff;">
+        <h2 style="color: #dc2626; margin-top: 0;">खबर GPT (Khabar GPT)</h2>
+        <h3 style="color: #059669; margin-bottom: 8px;">✅ सर्भर इमेल प्रणाली सफलतापूर्वक जोडिएको छ!</h3>
+        <p style="color: #334155; font-size: 13px;">यो खबर GPT एड्मिन पोर्टलबाट पठाइएको परीक्षण (Diagnostic) इमेल हो। अब वेबसाइटबाट आउने सबै सोधपुछ तथा एड्मिन जवाफहरू सिधै Gmail मा डेलिभर हुनेछन्।</p>
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; font-size: 13px; color: #334155; margin-top: 14px;">
+          <p style="margin: 0 0 4px 0;"><strong>प्रापक:</strong> ${recipient}</p>
+          <p style="margin: 0 0 4px 0;"><strong>समय:</strong> ${new Date().toLocaleString('ne-NP')}</p>
+          <p style="margin: 0;"><strong>प्रणाली:</strong> खबर GPT प्रत्यक्ष डिस्प्याचर (Gmail SMTP / Resend API)</p>
+        </div>
+      </div>
+    `,
+    text: `खबर GPT इमेल परीक्षण सफल! प्रापक: ${recipient}`
+  });
+
+  if (testResult.success) {
+    return res.json({
+      success: true,
+      provider: testResult.provider,
+      message: `परीक्षण इमेल ${recipient} मा सफलतापूर्वक पठाइयो (${testResult.provider === 'gmail_smtp' ? 'Gmail SMTP' : 'Resend'})!`
+    });
+  } else {
+    return res.status(400).json({
+      success: false,
+      provider: testResult.provider,
+      error: testResult.error || 'इमेल पठाउन सकिएन'
+    });
+  }
 });
 
 apiRouter.delete('/contact/messages/:id', requireAuth, (req: AuthenticatedRequest, res: Response) => {
@@ -1608,32 +1765,124 @@ apiRouter.get('/system-status', requireAuth, (_req: AuthenticatedRequest, res: R
   const mem = process.memoryUsage();
   const uptimeSeconds = process.uptime();
   const snapshot = db.getFullSnapshot();
+  const settings = db.getSettings();
+
+  const isGmailConfigured = Boolean(
+    (process.env.GMAIL_USER || settings.emailSmtpUser) &&
+    (process.env.GMAIL_APP_PASSWORD || settings.emailSmtpPass)
+  );
+  const isResendConfigured = Boolean(process.env.RESEND_API_KEY || settings.resendApiKey);
+
+  // File size of data/khabar_database.json
+  const dbPath = path.resolve(process.cwd(), 'data', 'khabar_database.json');
+  let dbSizeBytes = 0;
+  let dbModifiedAt = '';
+  if (fs.existsSync(dbPath)) {
+    try {
+      const stats = fs.statSync(dbPath);
+      dbSizeBytes = stats.size;
+      dbModifiedAt = stats.mtime.toISOString();
+    } catch {}
+  }
+
+  // Uploads directory size
+  const uploadsDir = path.resolve(process.cwd(), 'uploads');
+  let uploadsCount = 0;
+  let uploadsSizeBytes = 0;
+  if (fs.existsSync(uploadsDir)) {
+    try {
+      const files = fs.readdirSync(uploadsDir);
+      uploadsCount = files.length;
+      for (const f of files) {
+        try {
+          uploadsSizeBytes += fs.statSync(path.resolve(uploadsDir, f)).size;
+        } catch {}
+      }
+    } catch {}
+  }
+
+  const days = Math.floor(uptimeSeconds / 86400);
+  const hours = Math.floor((uptimeSeconds % 86400) / 3600);
+  const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+  const seconds = Math.floor(uptimeSeconds % 60);
 
   return res.json({
     status: 'healthy',
-    backend: 'Node.js Express + TSX',
-    port: 3000,
+    server: {
+      backend: 'Node.js Express + TSX Engine',
+      runtime: `Node.js ${process.version}`,
+      platform: `${process.platform} (${process.arch})`,
+      environment: process.env.NODE_ENV || 'production',
+      pid: process.pid,
+      port: process.env.PORT || 3000,
+      startedAt: new Date(Date.now() - uptimeSeconds * 1000).toISOString(),
+      uptimeSeconds: Math.floor(uptimeSeconds),
+      uptimeFormatted: `${days > 0 ? `${days}d ` : ''}${hours}h ${minutes}m ${seconds}s`,
+      memory: {
+        rssMb: Math.round(mem.rss / 1024 / 1024),
+        heapUsedMb: Math.round(mem.heapUsed / 1024 / 1024),
+        heapTotalMb: Math.round(mem.heapTotal / 1024 / 1024),
+        externalMb: Math.round(mem.external / 1024 / 1024)
+      }
+    },
     database: {
       type: 'Persistent Transactional Document Store',
       path: 'data/khabar_database.json',
-      contentCount: snapshot.content.filter((c) => c.status !== 'trash').length,
+      fileSizeBytes: dbSizeBytes,
+      fileSizeKb: (dbSizeBytes / 1024).toFixed(1),
+      lastModified: dbModifiedAt,
+      articlesCount: snapshot.content.filter((c) => c.status !== 'trash').length,
       trashCount: snapshot.content.filter((c) => c.status === 'trash').length,
       liveEventsCount: (snapshot.liveEvents || []).length,
       adsCount: (snapshot.ads || []).length,
       categoriesCount: snapshot.categories.length,
       correctionsCount: snapshot.corrections.length,
       messagesCount: snapshot.messages.length,
+      unreadMessagesCount: snapshot.messages.filter((m) => !m.read).length,
       feedbackCount: (snapshot.feedbacks || []).length,
+      subscribersCount: (snapshot.subscribers || []).length,
       mediaCount: snapshot.media.length,
+      uploadsDiskCount: uploadsCount,
+      uploadsDiskMb: (uploadsSizeBytes / (1024 * 1024)).toFixed(2),
       auditLogsCount: snapshot.auditLogs ? snapshot.auditLogs.length : 0,
       activeSessions: Object.keys(snapshot.sessions || {}).length,
       teamCount: (snapshot.users || []).length
+    },
+    emailService: {
+      active: isGmailConfigured || isResendConfigured,
+      primaryProvider: isGmailConfigured ? 'Gmail SMTP' : isResendConfigured ? 'Resend API' : 'None (Manual Gmail 1-Click Available)',
+      gmailSmtp: {
+        configured: isGmailConfigured,
+        user: (process.env.GMAIL_USER || settings.emailSmtpUser) ? (process.env.GMAIL_USER || settings.emailSmtpUser) : 'Not Configured',
+        host: settings.emailSmtpHost || 'smtp.gmail.com',
+        port: settings.emailSmtpPort || 465
+      },
+      resendApi: {
+        configured: isResendConfigured,
+        senderEmail: settings.resendSenderEmail || 'onboarding@resend.dev'
+      },
+      autoReplyToUser: settings.autoReplyEnabled !== false,
+      adminNotificationEmail: settings.adminNotificationEmail || process.env.ADMIN_NOTIFICATION_EMAIL || settings.contactEmail || 'newy6926@gmail.com'
+    },
+    endpoints: {
+      liveUrl: settings.canonicalUrl || 'https://khabargpt.onrender.com',
+      health: '/api/health',
+      ping: '/api/ping',
+      sitemap: '/sitemap.xml',
+      robots: '/robots.txt',
+      googleVerification: '/google0087e514b59ec8b5.html'
+    },
+    security: {
+      httpHeaders: 'Strict Headers Active (nosniff, SAMEORIGIN, XSS-Protection)',
+      xPoweredByDisabled: true,
+      rateLimiters: 'Active on Login, Contact, Feedback & Newsletter',
+      secretAdminSlug: settings.adminSecretSlug || 'kg-admin-secure'
     },
     performance: {
       uptimeMinutes: Math.floor(uptimeSeconds / 60),
       memoryRssMb: Math.round(mem.rss / 1024 / 1024),
       memoryHeapUsedMb: Math.round(mem.heapUsed / 1024 / 1024)
     },
-    freeBudgetNotice: 'Initial deployment cost: NPR 0. Zero paid services active.'
+    freeBudgetNotice: 'Zero paid infrastructure cost. Render 24/7 keep-alive unthrottled.'
   });
 });
